@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inside My Fridge</title>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec13",
+                        "primary-dark": "#0eb50e", // Calculated darker shade for better text contrast if needed or hover
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102210",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-100 font-display min-h-screen flex flex-col items-center justify-center p-0 sm:p-4">
+<!-- Mobile Container -->
+<div class="w-full max-w-md bg-white dark:bg-[#152e15] h-screen sm:h-[850px] sm:rounded-[2rem] shadow-2xl overflow-hidden relative flex flex-col border border-primary/10 dark:border-primary/5">
+<!-- Header Section -->
+<header class="pt-12 pb-4 px-6 bg-white dark:bg-[#152e15] z-10 sticky top-0 border-b border-gray-100 dark:border-primary/10">
+<div class="flex justify-between items-center mb-4">
+<div>
+<h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Inside My Fridge</h1>
+<p class="text-sm text-gray-500 dark:text-gray-400">Inventory Management</p>
+</div>
+<button class="relative">
+<img alt="User Profile" class="w-10 h-10 rounded-full object-cover border-2 border-primary p-0.5" data-alt="User profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgJKV1OJWvd6oHgYFHKYfttJl-z4BgX68pkRvaYLn8zwChXnAuOD1ga7mhV1zPGTJeiuL3y6L-jECsudUmaRJ0lZf3X7se_2bEwQGQVcB8FgkQwzupO-6AP_PgBfkCBCelFv4ovMLQc2orAMZFfpSKi7jBI_caxr8xlqzBSejUwWUQgbqkNB-sSx3oE4m0mTwpM6_mLZBYEs_UGsrCTWwaz34osMU1AABoEqvTOINYy2UE1g98c68wwAaUAwKZGR-n7_k_44dXZb-H"/>
+<span class="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-white dark:border-[#152e15] rounded-full"></span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons text-gray-400 dark:text-gray-500">search</span>
+</span>
+<input class="w-full pl-10 pr-4 py-3 bg-background-light dark:bg-[#102210] border-none rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none placeholder-gray-400 text-gray-800 dark:text-gray-200" placeholder="Find ingredients..." type="text"/>
+<button class="absolute inset-y-0 right-1 pr-2 flex items-center">
+<div class="bg-primary/20 hover:bg-primary/30 p-1.5 rounded-lg transition-colors">
+<span class="material-icons text-primary dark:text-white text-sm">tune</span>
+</div>
+</button>
+</div>
+</header>
+<!-- Main Content (Scrollable) -->
+<main class="flex-1 overflow-y-auto no-scrollbar pb-24 px-6 pt-4 space-y-6">
+<!-- Stats/Summary Widget -->
+<div class="grid grid-cols-2 gap-3 mb-2">
+<div class="bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl border border-red-100 dark:border-red-900/20">
+<div class="flex items-start justify-between">
+<span class="material-icons text-red-500 bg-white dark:bg-red-900/30 p-1.5 rounded-lg text-lg">warning</span>
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full dark:bg-red-900/50 dark:text-red-300">Urgent</span>
+</div>
+<div class="mt-3">
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white">3</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400">Items expiring soon</p>
+</div>
+</div>
+<div class="bg-primary/10 dark:bg-primary/5 p-4 rounded-2xl border border-primary/20">
+<div class="flex items-start justify-between">
+<span class="material-icons text-primary bg-white dark:bg-primary/20 p-1.5 rounded-lg text-lg">inventory_2</span>
+<span class="text-xs font-bold bg-primary/20 text-green-800 px-2 py-0.5 rounded-full dark:text-primary">Healthy</span>
+</div>
+<div class="mt-3">
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white">24</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400">Total fresh items</p>
+</div>
+</div>
+</div>
+<!-- Priority Section: Expiring Soon -->
+<section>
+<div class="flex justify-between items-end mb-3">
+<h2 class="text-lg font-bold text-gray-800 dark:text-white">Use Immediately</h2>
+<a class="text-xs font-medium text-red-500 hover:text-red-600" href="#">View all</a>
+</div>
+<div class="space-y-3">
+<!-- Expiring Item 1 -->
+<div class="flex items-center p-3 bg-white dark:bg-[#1a381a] rounded-xl shadow-sm border-l-4 border-red-500">
+<div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center text-2xl relative overflow-hidden">
+                            🥬
+                            <div class="absolute inset-0 bg-red-500/10 dark:bg-red-500/20"></div>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex justify-between">
+<h3 class="font-medium text-gray-900 dark:text-white">Fresh Spinach</h3>
+<span class="text-xs font-bold text-red-500">Exp. Today</span>
+</div>
+<div class="mt-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+<div class="bg-red-500 h-1.5 rounded-full" style="width: 95%"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="text-[10px] text-gray-400">Packaged Bag (250g)</span>
+</div>
+</div>
+<button class="ml-3 p-2 text-gray-400 hover:text-red-500 transition-colors">
+<span class="material-icons text-base">delete_outline</span>
+</button>
+</div>
+<!-- Expiring Item 2 -->
+<div class="flex items-center p-3 bg-white dark:bg-[#1a381a] rounded-xl shadow-sm border-l-4 border-orange-400">
+<div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center text-2xl">
+                            🥛
+                        </div>
+<div class="ml-3 flex-1">
+<div class="flex justify-between">
+<h3 class="font-medium text-gray-900 dark:text-white">Whole Milk</h3>
+<span class="text-xs font-bold text-orange-400">Exp. 2 Days</span>
+</div>
+<div class="mt-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+<div class="bg-orange-400 h-1.5 rounded-full" style="width: 80%"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="text-[10px] text-gray-400">Half Gallon</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Category: Dairy -->
+<section>
+<div class="flex justify-between items-end mb-3">
+<h2 class="text-lg font-bold text-gray-800 dark:text-white">Dairy &amp; Eggs</h2>
+<span class="text-xs text-gray-400 font-medium">5 items</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<!-- Dairy Item Card -->
+<div class="bg-white dark:bg-[#1a381a] p-3 rounded-xl shadow-sm border border-gray-100 dark:border-primary/10 flex flex-col items-center text-center relative">
+<span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(19,236,19,0.6)]"></span>
+<div class="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-3xl mb-2">
+                            🧀
+                        </div>
+<h3 class="font-medium text-sm text-gray-900 dark:text-white truncate w-full">Cheddar Block</h3>
+<p class="text-xs text-primary dark:text-primary mb-2">Fresh (7 days)</p>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1">
+<div class="bg-primary h-1 rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<!-- Dairy Item Card -->
+<div class="bg-white dark:bg-[#1a381a] p-3 rounded-xl shadow-sm border border-gray-100 dark:border-primary/10 flex flex-col items-center text-center">
+<div class="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-3xl mb-2">
+                            🥚
+                        </div>
+<h3 class="font-medium text-sm text-gray-900 dark:text-white truncate w-full">Large Eggs</h3>
+<p class="text-xs text-gray-500 mb-2">10 remaining</p>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1">
+<div class="bg-primary h-1 rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Category: Produce -->
+<section>
+<div class="flex justify-between items-end mb-3">
+<h2 class="text-lg font-bold text-gray-800 dark:text-white">Produce</h2>
+<span class="text-xs text-gray-400 font-medium">8 items</span>
+</div>
+<div class="space-y-3">
+<!-- Produce List Item -->
+<div class="flex items-center p-2.5 bg-white dark:bg-[#1a381a] rounded-xl shadow-sm border border-gray-100 dark:border-primary/10">
+<div class="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-center justify-center text-xl">
+                            🥕
+                        </div>
+<div class="ml-3 flex-1">
+<h3 class="font-medium text-sm text-gray-900 dark:text-white">Carrots</h3>
+<p class="text-[10px] text-gray-500">Bag of 6 • Added 3 days ago</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-semibold text-primary dark:text-primary">Good</span>
+<div class="w-12 bg-gray-100 dark:bg-gray-700 rounded-full h-1 mt-1">
+<div class="bg-primary h-1 rounded-full" style="width: 70%"></div>
+</div>
+</div>
+</div>
+<!-- Produce List Item -->
+<div class="flex items-center p-2.5 bg-white dark:bg-[#1a381a] rounded-xl shadow-sm border border-gray-100 dark:border-primary/10">
+<div class="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-center justify-center text-xl">
+                            🥑
+                        </div>
+<div class="ml-3 flex-1">
+<h3 class="font-medium text-sm text-gray-900 dark:text-white">Avocados</h3>
+<p class="text-[10px] text-gray-500">2 pcs • Ripe</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-semibold text-yellow-500">Use Soon</span>
+<div class="w-12 bg-gray-100 dark:bg-gray-700 rounded-full h-1 mt-1">
+<div class="bg-yellow-500 h-1 rounded-full" style="width: 40%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Spacer for FAB -->
+<div class="h-20"></div>
+</main>
+<!-- Floating Action Button -->
+<div class="absolute bottom-24 right-6 z-20">
+<button class="bg-primary hover:bg-green-400 text-white w-14 h-14 rounded-full shadow-lg shadow-green-500/30 flex items-center justify-center transition-transform hover:scale-105 active:scale-95 group">
+<span class="material-icons text-3xl group-hover:rotate-90 transition-transform text-white dark:text-black font-bold">add</span>
+</button>
+</div>
+<!-- Bottom Navigation -->
+<nav class="absolute bottom-0 w-full bg-white dark:bg-[#152e15] border-t border-gray-100 dark:border-primary/10 px-6 py-2 z-10 rounded-b-[2rem]">
+<ul class="flex justify-between items-center">
+<li>
+<a class="flex flex-col items-center p-2 text-primary" href="#">
+<span class="material-icons">kitchen</span>
+<span class="text-[10px] font-medium mt-1">Fridge</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons">restaurant_menu</span>
+<span class="text-[10px] font-medium mt-1">Recipes</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons">receipt_long</span>
+<span class="text-[10px] font-medium mt-1">Shopping</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons">person_outline</span>
+<span class="text-[10px] font-medium mt-1">Profile</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Decorative elements for modern feel -->
+<div class="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-20 left-0 -ml-20 w-40 h-40 bg-blue-400/5 rounded-full blur-2xl pointer-events-none"></div>
+</div>
+</body></html>

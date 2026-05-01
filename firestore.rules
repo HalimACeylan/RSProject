@@ -1,0 +1,94 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function householdRef(householdId) {
+      return /databases/$(database)/documents/households/$(householdId);
+    }
+
+    function memberRef(householdId, userId) {
+      return /databases/$(database)/documents/households/$(householdId)/members/$(userId);
+    }
+
+    function isHouseholdOwner(householdId) {
+      return isSignedIn() &&
+        get(householdRef(householdId)).data.ownerUserId == request.auth.uid;
+    }
+
+    function isMember(householdId) {
+      return isSignedIn() && exists(memberRef(householdId, request.auth.uid));
+    }
+
+    function isHouseholdAdmin(householdId) {
+      return isMember(householdId) &&
+        (get(memberRef(householdId, request.auth.uid)).data.role == 'owner' ||
+          get(memberRef(householdId, request.auth.uid)).data.role == 'admin');
+    }
+
+    // User profile records
+    match /users/{userId} {
+      allow create: if isSelf(userId);
+      allow read: if isSelf(userId);
+      allow update: if isSelf(userId);
+      allow delete: if false;
+    }
+
+    // Household and household-scoped data
+    match /households/{householdId} {
+      allow create: if isSignedIn() &&
+        request.resource.data.ownerUserId == request.auth.uid;
+      allow read: if isMember(householdId);
+      allow update: if isHouseholdAdmin(householdId);
+      allow delete: if false;
+
+      // Membership
+      match /members/{memberId} {
+        allow read: if isMember(householdId);
+        allow create: if isHouseholdAdmin(householdId) ||
+          (isSelf(memberId) &&
+            (isHouseholdOwner(householdId) ||
+              request.resource.data.inviteCode ==
+                get(householdRef(householdId)).data.inviteCode));
+        allow update: if isHouseholdAdmin(householdId) ||
+          (isSelf(memberId) && isMember(householdId));
+        allow delete: if isHouseholdAdmin(householdId);
+      }
+
+      // Shared fridge items
+      match /fridge_items/{itemId} {
+        allow read, create, update, delete: if isMember(householdId);
+      }
+
+      // Receipt records
+      match /receipts/{receiptId} {
+        allow read, create, update, delete: if isMember(householdId);
+      }
+
+      // SaaS subscription state
+      match /subscriptions/{subscriptionId} {
+        allow read: if isMember(householdId);
+        allow create, update: if isHouseholdAdmin(householdId) ||
+          isHouseholdOwner(householdId);
+        allow delete: if false;
+      }
+
+      // Billing profile + payment records
+      match /payments/{paymentId} {
+        allow read: if isHouseholdAdmin(householdId) ||
+          isHouseholdOwner(householdId);
+        allow create, update: if (isHouseholdAdmin(householdId) ||
+          isHouseholdOwner(householdId)) &&
+          paymentId == 'payment_profile';
+        allow delete: if false;
+      }
+    }
+  }
+}

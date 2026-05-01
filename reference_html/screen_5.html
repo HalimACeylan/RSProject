@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recent Scan Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec13",
+                        "primary-dark": "#0db80d",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102210",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"],
+                        "mono": ["Work Sans", "monospace"] // Using Work Sans but styling for tabular data
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    boxShadow: {
+                        'receipt': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for receipt list if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Zig-zag pattern generator for receipt bottom */
+        .receipt-bottom {
+            background: 
+                linear-gradient(-45deg, transparent 8px, white 0), 
+                linear-gradient(45deg, transparent 8px, white 0);
+            background-repeat: repeat-x;
+            background-position: left bottom;
+            background-size: 16px 16px;
+            height: 16px;
+            width: 100%;
+            position: absolute;
+            bottom: -16px;
+            left: 0;
+            filter: drop-shadow(0px 4px 2px rgba(0,0,0,0.03));
+        }
+
+        /* Dark mode variant for receipt bottom */
+        .dark .receipt-bottom {
+            background: 
+                linear-gradient(-45deg, transparent 8px, #1c2e1c 0), 
+                linear-gradient(45deg, transparent 8px, #1c2e1c 0);
+            background-repeat: repeat-x;
+            background-position: left bottom;
+            background-size: 16px 16px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 min-h-screen flex justify-center">
+<!-- Mobile Container -->
+<div class="w-full max-w-md bg-background-light dark:bg-background-dark min-h-screen relative flex flex-col">
+<!-- Header -->
+<header class="px-5 pt-8 pb-4 flex items-center justify-between sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300">
+<span class="material-icons">arrow_back</span>
+</button>
+<h1 class="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">Scan Results</h1>
+<button class="p-2 -mr-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-primary font-medium text-sm">
+                Retake
+            </button>
+</header>
+<!-- Main Scrollable Content -->
+<main class="flex-1 px-5 pb-32 overflow-y-auto no-scrollbar">
+<!-- Context Hint -->
+<div class="mb-6 text-center">
+<p class="text-sm text-gray-500 dark:text-gray-400">Verify items before adding to your inventory.</p>
+</div>
+<!-- Receipt Container -->
+<div class="relative bg-white dark:bg-[#1c2e1c] rounded-t-xl shadow-receipt mb-10 mx-1">
+<!-- Receipt Header (Store Info) -->
+<div class="p-6 border-b border-dashed border-gray-200 dark:border-gray-700 text-center">
+<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 text-primary">
+<span class="material-icons">storefront</span>
+</div>
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Whole Foods Market</h2>
+<p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Oct 24, 2023 • 10:43 AM</p>
+</div>
+<!-- Items List -->
+<div class="p-4 space-y-4">
+<!-- Item 1 -->
+<div class="group flex items-center gap-3 py-2">
+<div class="flex-1">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Item Name</label>
+<input class="w-full bg-gray-50 dark:bg-[#152515] border-transparent focus:border-primary focus:ring-0 rounded text-sm font-medium text-gray-800 dark:text-gray-200 px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-[#102010]" type="text" value="Whole Milk (1 Gal)"/>
+</div>
+<div class="w-16">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1 text-center">Qty</label>
+<div class="flex items-center justify-center bg-gray-50 dark:bg-[#152515] rounded px-1 py-1">
+<span class="text-sm font-semibold">1</span>
+</div>
+</div>
+<div class="w-20 text-right">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Price</label>
+<span class="block text-sm font-bold font-mono text-gray-900 dark:text-white py-1.5">$4.50</span>
+</div>
+<button class="mt-5 text-gray-300 hover:text-red-500 transition-colors p-1">
+<span class="material-icons text-[20px]">close</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="group flex items-center gap-3 py-2 border-t border-gray-50 dark:border-gray-800">
+<div class="flex-1">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Item Name</label>
+<input class="w-full bg-gray-50 dark:bg-[#152515] border-transparent focus:border-primary focus:ring-0 rounded text-sm font-medium text-gray-800 dark:text-gray-200 px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-[#102010]" type="text" value="Organic Baby Spinach"/>
+</div>
+<div class="w-16">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1 text-center">Qty</label>
+<div class="flex items-center justify-between bg-gray-50 dark:bg-[#152515] rounded px-1 py-1">
+<button class="text-primary text-xs font-bold hover:bg-primary/20 rounded px-1">-</button>
+<span class="text-sm font-semibold">2</span>
+<button class="text-primary text-xs font-bold hover:bg-primary/20 rounded px-1">+</button>
+</div>
+</div>
+<div class="w-20 text-right">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Price</label>
+<span class="block text-sm font-bold font-mono text-gray-900 dark:text-white py-1.5">$7.98</span>
+</div>
+<button class="mt-5 text-gray-300 hover:text-red-500 transition-colors p-1">
+<span class="material-icons text-[20px]">close</span>
+</button>
+</div>
+<!-- Item 3 -->
+<div class="group flex items-center gap-3 py-2 border-t border-gray-50 dark:border-gray-800">
+<div class="flex-1">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Item Name</label>
+<input class="w-full bg-gray-50 dark:bg-[#152515] border-transparent focus:border-primary focus:ring-0 rounded text-sm font-medium text-gray-800 dark:text-gray-200 px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-[#102010]" type="text" value="Large Brown Eggs (12ct)"/>
+</div>
+<div class="w-16">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1 text-center">Qty</label>
+<div class="flex items-center justify-center bg-gray-50 dark:bg-[#152515] rounded px-1 py-1">
+<span class="text-sm font-semibold">1</span>
+</div>
+</div>
+<div class="w-20 text-right">
+<label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Price</label>
+<span class="block text-sm font-bold font-mono text-gray-900 dark:text-white py-1.5">$5.29</span>
+</div>
+<button class="mt-5 text-gray-300 hover:text-red-500 transition-colors p-1">
+<span class="material-icons text-[20px]">close</span>
+</button>
+</div>
+<!-- Item 4 (Unsure Scan) -->
+<div class="group flex items-center gap-3 py-2 border-t border-gray-50 dark:border-gray-800 bg-yellow-50/50 dark:bg-yellow-900/10 -mx-4 px-4">
+<div class="flex-1">
+<div class="flex items-center gap-1 mb-1">
+<label class="block text-xs text-yellow-600 dark:text-yellow-500 font-medium">Please Verify</label>
+<span class="material-icons text-[14px] text-yellow-500">warning</span>
+</div>
+<input class="w-full bg-white dark:bg-[#152515] border-yellow-300 focus:border-yellow-500 focus:ring-0 rounded text-sm font-medium text-gray-800 dark:text-gray-200 px-2 py-1.5" type="text" value="Unkwn Item #44"/>
+</div>
+<div class="w-16 mt-5">
+<div class="flex items-center justify-center bg-white dark:bg-[#152515] border border-yellow-200 dark:border-transparent rounded px-1 py-1">
+<span class="text-sm font-semibold">1</span>
+</div>
+</div>
+<div class="w-20 text-right mt-5">
+<span class="block text-sm font-bold font-mono text-gray-900 dark:text-white py-1.5">$??.??</span>
+</div>
+<button class="mt-5 text-gray-300 hover:text-red-500 transition-colors p-1">
+<span class="material-icons text-[20px]">close</span>
+</button>
+</div>
+<!-- Add Item Manual -->
+<button class="w-full py-3 mt-2 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg text-gray-400 dark:text-gray-500 text-sm font-medium hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2">
+<span class="material-icons text-[18px]">add</span>
+                        Add Missing Item
+                    </button>
+</div>
+<!-- Receipt Footer Summary -->
+<div class="bg-gray-50 dark:bg-[#152515] p-6 rounded-b-xl border-t border-dashed border-gray-200 dark:border-gray-700">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm text-gray-500 dark:text-gray-400">Subtotal</span>
+<span class="text-sm font-mono font-medium text-gray-800 dark:text-gray-300">$17.77</span>
+</div>
+<div class="flex justify-between items-center mb-4">
+<span class="text-sm text-gray-500 dark:text-gray-400">Tax (est)</span>
+<span class="text-sm font-mono font-medium text-gray-800 dark:text-gray-300">$1.42</span>
+</div>
+<div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between items-end">
+<span class="font-bold text-gray-900 dark:text-white text-lg">Total</span>
+<span class="font-bold font-mono text-2xl text-primary">$19.19</span>
+</div>
+</div>
+<!-- Zig Zag Bottom -->
+<div class="receipt-bottom"></div>
+</div>
+<!-- Extra padding for scroll -->
+<div class="h-8"></div>
+</main>
+<!-- Sticky Bottom Action -->
+<div class="fixed bottom-0 w-full max-w-md bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark pt-8 pb-6 px-5 z-20">
+<button class="w-full bg-primary hover:bg-primary-dark text-black dark:text-black font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<span class="material-icons">kitchen</span>
+<span>Add 4 Items to Fridge</span>
+</button>
+</div>
+</div>
+</body></html>

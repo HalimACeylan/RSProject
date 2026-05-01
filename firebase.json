@@ -1,0 +1,46 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "fridge-app-fb1a1",
+          "appId": "1:350362923356:android:5973b7677252633d1ad199",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "fridge-app-fb1a1",
+          "appId": "1:350362923356:ios:1cc7e55a0ae618ac1ad199",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "fridge-app-fb1a1",
+          "appId": "1:350362923356:ios:1cc7e55a0ae618ac1ad199",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "fridge-app-fb1a1",
+          "configurations": {
+            "android": "1:350362923356:android:5973b7677252633d1ad199",
+            "ios": "1:350362923356:ios:1cc7e55a0ae618ac1ad199",
+            "macos": "1:350362923356:ios:1cc7e55a0ae618ac1ad199",
+            "web": "1:350362923356:web:eb209d730726bf721ad199"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "europe-west3",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

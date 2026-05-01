@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Ingredients</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#ec5b13",
+          "background-light": "#f8f6f6",
+          "background-dark": "#221610",
+        },
+        fontFamily: {
+          "display": ["Public Sans"]
+        },
+        borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+      },
+    },
+  }
+</script>
+<style>
+  body {
+    font-family: 'Public Sans', sans-serif;
+  }
+</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light text-background-dark antialiased">
+<div class="relative flex h-auto min-h-screen w-full max-w-md mx-auto flex-col bg-background-light overflow-x-hidden shadow-xl">
+<div class="flex items-center p-4 pb-2 justify-between sticky top-0 bg-background-light z-10 border-b border-gray-200">
+<a class="text-background-dark flex size-12 shrink-0 items-center justify-center hover:bg-gray-100 rounded-full transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 24px;">arrow_back</span>
+</a>
+<h2 class="text-background-dark text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Add Ingredients</h2>
+</div>
+<div class="px-4 py-3">
+<label class="flex flex-col w-full">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-12 bg-white shadow-sm border border-gray-200 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<div class="text-gray-400 flex items-center justify-center pl-4 pr-2">
+<span class="material-symbols-outlined" style="font-size: 20px;">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden bg-transparent border-none text-background-dark focus:outline-0 focus:ring-0 h-full placeholder:text-gray-400 px-2 text-base font-normal leading-normal" placeholder="Search for products..." value=""/>
+</div>
+</label>
+</div>
+<div class="px-4 py-2">
+<button class="w-full flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 transition-colors py-3 rounded-xl font-medium shadow-sm border border-primary/20">
+<span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+      Add Manually
+    </button>
+</div>
+<div class="mt-2">
+<div class="flex border-b border-gray-200 px-4 justify-between overflow-x-auto no-scrollbar">
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-primary text-background-dark pb-3 pt-4 px-4 whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Vegetables</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-gray-500 hover:text-background-dark transition-colors pb-3 pt-4 px-4 whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Dairy</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-gray-500 hover:text-background-dark transition-colors pb-3 pt-4 px-4 whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Meat</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-gray-500 hover:text-background-dark transition-colors pb-3 pt-4 px-4 whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Pantry</p>
+</a>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto pb-24">
+<div class="px-4 py-4">
+<h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Popular Vegetables</h3>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-4 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined" style="font-size: 24px;">eco</span>
+</div>
+<p class="text-background-dark text-base font-medium leading-normal flex-1 truncate">Tomatoes</p>
+<button class="flex shrink-0 items-center justify-center rounded-lg h-8 px-4 bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-medium leading-normal shadow-sm">
+            Add
+          </button>
+</div>
+<div class="flex items-center gap-4 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined" style="font-size: 24px;">grass</span>
+</div>
+<p class="text-background-dark text-base font-medium leading-normal flex-1 truncate">Spinach</p>
+<button class="flex shrink-0 items-center justify-center rounded-lg h-8 px-4 bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-sm font-medium leading-normal shadow-sm">
+            Added
+          </button>
+</div>
+<div class="flex items-center gap-4 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined" style="font-size: 24px;">local_florist</span>
+</div>
+<p class="text-background-dark text-base font-medium leading-normal flex-1 truncate">Broccoli</p>
+<button class="flex shrink-0 items-center justify-center rounded-lg h-8 px-4 bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-medium leading-normal shadow-sm">
+            Add
+          </button>
+</div>
+</div>
+</div>
+<div class="px-4 py-2 mt-2">
+<h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Recent Additions</h3>
+<div class="flex flex-wrap gap-2">
+<button class="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-sm hover:border-primary/50 hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-gray-400 text-sm">history</span>
+<span class="text-sm font-medium text-background-dark">Milk</span>
+<span class="material-symbols-outlined text-primary text-sm ml-1">add_circle</span>
+</button>
+<button class="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-sm hover:border-primary/50 hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-gray-400 text-sm">history</span>
+<span class="text-sm font-medium text-background-dark">Eggs</span>
+<span class="material-symbols-outlined text-primary text-sm ml-1">add_circle</span>
+</button>
+<button class="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-sm hover:border-primary/50 hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-gray-400 text-sm">history</span>
+<span class="text-sm font-medium text-background-dark">Chicken Breast</span>
+<span class="material-symbols-outlined text-primary text-sm ml-1">add_circle</span>
+</button>
+<button class="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-sm hover:border-primary/50 hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-gray-400 text-sm">history</span>
+<span class="text-sm font-medium text-background-dark">Carrots</span>
+<span class="material-symbols-outlined text-primary text-sm ml-1">add_circle</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

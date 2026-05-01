@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Family Group</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4ce64c",
+                        "primary-dark": "#3bc93b",
+                        "primary-soft": "#e6fce6",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#112111",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1c2e1c",
+                        "neutral-light": "#f0f2f0",
+                        "neutral-dark": "#2a382a",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px" },
+                    boxShadow: {
+                        "soft": "0 4px 20px -2px rgba(76, 230, 76, 0.1)",
+                        "nav": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-100 antialiased h-screen flex justify-center overflow-hidden">
+<!-- Mobile Container -->
+<div class="w-full max-w-md h-full bg-background-light dark:bg-background-dark flex flex-col relative shadow-2xl overflow-hidden">
+<!-- Header -->
+<header class="bg-surface-light/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-20 px-4 pt-12 pb-4 border-b border-neutral-200 dark:border-neutral-dark flex justify-between items-center">
+<button class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-base font-medium">
+                Cancel
+            </button>
+<h1 class="text-lg font-bold text-slate-900 dark:text-white">Create Group</h1>
+<button class="text-primary-dark dark:text-primary hover:text-green-700 dark:hover:text-green-400 font-semibold transition-colors text-base">
+                Save
+            </button>
+</header>
+<!-- Main Content Scroll Area -->
+<main class="flex-1 overflow-y-auto no-scrollbar pb-24">
+<div class="px-6 py-6 space-y-8">
+<!-- 1. Group Avatar Upload -->
+<div class="flex flex-col items-center justify-center space-y-3">
+<div class="relative group cursor-pointer">
+<div class="w-24 h-24 rounded-full bg-primary/10 border-2 border-dashed border-primary/40 flex items-center justify-center transition-all group-hover:bg-primary/20 group-hover:border-primary">
+<span class="material-icons-round text-4xl text-primary">add_a_photo</span>
+</div>
+<div class="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1.5 shadow-sm border-2 border-white dark:border-background-dark">
+<span class="material-icons-round text-sm">edit</span>
+</div>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Add Group Photo</p>
+</div>
+<!-- 2. Group Details Form -->
+<div class="space-y-6">
+<!-- Name Input -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1" for="groupName">
+                            Group Name
+                        </label>
+<div class="relative">
+<input class="w-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-neutral-dark rounded-xl px-4 py-3.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-sm" id="groupName" placeholder="e.g. The Miller Family" type="text"/>
+<span class="material-icons-round absolute right-3 top-3.5 text-slate-400">group</span>
+</div>
+</div>
+<!-- Description Input -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1" for="groupDesc">
+                            Description <span class="text-slate-400 font-normal">(Optional)</span>
+</label>
+<textarea class="w-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-neutral-dark rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-sm resize-none" id="groupDesc" placeholder="Fridge inventory &amp; weekend meal plans..." rows="2"></textarea>
+</div>
+</div>
+<!-- 3. Invite Section -->
+<div class="bg-primary-soft dark:bg-surface-dark/50 border border-primary/20 rounded-2xl p-5 space-y-4">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-bold text-slate-800 dark:text-white mb-1">Invite Members</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Share this code with your family to let them join instantly.
+                            </p>
+</div>
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-icons-round text-primary">qr_code_2</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-white dark:bg-background-dark border border-primary/30 border-dashed rounded-lg px-4 py-3 flex justify-between items-center group cursor-pointer hover:border-primary transition-colors">
+<span class="font-mono text-lg font-bold tracking-widest text-slate-800 dark:text-white">X7-99-A</span>
+<span class="material-icons-round text-slate-400 group-hover:text-primary text-sm">content_copy</span>
+</div>
+<button class="bg-primary text-white p-3.5 rounded-lg shadow-soft hover:bg-primary-dark transition-colors flex items-center justify-center">
+<span class="material-icons-round">ios_share</span>
+</button>
+</div>
+</div>
+<!-- 4. Member List -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-1">
+<h3 class="font-bold text-slate-800 dark:text-white">Members <span class="text-slate-400 font-medium ml-1">(1)</span></h3>
+<button class="text-sm text-primary font-semibold hover:text-primary-dark">Manage</button>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-slate-100 dark:border-neutral-dark divide-y divide-slate-50 dark:divide-neutral-dark">
+<!-- Current User (Admin) -->
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img alt="Profile picture of current user" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" data-alt="Portrait of a young woman smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoxPPMxHxgibnjN9g0ZTVuKH0440_b1Z4cWnLINfDicoPnYNK5H4gkbOkrFMhGN2eebZP3U_WjPCaGuP-sWhFnAqETPPJznnDaJX0mEBlE5Vk0tVTK_2rKdkYiLYIQms_BbDXMws3qsp_PEW00zZIJGz2tOROr4QBuzMr_9hEgawcZH_Gg87QbnKxCAPxlATt9cMdVNiLwDwQorgoJzhgU1xhEoi3K8uKogeg83jjWu3X0GWcRtHufpv8ppSrcksrY9g3FWMKUKA2Z"/>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Sarah Miller <span class="ml-1 text-[10px] bg-primary/10 text-primary-dark px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Admin</span></p>
+<p class="text-xs text-slate-500 dark:text-slate-400">sarah.miller@example.com</p>
+</div>
+</div>
+</div>
+<!-- Placeholder Slot -->
+<div class="p-4 flex items-center justify-between opacity-60 hover:opacity-100 transition-opacity cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-neutral-dark border border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center group-hover:border-primary group-hover:text-primary transition-colors">
+<span class="material-icons-round text-slate-400 group-hover:text-primary text-lg">add</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-400 dark:text-slate-500 group-hover:text-primary transition-colors">Add family member</p>
+</div>
+</div>
+<span class="material-icons-round text-slate-300 text-lg">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Fixed Bottom Action -->
+<div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark pt-8">
+<button class="w-full bg-primary hover:bg-primary-dark active:scale-[0.98] transition-all text-white font-bold text-lg py-4 rounded-xl shadow-soft flex items-center justify-center gap-2">
+<span>Create Family Group</span>
+<span class="material-icons-round text-xl">arrow_forward</span>
+</button>
+</div>
+</div>
+</body></html>

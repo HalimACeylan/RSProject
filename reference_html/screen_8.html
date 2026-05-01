@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recipe Voting &amp; Preferences</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec13",
+                        "primary-dark": "#0eb80e", // Darker shade for text contrast
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102210",
+                        "neutral-surface": "#ffffff",
+                        "neutral-surface-dark": "#1a331a",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem", 
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", 
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(19, 236, 19, 0.1)',
+                        'glow': '0 0 15px rgba(19, 236, 19, 0.3)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for clean mobile look */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Smooth gradient fade for images */
+        .image-gradient-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 h-screen flex justify-center overflow-hidden">
+<!-- Mobile Container -->
+<div class="w-full max-w-md h-full bg-background-light dark:bg-background-dark relative flex flex-col shadow-2xl overflow-hidden">
+<!-- Status Bar Placeholder (iOS style) -->
+<div class="h-12 w-full flex items-end justify-between px-6 pb-2 text-xs font-semibold z-20">
+<span>9:41</span>
+<div class="flex items-center gap-1">
+<span class="material-icons text-sm">signal_cellular_alt</span>
+<span class="material-icons text-sm">wifi</span>
+<span class="material-icons text-sm">battery_full</span>
+</div>
+</div>
+<!-- Header -->
+<header class="px-5 py-4 flex items-center justify-between z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm sticky top-0">
+<div>
+<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Family Dinner</h2>
+<h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Vote for Tonight</h1>
+</div>
+<button class="p-2 rounded-full bg-white dark:bg-neutral-surface-dark shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-800">
+<span class="material-icons text-gray-600 dark:text-gray-300">filter_list</span>
+</button>
+</header>
+<!-- Main Content Area: Scrollable Recipe List -->
+<main class="flex-1 overflow-y-auto hide-scrollbar px-5 pb-24 space-y-6">
+<!-- Context Banner: Fridge Status -->
+<div class="bg-primary/10 dark:bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
+<div class="bg-primary/20 p-2 rounded-lg text-primary-dark dark:text-primary">
+<span class="material-icons-outlined">kitchen</span>
+</div>
+<div>
+<h3 class="font-semibold text-sm text-gray-900 dark:text-white">Based on your fridge</h3>
+<p class="text-xs text-gray-600 dark:text-gray-400 mt-1">We found 5 recipes using your expiring spinach and chicken.</p>
+</div>
+</div>
+<!-- Card 1: Top Voted -->
+<article class="bg-white dark:bg-neutral-surface-dark rounded-2xl shadow-soft overflow-hidden group">
+<div class="relative h-48 w-full">
+<img alt="Spicy Basil Chicken dish" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Top down view of spicy basil chicken with rice" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5KMWeokHeKPw86MCE1YJH-X2fV8661WnDElPmAnBylyjSyQmS-P9ZB1FZ2aRcC6Uvg8ekiXmY57Ib_bRbPHmz2p6TYVILcGZ2oAVVqlA45Sl7AlHlTgnfqioklRj-IvV6HBmXL-kbtEvVDMfrEkKr314VfnR1q6IfhasMFa2HWJM7Sql_oMmB1O1D3Yvv9TjQ2isLiFcYgTko5iSrvDkaeA7HUe4FSVexFn9JhT0zX50eslJ-_WvDBr77TxPzE2cz3ydpoRQMRquv"/>
+<div class="absolute inset-0 image-gradient-overlay"></div>
+<!-- Top Badge -->
+<div class="absolute top-3 left-3 bg-primary text-black text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+<span class="material-icons text-sm">local_fire_department</span>
+                        Top Choice
+                    </div>
+<!-- Inventory Match Badge -->
+<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs font-medium px-2 py-1 rounded-lg border border-white/10">
+                        100% Match
+                    </div>
+<!-- Title Overlay -->
+<div class="absolute bottom-3 left-3 text-white">
+<h3 class="text-xl font-bold leading-tight">Spicy Basil Chicken</h3>
+<div class="flex items-center gap-3 mt-1 text-xs font-medium text-gray-200">
+<span class="flex items-center gap-1"><span class="material-icons text-[14px]">schedule</span> 30 min</span>
+<span class="flex items-center gap-1"><span class="material-icons text-[14px]">restaurant</span> Easy</span>
+</div>
+</div>
+</div>
+<!-- Voting & Details Section -->
+<div class="p-4">
+<!-- Voting Progress / Avatars -->
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center -space-x-2 overflow-hidden">
+<img alt="Mom Avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-neutral-surface-dark object-cover" data-alt="Woman with brown hair smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvHP86Cdj_aSFUq4F8XyzS3RwINoQbeCWxpEd6-D00k9zvv2eTlYJH9bbLkNmL1UzIyP8_VpkfyP37Hmr3gxbK1yFXK-vyMOTMvNxNJSpZf_OiiVl1wmvcueJS24ZLv49uq2F2hvCma2BTqc-_w4b4mjDDwaNU9JuO7SChpAEUhWR-4SJoygvVqoemiotVThwJtjhCNYlavxuBtVkGLiKCs7fu-4ZLrgoRJJv1iYAmSZGsd0Tg4GVDIsoKgtk9C-KpEpuafbdrQtKC"/>
+<img alt="Dad Avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-neutral-surface-dark object-cover" data-alt="Man with beard smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu5Dm0mhlDRa7LRa3vcasIu-H6v4EZ2xSTsdyNHbpMgs8wRgIyLVXN_1wgiqQa68xDtH-pAO4xcNJjoHR5Dq1fGm_jcLfucxIrhjX8fS2mnr_AFF3PkCDzqhKdRZpRiPQTcwaR8xqhU2gKhIPXcThp389blzEA7oPJq1hW-jI10gRQwbArl5nEUxP4mMovTeTFk7xPT57RwUBbhpNteH_XvQ8r-cEP-Zvc4z11FhB72IcGQ5EHD8vHkCHuCVUEMcKw0bME2zlLY-FG"/>
+<img alt="Sibling Avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-neutral-surface-dark object-cover" data-alt="Young girl smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHofyN0JspEozJay0ONvGbRTObSnMwZCHdlvdoFzBthI2f8Wboifnq-STe7saUyBb2XVW-kNEmYAm3v0FNdbh2WP5KDR3-lmSR54UmeUDkUB8aCoV06e2Tj38EQDT4IqAb8178Vu6CoZbzTrWNIVQquK75UHQL0cv8n2rEvyySsqwxb-eKckn9xrr6RWLPF6K4_3puSFFRdN32a-_BLj02w_1Xjp6NKBY9epE9dWF38HMe-iqb94HH4lUNTyDoEbhBM8Xpd7fAK_oL"/>
+</div>
+<div class="text-primary-dark dark:text-primary font-bold text-sm bg-primary/10 px-3 py-1 rounded-full">
+                            4 Votes
+                        </div>
+</div>
+<!-- Voting Actions -->
+<div class="flex gap-3">
+<button class="flex-1 bg-primary text-black font-semibold py-3 rounded-xl flex items-center justify-center gap-2 shadow-glow hover:bg-primary-dark transition-colors">
+<span class="material-icons">thumb_up</span>
+<span>Vote Yes</span>
+</button>
+<button class="w-14 bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl flex items-center justify-center transition-colors">
+<span class="material-icons-outlined">thumb_down</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 2: Controversial -->
+<article class="bg-white dark:bg-neutral-surface-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+<div class="relative h-40 w-full">
+<img alt="Vegetable Stir Fry" class="w-full h-full object-cover" data-alt="Bowl of colorful vegetable stir fry" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0gSeTXJCWN0kjU34LU6_ddCuf8qJOmHyxQTChSXf_9HC_-Jzaonyw8xmPEyx1frfr29UbgyFyEsoTt6rQWhhTMNqnKk3b8EwkkWhYcvAjGG7TLMRFlkVn0rrD9gySRcMe8U6O0MM_kYaJQYMvjRCW-2JVL6dqOF2s9-Uoa35IgkjIJm4nn-xLx1TIIT9QWhP_s0aRWudyPu7KmYvfjmtF56cravxyWVtxVMg1fKQ4-fV4isp_61N7AmOwXMkVt1-NwXeOZnDmqGxP"/>
+<div class="absolute inset-0 image-gradient-overlay opacity-60"></div>
+<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs font-medium px-2 py-1 rounded-lg border border-white/10">
+                        80% Match
+                    </div>
+<div class="absolute bottom-3 left-3 text-white">
+<h3 class="text-lg font-bold leading-tight">Vegetable Stir Fry</h3>
+<div class="flex items-center gap-3 mt-1 text-xs text-gray-200">
+<span class="flex items-center gap-1"><span class="material-icons text-[14px]">schedule</span> 20 min</span>
+</div>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center -space-x-2 overflow-hidden">
+<img alt="Mom Avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-neutral-surface-dark object-cover grayscale opacity-70" data-alt="Woman with brown hair smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1vFaSQ6TwOxoZEsUOiJrhyfnDhx6AR6cI3ceCWFaf_ATQzRgAUXVAfODnmt_feR8g-rTaxAK3o59IVGzEKYD0oIkY4e3VR72cQnHmx760kDpCGRN7QlQCw9n1AwxGapxmBq50ZkWaRMoGeD2GhQRziSQi1_HpVh9FvcEweFBPcLyc5C0qvPLaeDEI7JDHpXsgtyHUz_EZ8Q4-pVPaFTN7SzqI0vcrvbZiwHz_ikTIgXVM8cUoM4-N6D7Fy_8q0D9LNcR_85xbjqGl"/>
+<img alt="Sibling Avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-neutral-surface-dark object-cover grayscale opacity-70" data-alt="Young girl smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT4a9xmY2mSeoHeREo_OwjZalWRiSmi5rYo6uUkHTjyHCkhg05kQSTkbY5gDMS8sqCsDpXJpHi997dfq8boXprLYpv6EqEbAbv8-3C7EWu-SyUrHyAkRJ9fXRohXkUx2VdKXMQO36Z88D3loBdN7cSASqaTBb0eoD7vGi5adBMYRwEfIpQweAXerlxjcC_hs_Z7jhrfw-Ea4J6rRfJIgbe4iLwnmn-YEM2BfVtzFZ6AnesQ-SIpoliL2srDlda0gFOcixz-JBWfurZ"/>
+</div>
+<div class="text-gray-500 dark:text-gray-400 font-medium text-sm">
+                            2 Votes
+                        </div>
+</div>
+<div class="flex gap-3">
+<button class="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-icons-outlined">thumb_up</span>
+<span>Vote Yes</span>
+</button>
+<button class="w-14 bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl flex items-center justify-center transition-colors">
+<span class="material-icons-outlined">thumb_down</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 3: New Suggestion / Empty State -->
+<article class="bg-white dark:bg-neutral-surface-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden opacity-90">
+<div class="flex p-3 gap-4">
+<div class="w-24 h-24 rounded-xl overflow-hidden shrink-0 relative">
+<img alt="Baked Salmon" class="w-full h-full object-cover" data-alt="Close up of baked salmon fillet" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmolno3OICXrDSMhorVH_MYV03Scz8enwF-X8ZLsfwSv9hBh_LT7Mvq9oYUGwuNQ6W6537GbEtGxyV0C3g5zCPDN7Qy-G9qIx2bm7P1ZGcU_buIC4_XxvqNWbZXilR_LML21S76ndGheuddO4wJY3paLx6elDy5Ais_aj585O1MWrxRgvpNa9YbuS3HTPonL9OQy8IzMzFDiMURqZkWhI2980NVfau7UKD9smM_8KJkxUeTBKcESiZMEJdOJI6IEGA5QqzyBkNaPE7"/>
+</div>
+<div class="flex-1 flex flex-col justify-center">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Baked Salmon</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Be the first to vote!</p>
+<div class="flex gap-2 mt-3">
+<button class="flex-1 bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-1 hover:border-primary hover:text-primary transition-colors">
+<span class="material-icons text-sm">thumb_up</span>
+                                Vote
+                            </button>
+</div>
+</div>
+</div>
+</article>
+<!-- Add Custom Option -->
+<button class="w-full py-4 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl text-gray-500 dark:text-gray-400 font-medium flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<span class="material-icons">add_circle_outline</span>
+                Suggest something else
+            </button>
+</main>
+<!-- Floating Action Button -->
+<div class="absolute bottom-24 right-5 z-20">
+<button class="w-14 h-14 bg-primary rounded-full shadow-lg shadow-green-900/20 flex items-center justify-center text-black hover:scale-105 transition-transform active:scale-95">
+<span class="material-icons">check</span>
+</button>
+</div>
+<!-- Bottom Navigation -->
+<nav class="bg-white dark:bg-neutral-surface-dark border-t border-gray-200 dark:border-gray-800 h-20 px-6 flex justify-between items-center pb-2 z-30 w-full absolute bottom-0">
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
+<span class="material-icons-outlined">kitchen</span>
+<span class="text-[10px] font-medium">Inventory</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary dark:text-primary">
+<span class="material-icons">restaurant_menu</span>
+<span class="text-[10px] font-medium">Recipes</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
+<span class="material-icons-outlined">shopping_cart</span>
+<span class="text-[10px] font-medium">Shop</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
+<span class="material-icons-outlined">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</button>
+</nav>
+<!-- iOS Home Indicator Overlay -->
+<div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-gray-300 dark:bg-gray-600 rounded-full z-40 pointer-events-none"></div>
+</div>
+</body></html>

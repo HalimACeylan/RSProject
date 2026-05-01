@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scan Receipt</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#13ec13",
+              "background-light": "#f6f8f6",
+              "background-dark": "#102210",
+              "primary-dark": "#0fb80f", // Darker shade for better contrast on light backgrounds if needed
+              "neutral-surface": "#e8ebe8", // Derived neutral
+            },
+            fontFamily: {
+              "display": ["Work Sans", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem", 
+              "lg": "0.5rem", 
+              "xl": "0.75rem", 
+              "full": "9999px"
+            },
+            spacing: {
+              'safe-bottom': 'max(1.25rem, env(safe-area-inset-bottom))',
+            }
+          },
+        },
+      }
+    </script>
+<style>/* Custom styles to simulate camera view and specific UI elements */
+.camera-feed {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuCCDYBWP-WQEajaKZQ777DpWTa0KoeC2EL1z6li3PG4CltPm135uOCHPaPfMeOTLI1D4V8rNq12Jg_pDP9yzO-gyOp9pUKd_cy8Zht-W3xgDVOHCeCgA8_AvsfTE69pnazoCJ2QnYGAqbwerGHGj3cAqSvxr6ojt-VYs7lzHLsS5qEvYXUFwtCDZbHqVpR3eQ_P2xxtkdtlpSANq4Ssx0CgWkXpYr1zavywem07OT4nubMpEeT_0KiVA8uUETK2BR_QkaOLgoL-KUft);
+    background-size: cover;
+    background-position: center
+    }
+/* Blur backdrop for glassmorphism */
+.glass-panel {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px)
+    }
+/* Scan line animation */
+@keyframes scan {
+    0% {
+        top: 0%;
+        opacity: 0;
+        } 10% {
+        opacity: 1;
+        } 90% {
+        opacity: 1;
+        } 100% {
+        top: 100%;
+        opacity: 0;
+        }
+    }
+.scan-line {
+    animation: scan 2.5s ease-in-out infinite;
+    background: linear-gradient(to bottom, transparent, #13ec13, transparent);
+    box-shadow: 0 0 15px #13ec13
+    }</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 antialiased h-screen overflow-hidden flex flex-col relative">
+<!-- Viewfinder Area (Full Screen Camera Feed) -->
+<div class="absolute inset-0 z-0 camera-feed" data-alt="Grocery receipt on a wooden table surface">
+<!-- Dark overlay for better UI visibility -->
+<div class="absolute inset-0 bg-black/30"></div>
+</div>
+<!-- Top Navigation / Controls -->
+<header class="relative z-20 pt-12 px-6 flex justify-between items-center text-white">
+<button class="p-2 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors">
+<span class="material-icons text-2xl">close</span>
+</button>
+<div class="bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full">
+<span class="text-sm font-medium tracking-wide">Scan Receipt</span>
+</div>
+<button class="p-2 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors">
+<!-- Active Flash state could use text-primary -->
+<span class="material-icons text-2xl">flash_off</span>
+</button>
+</header>
+<!-- Center Guide Area -->
+<main class="relative z-10 flex-1 flex flex-col justify-center items-center px-8">
+<!-- Scan Frame -->
+<div class="relative w-full aspect-[3/4] max-w-sm rounded-xl overflow-hidden border border-white/20 shadow-2xl">
+<!-- Corner Markers -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-lg"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-lg"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-lg"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-lg"></div>
+<!-- Scanning Line Animation -->
+<div class="absolute left-0 right-0 h-1 scan-line top-0 z-10"></div>
+<!-- Subtle grid for alignment guidance -->
+<div class="absolute inset-0 grid grid-cols-3 grid-rows-3 opacity-20 pointer-events-none">
+<div class="border-r border-b border-white"></div>
+<div class="border-r border-b border-white"></div>
+<div class="border-b border-white"></div>
+<div class="border-r border-b border-white"></div>
+<div class="border-r border-b border-white"></div>
+<div class="border-b border-white"></div>
+<div class="border-r border-white"></div>
+<div class="border-r border-white"></div>
+<div class=""></div>
+</div>
+</div>
+<!-- Floating Tip -->
+<div class="mt-8 bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg flex items-center gap-2">
+<span class="material-icons text-primary text-sm">info</span>
+<span>Align edges with the frame</span>
+</div>
+</main>
+<!-- Bottom Controls Area -->
+<footer class="relative z-20 pb-safe-bottom pt-6 px-6 bg-background-light/95 dark:bg-background-dark/95 glass-panel border-t border-white/10 dark:border-white/5 rounded-t-xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+<!-- Mode Selector (Optional scrollable list feel) -->
+<div class="flex justify-center gap-6 mb-6 text-xs font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400">
+<span class="cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors">Barcode</span>
+<span class="text-gray-900 dark:text-white relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full">Receipt</span>
+<span class="cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors">Manual</span>
+</div>
+<div class="flex justify-between items-center">
+<!-- Gallery Button -->
+<button class="w-12 h-12 rounded-lg bg-neutral-surface dark:bg-white/10 overflow-hidden relative group active:scale-95 transition-transform flex items-center justify-center">
+<img alt="Recent photo from camera roll thumbnail" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Small thumbnail of a recent grocery receipt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYcu2KPnR0HsCDw6cN27Vzu-oYHhBxNqYKHEqeykWGC4pei7VfhRojVsKw3VyRg703gU9gJRs7HOxH0fJwJ2AWAjaSFGGJo7dWlbRQ1SeRIzAbAtTdCg0T5GFJlq4Fzk3iRVAHL44NiKZtyu-RMeMZuoZAC4E8ZN5HuUWjOrwlCph_0Cs8EhRRzszBEsaA4sXVTsria9IuwMa4B5dSKbx6uzlhxBDwJevqLniP0d2n1UbcQ3lVNtfmooYJoG5gLj4J0bfPWsv6Jxxj"/>
+<!-- Overlay icon just in case image fails or to indicate action -->
+<div class="absolute inset-0 flex items-center justify-center bg-black/10">
+<span class="material-icons text-white drop-shadow-md text-xl">photo_library</span>
+</div>
+</button>
+<!-- Shutter Button -->
+<button class="relative group">
+<!-- Outer ring -->
+<div class="w-20 h-20 rounded-full border-4 border-gray-300 dark:border-gray-600 flex items-center justify-center transition-all duration-300 group-active:scale-95 group-active:border-primary">
+<!-- Inner circle (Actual button) -->
+<div class="w-16 h-16 rounded-full bg-primary shadow-lg shadow-primary/40 group-active:scale-90 transition-all duration-200 flex items-center justify-center">
+<!-- Optional camera icon inside -->
+<span class="material-icons text-background-dark text-3xl">camera_alt</span>
+</div>
+</div>
+</button>
+<!-- Recent Scans / List Link -->
+<button class="w-12 h-12 rounded-lg flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors active:scale-95">
+<div class="relative">
+<span class="material-icons text-gray-600 dark:text-gray-300 text-3xl">receipt_long</span>
+<span class="absolute -top-1 -right-1 w-4 h-4 bg-primary text-background-dark text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+</div>
+</button>
+</div>
+</footer>
+</body></html>
