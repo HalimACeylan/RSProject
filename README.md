@@ -1,96 +1,52 @@
-# fridge_app
+# Fridge App
 
-A new Flutter project.
+A streamlined Flutter application to manage your fridge inventory.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+If you are a new developer who has just cloned the application, you can get it up and running in a few simple steps. The app is configured to use **mock data** by default, meaning you do not need to configure Firebase to test the application.
 
-A few resources to get you started if this is your first Flutter project:
+### 1. Prerequisites
+Ensure you have the [Flutter SDK](https://docs.flutter.dev/get-started/install) installed.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-## Firebase Backend
-
-The app now uses authenticated users with household-scoped Firestore data.
-
-### Auth + Bootstrap Flow
-
-On startup:
-
-1. App signs in with Firebase Auth (anonymous for now).
-2. App ensures `users/{uid}` exists.
-3. App ensures the user has `primaryHouseholdId`.
-4. If missing, app creates:
-   - `households/{householdId}`
-   - `households/{householdId}/members/{uid}` as owner
-   - `households/{householdId}/subscriptions/current`
-   - `households/{householdId}/payments/payment_profile`
-5. Fridge and receipts are read/written under that household.
-
-Firebase Console requirement:
-
-- Enable `Authentication > Sign-in method > Anonymous` (current bootstrap uses anonymous auth).
-
-### Data Model
-
-- `users/{uid}`
-  - `primaryHouseholdId`, `role`, `status`, `planTier`, `billingStatus`
-  - profile fields: `email`, `displayName`, `photoUrl`
-  - auth metadata: `isAnonymous`, `authProviderIds`, timestamps
-- `households/{householdId}`
-  - ownership: `ownerUserId`, `memberCount`
-  - SaaS: `planTier`, `billingStatus`, `billingCycle`, `seatLimit`
-  - payment linkage: `stripeCustomerId`, `stripeSubscriptionId`
-  - feature flags: `aiReceiptParsingEnabled`
-- `households/{householdId}/members/{uid}`
-  - `userId`, `role` (`owner/admin/member`), `status`, profile snapshot
-- `households/{householdId}/fridge_items/{itemId}`
-  - fridge item data + audit fields (`createdByUserId`, `updatedByUserId`)
-- `households/{householdId}/receipts/{receiptId}`
-  - receipt data + audit fields
-- `households/{householdId}/subscriptions/current`
-  - subscription status (`planId`, `status`, `interval`, `amountCents`, etc.)
-- `households/{householdId}/payments/payment_profile`
-  - billing profile (`customerId`, `defaultPaymentMethodId`, tax/billing fields)
-
-### Seed Modes
-
-Use `FIREBASE_SEED_MODE` at run-time:
-
-- `if-empty` (default): seed sample data only if cloud is empty
-- `overwrite`: replace active household fridge/receipt data with sample data
-- `skip`: skip seeding and only read existing household data
-
-Examples:
+### 2. Setup & Run
+Run the following commands in your terminal at the root of the project:
 
 ```bash
-flutter run --dart-define=FIREBASE_SEED_MODE=if-empty
-flutter run --dart-define=FIREBASE_SEED_MODE=overwrite
-flutter run --dart-define=FIREBASE_SEED_MODE=skip
+# 1. Clean any stale build files (crucial after a fresh clone)
+flutter clean
+
+# 2. Get the necessary packages
+flutter pub get
+
+# 3. Run the app
+flutter run
 ```
 
-### Join Existing Household (Flutter)
+## Architecture & Mock Data
 
-To connect another signed-in user to an existing household:
+To make onboarding easy, the app does not strictly require a backend to run. Because the Firebase configuration file (`firebase_options.dart`) is not committed to source control for security reasons, the app is designed to gracefully fall back to **in-memory mock data**.
 
-```dart
-await UserHouseholdService.instance.joinHousehold(
-  existingHouseholdId,
-  inviteCode: inviteCodeFromOwner,
-);
-await FridgeService.instance.refreshFromCloud();
-await ReceiptService.instance.refreshFromCloud();
-```
+When you run the app, it will attempt to initialize Firebase. If it fails or the configuration is missing, services like `FridgeService` will automatically load mock files/sample items. This allows you to immediately interact with the UI, view items, and test the basic logic without spending time on backend setup.
 
-### Deploy Firestore Rules/Indexes
+### Sample Data Modes
+
+If you eventually connect the app to Firebase, you can control how the sample data behaves using run-time variables:
 
 ```bash
-firebase deploy --only firestore:rules,firestore:indexes
+flutter run --dart-define=FIREBASE_SEED_MODE=if-empty   # Seeds sample data only if cloud is empty (default)
+flutter run --dart-define=FIREBASE_SEED_MODE=overwrite  # Replaces active cloud data with sample data
+flutter run --dart-define=FIREBASE_SEED_MODE=skip       # Skips seeding entirely
 ```
+
+## Firebase Backend (Optional Setup)
+
+If you wish to connect your own Firebase project:
+
+1. Create a Firebase project and add a Flutter app via the Firebase Console.
+2. Run `flutterfire configure` at the root of this project to generate `lib/firebase_options.dart`.
+3. Enable **Anonymous** Authentication in the Firebase Console (`Authentication > Sign-in method > Anonymous`).
+4. Deploy the necessary Firestore rules and indexes:
+   ```bash
+   firebase deploy --only firestore:rules,firestore:indexes
+   ```
