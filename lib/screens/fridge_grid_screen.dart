@@ -177,13 +177,7 @@ class _FridgeGridScreenState extends State<FridgeGridScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Navigate to manual ingredient adding screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Add ingredient manually — coming soon!'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          Navigator.pushNamed(context, AppRoutes.addIngredients);
         },
         backgroundColor: const Color(0xFF13EC13),
         child: const Icon(Icons.add, color: Colors.black),
@@ -399,13 +393,7 @@ class _FridgeGridScreenState extends State<FridgeGridScreen> {
   Widget _buildAddItemCard(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // TODO: Navigate to manual ingredient adding screen
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Add ingredient manually — coming soon!'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        Navigator.pushNamed(context, AppRoutes.addIngredients);
       },
       child: Container(
         decoration: BoxDecoration(

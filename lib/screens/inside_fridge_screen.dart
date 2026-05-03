@@ -145,13 +145,7 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
               right: 24,
               child: FloatingActionButton(
                 onPressed: () {
-                  // TODO: Navigate to manual ingredient adding screen
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Add ingredient manually — coming soon!'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+                  Navigator.pushNamed(context, AppRoutes.addIngredients);
                 },
                 backgroundColor: const Color(0xFF13EC13),
                 child: const Icon(Icons.add, color: Colors.white),
