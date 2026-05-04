@@ -1,0 +1,197 @@
+{
+  "kb_metadata": {
+    "source": "WHO Healthy Diet Fact Sheet",
+    "purpose": "Knowledge Base Rules Engine for Recipe Recommendation System",
+    "description": "This KB defines macronutrient constraints and ingredient filters for different user profiles based strictly on WHO guidelines. It provides formulas to calculate per-serving Percentage of Daily Value (PDV) limits to score recipes."
+  },
+  "dataset_schema": {
+    "format": "[calories, total_fat_%DV, sugar_%DV, sodium_%DV, protein_%DV, saturated_fat_%DV, carbohydrates_%DV]",
+    "indices": {
+      "calories": 0,
+      "total_fat_pdv": 1,
+      "sugar_pdv": 2,
+      "sodium_pdv": 3,
+      "protein_pdv": 4,
+      "saturated_fat_pdv": 5,
+      "carbs_pdv": 6
+    }
+  },
+  "engine_constants": {
+    "dv_references": {
+      "total_fat_g": 65,
+      "sugar_g": 50,
+      "sodium_mg": 2400,
+      "protein_g": 50,
+      "saturated_fat_g": 20,
+      "carbs_g": 300
+    },
+    "calories_per_gram": {
+      "fat": 9,
+      "protein": 4,
+      "carbs": 4,
+      "sugar": 4
+    }
+  },
+  "engine_formulas": {
+    "variables": {
+      "E": "Total daily energy requirement in kcal for the specific user (e.g., 2000)",
+      "N": "Number of meals per day (e.g., 3)"
+    },
+    "daily_pdv_limit": {
+      "calories": "E",
+      "total_fat": "(E * (fat_pct_max / 100) / 9) / 65 * 100",
+      "sugar": "(E * (sugar_pct_max / 100) / 4) / 50 * 100",
+      "sodium": "(sodium_max_mg / 2400) * 100",
+      "protein": "(E * (protein_pct_min / 100) / 4) / 50 * 100",
+      "saturated_fat": "(E * (sat_fat_pct_max / 100) / 9) / 20 * 100",
+      "carbs": "(E * (carbs_pct_max / 100) / 4) / 300 * 100"
+    },
+    "per_serving_limit_formula": "daily_pdv_limit / N",
+    "scoring_logic": "Recipe is penalized if dataset value > per_serving_limit. For protein, penalized if dataset value < per_serving_limit."
+  },
+  "recommendation_profiles": {
+    "general_adult": {
+      "target_audience": "General adult population",
+      "macronutrient_rules": {
+        "fat_pct_max": 30,
+        "sat_fat_pct_max": 10,
+        "trans_fat_pct_max": 1,
+        "carbs_pct_max": 75,
+        "sugar_pct_max": 10,
+        "protein_pct_min": 10,
+        "sodium_max_mg": 2000
+      },
+      "ingredient_filters": {
+        "prefer": [
+          "whole grains",
+          "vegetables",
+          "fruits",
+          "pulses",
+          "fish",
+          "avocado",
+          "nuts",
+          "unsaturated oils"
+        ],
+        "avoid": [
+          "fatty meat",
+          "butter",
+          "palm oil",
+          "coconut oil",
+          "cream",
+          "cheese",
+          "ghee",
+          "lard",
+          "industrially-produced trans fats",
+          "high-sodium condiments"
+        ]
+      }
+    },
+    "athlete_bodybuilder": {
+      "target_audience": "Athletes, bodybuilders, and others actively building/maintaining muscle mass",
+      "macronutrient_rules": {
+        "fat_pct_max": 30,
+        "sat_fat_pct_max": 10,
+        "sugar_pct_max": 10,
+        "carbs_pct_max": 75,
+        "protein_pct_min": 15,
+        "sodium_max_mg": 2000,
+        "protein_excess_warning": "kidney_burden"
+      },
+      "ingredient_filters": {
+        "prefer": [
+          "whole grains",
+          "vegetables",
+          "fruits",
+          "pulses",
+          "fish",
+          "avocado",
+          "nuts",
+          "unsaturated oils"
+        ],
+        "avoid": [
+          "fatty meat",
+          "butter",
+          "palm oil",
+          "coconut oil",
+          "cream",
+          "cheese",
+          "ghee",
+          "lard",
+          "industrially-produced trans fats",
+          "high-sodium condiments"
+        ]
+      }
+    },
+    "adolescent": {
+      "target_audience": "Adolescents (10-19 years)",
+      "macronutrient_rules": {
+        "fat_pct_max": 30,
+        "sat_fat_pct_max": 10,
+        "sugar_pct_max": 10,
+        "carbs_pct_max": 75,
+        "protein_pct_min": 15,
+        "sodium_max_mg": 2000
+      },
+      "ingredient_filters": {
+        "prefer": [
+          "whole grains",
+          "vegetables",
+          "fruits",
+          "pulses",
+          "fish",
+          "avocado",
+          "nuts",
+          "unsaturated oils"
+        ],
+        "avoid": [
+          "fatty meat",
+          "butter",
+          "palm oil",
+          "coconut oil",
+          "cream",
+          "cheese",
+          "ghee",
+          "lard",
+          "industrially-produced trans fats",
+          "high-sodium condiments"
+        ]
+      }
+    },
+    "pregnant_lactating": {
+      "target_audience": "Pregnant or lactating women",
+      "macronutrient_rules": {
+        "fat_pct_max": 30,
+        "sat_fat_pct_max": 10,
+        "sugar_pct_max": 10,
+        "carbs_pct_max": 75,
+        "protein_pct_min": 10,
+        "sodium_max_mg": 2000
+      },
+      "ingredient_filters": {
+        "prefer": [
+          "animal source foods",
+          "whole grains",
+          "vegetables",
+          "fruits",
+          "pulses",
+          "fish",
+          "avocado",
+          "nuts",
+          "unsaturated oils"
+        ],
+        "avoid": [
+          "fatty meat",
+          "butter",
+          "palm oil",
+          "coconut oil",
+          "cream",
+          "cheese",
+          "ghee",
+          "lard",
+          "industrially-produced trans fats",
+          "high-sodium condiments"
+        ]
+      }
+    }
+  }
+}

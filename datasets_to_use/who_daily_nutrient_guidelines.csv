@@ -1,0 +1,8 @@
+nutrient,index,unit,kcal_per_g,who_pct_energy_min,who_pct_energy_max,dv_reference,dv_unit,formula_grams_max,formula_pdv_max,computed_grams_max_2000,computed_pdv_max_2000,who_quote
+calories,0,kcal,,,,2000,kcal,E,,,Energy intake balanced with expenditure
+total_fat,1,%DV,9,15,30,65,g,E*fat_pct_max/100/9,E*fat_pct_max/100/9/65*100,66.7,102.6,15-30% of total daily energy
+sugar,2,%DV,4,,10,50,g,E*sugar_pct_max/100/4,E*sugar_pct_max/100/4/50*100,50.0,100.0,<10% of total daily energy; <5% for extra benefit
+sodium,3,%DV,,,,,mg,2000,2000/2400*100,2000,83.3,Salt <5g/day = sodium <2000mg/day
+protein,4,%DV,4,10,15,50,g,E*prot_pct_max/100/4,E*prot_pct_max/100/4/50*100,75.0,150.0,10-15% of total daily energy; >15% for athletes/adolescents
+saturated_fat,5,%DV,9,,10,20,g,E*satfat_pct_max/100/9,E*satfat_pct_max/100/9/20*100,22.2,111.1,<10% of total energy; lower is better
+carbohydrates,6,%DV,4,45,75,300,g,E*carb_pct_max/100/4,E*carb_pct_max/100/4/300*100,375.0,125.0,45-75% of total daily energy from whole grains/fruits/veg
