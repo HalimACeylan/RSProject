@@ -1,0 +1,379 @@
+BOUNDARY CF & MONOTONY BREAKER Test Sonuçları — 2026-05-18 01:36:00
+==============================================================================================================
+Özellikler: Otoriter KB | Kesişim Noktası CF (+15 Puan Maks) | Diyet Monotonluğu Kırıcı (-5/+10)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Berk | general_adult
+   Son Öğünlerin Ana Malzemeleri (History): virgin_olive_oil, tilapia_fillets
+
+   📌 Kahvaltı (simüle): [Simüle] high_sugar
+
+   📌 Öğle Yemeği — Seçilen: garlic mojo
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          119    95.0     14.2       10.0  garlic mojo
+      2   🟢 Ana Eşleşme 2          108    95.0      3.1       10.0  broiled asparagus with garlic
+      3   🛡️ Makro Telafi          137   119.0      7.7       10.0  cracked black pepper salmon
+      4   🌉 Kesişim Keşfi (CF)     102    76.5     15.0       10.0  basil spread for sandwiches
+      5   ✨ Diyet Kırıcı           107    90.0      6.7       10.0  easy home fries
+
+   📌 Akşam Yemeği — Seçilen: asian tilapia in foil
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          106    92.1      4.5       10.0  asian tilapia in foil
+      2   🟢 Ana Eşleşme 2          115    90.0     15.0       10.0  caramelized garlic and garlic oil
+      3   🛡️ Makro Telafi          118   105.1      3.4       10.0  giada de laurentiis  white bean and tuna
+      4   🌉 Kesişim Keşfi (CF)     115    90.0     15.0       10.0  asparagus grilled with garlic  rosemary 
+      5   ✨ Diyet Kırıcı           110    88.0     12.4       10.0  guacamole best ever
+
+   Gün Sonu: Cal:28% Fat:30% Sugar:58% Prot:70% Na:65%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Seda | pregnant_lactating
+   Son Öğünlerin Ana Malzemeleri (History): frozen_spinach, mashed_potatoes, polish_sausage
+
+   📌 Kahvaltı — Seçilen: baked potato onion wrap ups
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1           94    80.5      3.9       10.0  baked potato onion wrap ups
+      2   🟢 Ana Eşleşme 2           64    54.5      0.0       10.0  easy applesauce
+      3   🛡️ Makro Telafi          128   109.0      9.1       10.0  black bean  egg   corn casserole
+      4   🌉 Kesişim Keşfi (CF)     127   102.3     15.0       10.0  greek stuffed chicken breasts
+      5   ✨ Diyet Kırıcı           126   105.0     10.7       10.0  fiesta vegetable stuffed bell peppers
+
+   📌 Öğle Yemeği — Seçilen: greek stuffed chicken
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          140   125.8      4.6       10.0  greek stuffed chicken
+      2   🟢 Ana Eşleşme 2          146   122.5     13.3       10.0  black beans prepared in a crock pot
+      3   🛡️ Makro Telafi          139   121.5      7.3       10.0  cheddar chicken and rice skillet
+      4   🌉 Kesişim Keşfi (CF)     139   114.2     15.0       10.0  garden frittata italiano
+      5   ✨ Diyet Kırıcı           135   121.5      3.3       10.0  chicken breasts stuffed with goat cheese
+
+   📌 Ara Öğün — Seçilen: fried mashed potatoes
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1           95    80.5      4.2       10.0  fried mashed potatoes
+      2   🟢 Ana Eşleşme 2           77    60.5      6.2       10.0  fried garlic chips
+      3   🛡️ Makro Telafi          120   109.0      1.5       10.0  aunt donna s tomato  cheese and macaroni
+      4   🌉 Kesişim Keşfi (CF)     129   104.0     15.0       10.0  bauern omelette  german omelette
+      5   ✨ Diyet Kırıcı           128   109.0      9.0       10.0  colorful mushroom casserole
+
+   📌 Akşam Yemeği — Seçilen: garlic frittata
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          148   122.7     15.0       10.0  garlic frittata
+      2   🟢 Ana Eşleşme 2          136   121.8      3.9       10.0  breakfast grilled cheese mexican style
+      3   🛡️ Makro Telafi          133   121.6      1.8       10.0  crock pot southwestern chicken
+      4   🌉 Kesişim Keşfi (CF)     138   112.8     15.0       10.0  chicken with confetti corn sauce
+      5   ✨ Diyet Kırıcı           143   121.5     11.2       10.0  chicken basil italiano
+
+   Gün Sonu: Cal:54% Fat:67% Sugar:41% Prot:123% Na:47%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Mert | adolescent
+   Son Öğünlerin Ana Malzemeleri (History): mild_cheddar_cheese, _herb_spreadable_cheese, s_french_fried_onions
+
+   📌 Kahvaltı (simüle): [Simüle] low_protein
+
+   📌 Ara Öğün 1 — Seçilen: blue cheese baked salmon
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          137   124.5      2.4       10.0  blue cheese baked salmon
+      2   🟢 Ana Eşleşme 2          133   122.5      0.2       10.0  asian barbecue salmon
+      3   🛡️ Makro Telafi          132   119.9      2.4       10.0  baked honey soy   garlic drumsticks
+      4   🌉 Kesişim Keşfi (CF)     130   104.8     15.0       10.0  crock pot herbed chicken and shrimp
+      5   ✨ Diyet Kırıcı           135   119.7      5.5       10.0  cocktail de camarones
+
+   📌 Öğle Yemeği — Seçilen: ham   egg casserole
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          127   108.0      9.2       10.0  ham   egg casserole
+      2   🟢 Ana Eşleşme 2          124   106.0      7.7       10.0  chicken burger
+      3   🛡️ Makro Telafi          124   105.0      9.4       10.0  chicken asparagus melt
+      4   🌉 Kesişim Keşfi (CF)     128   103.0     15.0       10.0  cod baked in foil   bittman
+      5   ✨ Diyet Kırıcı           126   105.0     11.4       10.0  citrus grill
+
+   📌 Ara Öğün 2 — Seçilen: chicken broccoli pasta
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          122   111.0      1.3       10.0  chicken broccoli pasta
+      2   🟢 Ana Eşleşme 2          122   108.0      4.0       10.0  crispy dijon chicken
+      3   🛡️ Makro Telafi          126   108.0      7.9       10.0  cheesy bacon meatloaf
+      4   🌉 Kesişim Keşfi (CF)     131   106.0     15.0       10.0  chicken with garlic bread crumbs
+      5   ✨ Diyet Kırıcı           127   108.0      9.4       10.0  chicken and mustard crumble
+
+   📌 Akşam Yemeği — Seçilen: crunchy onion chicken
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          118   106.0      2.5       10.0  crunchy onion chicken
+      2   🟢 Ana Eşleşme 2          127   102.0     15.0       10.0  broccoli garlic pasta
+      3   🛡️ Makro Telafi          136   111.0     15.0       10.0  chicken and cheddar strata
+      4   🌉 Kesişim Keşfi (CF)     133   108.0     15.0       10.0  fluffy melty scrambled eggz
+      5   ✨ Diyet Kırıcı           125   108.0      7.2       10.0  chicken rarebits
+
+   Gün Sonu: Cal:53% Fat:61% Sugar:12% Prot:137% Na:55%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Aylin | general_adult
+   Son Öğünlerin Ana Malzemeleri (History): lipton_recipe_secrets_savory_herb_with_garlic_soup_mix, style_tomatoes, green_beans
+
+   📌 Kahvaltı — Seçilen: garlic chicken melt
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          112   100.0      2.3       10.0  garlic chicken melt
+      2   🟢 Ana Eşleşme 2          116    95.4     11.0       10.0  chicken stir fry
+      3   🛡️ Makro Telafi          126   104.0     12.1       10.0  cod gumbo
+      4   🌉 Kesişim Keşfi (CF)     127   102.0     15.0       10.0  aruban rice with chicken
+      5   ✨ Diyet Kırıcı           122   102.0     10.4       10.0  baked tempeh
+
+   📌 Öğle Yemeği — Seçilen: chicken breast with sauteed tomatoes and green beans
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          117   102.0      5.4       10.0  chicken breast with sauteed tomatoes and
+      2   🟢 Ana Eşleşme 2          112   100.0      1.5       10.0  ginger marinated tuna steaks
+      3   🛡️ Makro Telafi          128   104.0     14.1       10.0  gnocchi with shrimp  asparagus  and pest
+      4   🌉 Kesişim Keşfi (CF)     128   103.0     15.0       10.0  basil pesto
+      5   ✨ Diyet Kırıcı           126   104.0     12.1       10.0  cod gumbo
+
+   📌 Akşam Yemeği — Seçilen: grilled red onions and green beans
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          124   102.0     12.5       10.0  grilled red onions and green beans
+      2   🟢 Ana Eşleşme 2          114   100.0      3.7       10.0  bea s grilled pork chops
+      3   🛡️ Makro Telafi          129   104.0     15.0       10.0  angel hair pasta with creamy pesto
+      4   🌉 Kesişim Keşfi (CF)     127   102.0     15.0       10.0  delicious greek garlic chicken
+      5   ✨ Diyet Kırıcı           119   102.0      7.3       10.0  greek starter
+
+   Gün Sonu: Cal:30% Fat:33% Sugar:26% Prot:145% Na:32%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Ozan | athlete_bodybuilder
+   Son Öğünlerin Ana Malzemeleri (History): fresh_chili_pepper, minced_garlic_cloves, chicken_breasts
+
+   📌 Kahvaltı (simüle): [Simüle] low_protein
+
+   📌 Ara Öğün 1 — Seçilen: garlic broccoli spears
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1           96    73.0     13.4       10.0  garlic broccoli spears
+      2   🟢 Ana Eşleşme 2           86    73.0      3.5       10.0  broccoli rabe with garlic  tomatoes  and
+      3   🛡️ Makro Telafi          130   118.4      1.4       10.0  5 can chicken tortilla soup
+      4   🌉 Kesişim Keşfi (CF)      56    31.0     15.0       10.0  creamy hash browns potato casserole
+      5   ✨ Diyet Kırıcı            85    65.0      9.9       10.0  corn   black bean casserole
+
+   📌 Öğle Yemeği — Seçilen: naked  grilled salmon
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          109    92.2      6.8       10.0  naked  grilled salmon
+      2   🟢 Ana Eşleşme 2          111    85.9     15.0       10.0  chicken cooked in foil
+      3   🛡️ Makro Telafi          145   130.0      4.8       10.0  cilantro pesto chicken tenders
+      4   🌉 Kesişim Keşfi (CF)     100    74.6     15.0       10.0  chicken noodle souperole
+      5   ✨ Diyet Kırıcı            55    42.9      2.5       10.0  almond paste   make your own
+
+   📌 Ara Öğün 2 — Seçilen: broccoli   chicken with hoisin sauce
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          112    97.9      4.3       10.0  broccoli   chicken with hoisin sauce
+      2   🟢 Ana Eşleşme 2          106    87.1      9.0       10.0  chicken breasts stuffed with feta and sp
+      3   🛡️ Makro Telafi          140   130.0      0.1       10.0  grilled chicken   pineapple skewers
+      4   🌉 Kesişim Keşfi (CF)      90    65.0     15.0       10.0  beer flavored potatoes
+      5   ✨ Diyet Kırıcı            88    73.0      5.5       10.0  easy rice and noodle kugel
+
+   📌 Akşam Yemeği — Seçilen: crunchy baked broccoli
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1           92    73.0      8.7       10.0  crunchy baked broccoli
+      2   🟢 Ana Eşleşme 2           87    73.0      4.0       10.0  baked sweet potato sticks
+      3   🛡️ Makro Telafi          146   130.0      6.3       10.0  citrus infused salmon with a citrus pepp
+      4   🌉 Kesişim Keşfi (CF)     132   107.0     15.0       10.0  crock pot lemon rosemary chicken
+      5   ✨ Diyet Kırıcı           109    90.4      8.6       10.0  chicken artichoke heart 3 cheese pizza
+
+   📌 Gece Atıştırması — Seçilen: garlic lemon chicken  hcg p2
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          100    75.0     15.0       10.0  garlic lemon chicken  hcg p2
+      2   🟢 Ana Eşleşme 2           74    75.0      3.5       -5.0  grilled salmon with rosemary
+      3   🛡️ Makro Telafi          137   118.3      8.4       10.0  frozen chicken breasts in microwave
+      4   🌉 Kesişim Keşfi (CF)      88    63.0     15.0       10.0  300 lb  potatoes
+      5   ✨ Diyet Kırıcı            92    80.0      1.9       10.0  creamy rice  chicken   spinach dinner
+
+   Gün Sonu: Cal:31% Fat:43% Sugar:25% Prot:62% Na:32%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Ceren | general_adult
+   Son Öğünlerin Ana Malzemeleri (History): bell_pepper, minced_garlic_clove, garlic
+
+   📌 Kahvaltı — Seçilen: grilled bell pepper salad  slata fel fel
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          115    90.0     15.0       10.0  grilled bell pepper salad  slata fel fel
+      2   🟢 Ana Eşleşme 2          109    90.0      9.3       10.0  black olive paste
+      3   🛡️ Makro Telafi          122   104.0      7.5       10.0  cod roasted with fresh herbs
+      4   🌉 Kesişim Keşfi (CF)     120    94.9     15.0       10.0  chinese confinement egg omelette with se
+      5   ✨ Diyet Kırıcı           125   104.0     11.1       10.0  grilled cod with moroccan spiced tomato 
+
+   📌 Öğle Yemeği — Seçilen: baked tomato onion casserole
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          111    90.0     10.7       10.0  baked tomato onion casserole
+      2   🟢 Ana Eşleşme 2          112    90.0     11.8       10.0  borderline mushrooms
+      3   🛡️ Makro Telafi          131   113.7      7.4       10.0  grilled salmon with dilled mustard glaze
+      4   🌉 Kesişim Keşfi (CF)     115    90.0     15.0       10.0  caramelized onions   oven baked   great 
+      5   ✨ Diyet Kırıcı           101    88.0      3.0       10.0  blue brie  baked brie with blueberries
+
+   📌 Akşam Yemeği — Seçilen: crock pot roasted garlic
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          114    90.0     14.2       10.0  crock pot roasted garlic
+      2   🟢 Ana Eşleşme 2          108    90.0      7.8       10.0  broiled mushrooms
+      3   🛡️ Makro Telafi          125   111.8      3.2       10.0  easy pesto halibut
+      4   🌉 Kesişim Keşfi (CF)     115    90.0     15.0       10.0  garlic pasta
+      5   ✨ Diyet Kırıcı           105    88.0      6.8       10.0  asparagus dijonnaise
+
+   Gün Sonu: Cal:11% Fat:15% Sugar:17% Prot:9% Na:0%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Tarik | general_adult
+   Son Öğünlerin Ana Malzemeleri (History): new_potatoes, extra_virgin_olive_oil
+
+   📌 Kahvaltı (simüle): [Simüle] balanced
+
+   📌 Öğle Yemeği — Seçilen: four veggie roast
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          107    88.0      8.9       10.0  four veggie roast
+      2   🟢 Ana Eşleşme 2          104    88.0      6.1       10.0  baked potato onion wrap ups
+      3   🛡️ Makro Telafi          128   114.0      4.3       10.0  grilled basil lemon turkey breast
+      4   🌉 Kesişim Keşfi (CF)     113    88.0     15.0       10.0  artichoke leaves with parmesan basil aio
+      5   ✨ Diyet Kırıcı           125   109.2      5.8       10.0  beef and potato chili
+
+   📌 Akşam Yemeği — Seçilen: garlic oil
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          107    90.0      6.9       10.0  garlic oil
+      2   🟢 Ana Eşleşme 2          113    90.0     12.9       10.0  crock pot roasted garlic
+      3   🛡️ Makro Telafi          126   112.0      3.7       10.0  chicken and spinach noodles
+      4   🌉 Kesişim Keşfi (CF)     116    90.9     15.0       10.0  bacon  onion and tomato frittata
+      5   ✨ Diyet Kırıcı           101    88.0      3.3       10.0  baked pizza potato skins
+
+   Gün Sonu: Cal:34% Fat:21% Sugar:33% Prot:38% Na:25%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Gizem | athlete_bodybuilder
+   Son Öğünlerin Ana Malzemeleri (History): lettuce_leaf, cooked_rice, frozen_broccoli
+
+   📌 Kahvaltı — Seçilen: crunchy onion chicken
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          119   109.0      0.0       10.0  crunchy onion chicken
+      2   🛡️ Makro Telafi          123   107.6      5.4       10.0  chicken bean soup
+      3   🌉 Kesişim Keşfi (CF)     125    99.7     15.0       10.0  beefy egg noodles
+      4   ✨ Diyet Kırıcı           129   106.8     12.4       10.0  crispy rice chicken
+      5   🔵 Ekstra                 125   104.6     10.1       10.0  halibut with cumin pepper curry
+
+   📌 Ara Öğün 1 — Seçilen: baked eggs w spinach and tomatoes
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          129   107.0     12.3       10.0  baked eggs w spinach and tomatoes
+      2   🛡️ Makro Telafi          125   109.0      6.3       10.0  crispy oven fried cod fish
+      3   🌉 Kesişim Keşfi (CF)     130   105.0     15.0       10.0  amore salmon bake
+      4   ✨ Diyet Kırıcı           120   105.5      4.4       10.0  chicken cacciatore and rigatoni
+      5   🔵 Ekstra                 128   105.0     13.0       10.0  citrus chicken with oregano
+
+   📌 Öğle Yemeği — Seçilen: chicken avocado salad
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          127   109.0      8.0       10.0  chicken avocado salad
+      2   🟢 Ana Eşleşme 2          119   108.0      0.9       10.0  baked salmon with tomatoes  spinach and 
+      3   🛡️ Makro Telafi          123   108.0      4.9       10.0  burrito bowl mason jar salad
+      4   🌉 Kesişim Keşfi (CF)     130   105.0     15.0       10.0  algarve oven baked codfish with cauliflo
+      5   ✨ Diyet Kırıcı           122   108.0      4.1       10.0  easy pleasing extra lean meatloaf
+
+   📌 Ara Öğün 2 — Seçilen: fried rice for 2
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1           96    81.0      4.8       10.0  fried rice for 2
+      2   🟢 Ana Eşleşme 2           90    70.0     10.0       10.0  garlic oil
+      3   🛡️ Makro Telafi          124   108.0      5.9       10.0  cheesy broccoli cheddar quinoa
+      4   🌉 Kesişim Keşfi (CF)     132   107.0     15.0       10.0  baked cheese   broccoli patties
+      5   ✨ Diyet Kırıcı           123   108.0      5.3       10.0  chicken  broccoli and noodles supreme
+
+   📌 Akşam Yemeği — Seçilen: flat omelet for a stress free life
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          104    78.7     15.0       10.0  flat omelet for a stress free life
+      2   🛡️ Makro Telafi          130   110.0      9.7       10.0  cheddar chicken and rice skillet
+      3   🌉 Kesişim Keşfi (CF)     130   105.0     15.0       10.0  greek chicken breast souvlaki
+      4   ✨ Diyet Kırıcı           127   109.0      8.3       10.0  almond crusted chicken breasts
+      5   🔵 Ekstra                 131   109.0     12.1       10.0  cordon bleu roll  oamc
+
+   Gün Sonu: Cal:45% Fat:76% Sugar:25% Prot:91% Na:59%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Pelin | pregnant_lactating
+   Son Öğünlerin Ana Malzemeleri (History): seasoning_salt, frozen_creamed_spinach, oil
+
+   📌 Kahvaltı (simüle): [Simüle] balanced
+
+   📌 Öğle Yemeği — Seçilen: crispy potato wedges
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1           90    80.5      0.0       10.0  crispy potato wedges
+      2   🟢 Ana Eşleşme 2           14     4.0      0.0       10.0  alioli   spanish style
+      3   🛡️ Makro Telafi          138   127.5      0.0       10.0  barbecue glazed salmon
+      4   🌉 Kesişim Keşfi (CF)      90    79.5      0.0       10.0  cheesy potatoes  easy au gratin potatoes
+      5   ✨ Diyet Kırıcı            87    77.3      0.0       10.0  barbecue lasagna
+
+   📌 Ara Öğün — Seçilen: easy shrimp florentine and penne pasta
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          126   115.9      0.0       10.0  easy shrimp florentine and penne pasta
+      2   🟢 Ana Eşleşme 2          120   110.4      0.0       10.0  chicken cutlets with fried capers  parsl
+      3   🛡️ Makro Telafi          134   124.5      0.0       10.0  ground beef tomato spinach casserole
+      4   🌉 Kesişim Keşfi (CF)      90    80.5      0.0       10.0  avocados stuffed with quinoa  corn and t
+      5   ✨ Diyet Kırıcı           102    92.2      0.0       10.0  cod fish casserole  portuguese style
+
+   📌 Akşam Yemeği — Seçilen: favorite potatoes for hubby
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          110   100.0      0.0       10.0  favorite potatoes for hubby
+      2   🛡️ Makro Telafi          121   111.0      0.0       10.0  ham  egg   cheese cups
+      3   🌉 Kesişim Keşfi (CF)     121   111.0      0.0       10.0  fetta and spinach free form pie
+      4   ✨ Diyet Kırıcı           120   110.0      0.0       10.0  baked pasta with spinach  ricotta  and p
+      5   🔵 Ekstra                 119   109.0      0.0       10.0  bourbon street frittata
+
+   Gün Sonu: Cal:80% Fat:82% Sugar:25% Prot:103% Na:37%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Ali | adolescent
+   Son Öğünlerin Ana Malzemeleri (History): angel_hair_pasta, mustard, dry_breadcrumbs
+
+   📌 Kahvaltı — Seçilen: 20 minute pasta bake
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1           96    81.0      4.7       10.0  20 minute pasta bake
+      2   🟢 Ana Eşleşme 2           71    46.0     15.0       10.0  cream cheese meatloaf low carb
+      3   🛡️ Makro Telafi          119   109.0      0.1       10.0  ginger chicken burgers
+      4   🌉 Kesişim Keşfi (CF)     112    86.8     15.0       10.0  ferris wheel chicken salad
+      5   ✨ Diyet Kırıcı           126   108.0      8.2       10.0  goat cheese chicken meatballs
+
+   📌 Öğle Yemeği — Seçilen: easy spaghetti
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          105    93.9      1.5       10.0  easy spaghetti
+      2   🟢 Ana Eşleşme 2          104    87.0      6.5       10.0  egg and artichoke squares  bake
+      3   🛡️ Makro Telafi          124   108.0      6.5       10.0  easy chicken and cheese burger patties  
+      4   🌉 Kesişim Keşfi (CF)     130   105.0     15.0       10.0  chicken roulade
+      5   ✨ Diyet Kırıcı           127   105.0     11.9       10.0  baked parmesan roughy
+
+   📌 Ara Öğün — Seçilen: eggs mexicana
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1           94    78.7      5.7       10.0  eggs mexicana
+      2   🟢 Ana Eşleşme 2           86    69.2      6.6       10.0  goat cheese mashed potatoes
+      3   🛡️ Makro Telafi          127   106.0     11.3       10.0  easy chicken corn chowder
+      4   🌉 Kesişim Keşfi (CF)     128   103.0     15.0       10.0  cod provencal
+      5   ✨ Diyet Kırıcı           116   105.0      0.6       10.0  amazing chicken
+
+   📌 Akşam Yemeği — Seçilen: basic meatlballs
+      #   Slot Tipi              Total KB Puan CF Bonus Monotonluk Tarif
+      ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢 Ana Eşleşme 1          105    82.6     12.3       10.0  basic meatlballs
+      2   🟢 Ana Eşleşme 2          102    77.1     15.0       10.0  easy eggs
+      3   🛡️ Makro Telafi          136   123.2      2.6       10.0  grilled chicken caesar sandwich
+      4   🌉 Kesişim Keşfi (CF)     102    77.5     15.0       10.0  greek rice with cabbage and tomatoes   l
+      5   ✨ Diyet Kırıcı            98    77.5     10.3       10.0  cuban bean dip
+
+   Gün Sonu: Cal:52% Fat:64% Sugar:29% Prot:89% Na:94%
