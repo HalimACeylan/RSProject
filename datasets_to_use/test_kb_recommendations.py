@@ -31,16 +31,16 @@ MEAL_PLANS = {
 
 # ─── Buzdolabı envanterleri ──────────────────────────────────────
 USER_FRIDGES = {
-    "Ahmet": ["chicken breast","rice","onion","garlic","olive oil","tomatoes","bell pepper","pasta","soy sauce","ginger","carrot","potato","lemon juice","black pepper","salt"],
-    "Elif": ["rice","onion","garlic","olive oil","tomatoes","bell pepper","pasta","lemon juice","eggplant","zucchini","mushroom","parsley","cumin","paprika","vegetable broth"],
-    "Mehmet": ["chicken breast","salmon fillet","eggs","rice","oats","broccoli","spinach","olive oil","garlic","onion","sweet potato","greek yogurt","banana","almonds","protein powder"],
-    "Zeynep": ["chicken breast","eggs","rice","spinach","tomatoes","onion","garlic","olive oil","lemon juice","carrot","potato","yogurt","whole wheat bread","apple","orange"],
-    "Can": ["ground beef","pasta","rice","onion","garlic","tomatoes","bell pepper","cheese","eggs","milk","bread","potato","ketchup","mustard","lettuce"],
-    "Ayşe": ["chicken breast","rice","onion","garlic","olive oil","tomatoes","carrot","broccoli","lemon juice","ginger","soy sauce","sesame oil","tofu","green beans","corn"],
-    "Burak": ["chicken breast","salmon fillet","eggs","rice","oats","broccoli","spinach","olive oil","garlic","onion","sweet potato","avocado","banana","lemon juice","pepper"],
-    "Deniz": ["rice","onion","garlic","olive oil","tomatoes","bell pepper","avocado","lemon juice","tofu","coconut milk","soy sauce","ginger","sesame oil","cilantro","lime juice"],
-    "Fatma": ["chicken breast","eggs","rice","spinach","tomatoes","onion","garlic","olive oil","lemon juice","carrot","potato","pasta","bell pepper","parsley","cumin"],
-    "Emre": ["ground beef","pasta","rice","onion","garlic","tomatoes","bell pepper","cheese","eggs","milk","bread","potato","chicken breast","carrot","corn"],
+    "Berk": ["rice","onion","garlic","olive oil","tomatoes","bell pepper","avocado","lemon juice","tofu","coconut milk","soy sauce","ginger","sesame oil","cilantro","lime juice"],
+    "Seda": ["chicken breast","eggs","rice","spinach","tomatoes","onion","garlic","olive oil","lemon juice","carrot","potato","yogurt","whole wheat bread","apple","orange"],
+    "Mert": ["chicken breast","salmon fillet","eggs","rice","oats","broccoli","spinach","olive oil","garlic","onion","sweet potato","greek yogurt","banana","almonds","protein powder"],
+    "Aylin": ["chicken breast","rice","onion","garlic","olive oil","tomatoes","carrot","broccoli","lemon juice","ginger","soy sauce","sesame oil","tofu","green beans","corn"],
+    "Ozan": ["chicken breast","salmon fillet","eggs","rice","oats","broccoli","spinach","olive oil","garlic","onion","sweet potato","avocado","banana","lemon juice","pepper"],
+    "Ceren": ["rice","onion","garlic","olive oil","tomatoes","bell pepper","pasta","lemon juice","eggplant","zucchini","mushroom","parsley","cumin","paprika","vegetable broth"],
+    "Tarik": ["chicken breast","rice","onion","garlic","olive oil","tomatoes","bell pepper","pasta","soy sauce","ginger","carrot","potato","lemon juice","black pepper"],
+    "Gizem": ["chicken breast","salmon fillet","eggs","rice","oats","broccoli","spinach","olive oil","garlic","onion","sweet potato","greek yogurt","banana","almonds","protein powder"],
+    "Pelin": ["chicken breast","eggs","rice","spinach","tomatoes","onion","garlic","olive oil","lemon juice","carrot","potato","pasta","bell pepper","parsley","cumin"],
+    "Ali": ["ground beef","pasta","rice","onion","garlic","tomatoes","bell pepper","cheese","eggs","milk","bread","potato","ketchup","mustard","lettuce"]
 }
 
 BREAKFAST_SCENARIOS = {
@@ -51,9 +51,9 @@ BREAKFAST_SCENARIOS = {
     "low_cal":      [150, 3, 5, 2, 8, 2, 8],
 }
 USER_BREAKFAST = {
-    "Ahmet":"low_protein","Elif":"high_sugar","Mehmet":"low_protein",
-    "Zeynep":"balanced","Can":"high_calorie","Ayşe":"low_cal",
-    "Burak":"low_protein","Deniz":"high_sugar","Fatma":"balanced","Emre":"high_calorie",
+    "Berk":"high_sugar", "Seda":"balanced", "Mert":"low_protein", 
+    "Aylin":"low_cal", "Ozan":"low_protein", "Ceren":"high_sugar", 
+    "Tarik":"balanced", "Gizem":"low_protein", "Pelin":"balanced", "Ali":"high_calorie"
 }
 
 @dataclass
@@ -130,12 +130,28 @@ def calc_ingredient_match(fridge, recipe_ings):
     total = len(recipe_ings) if recipe_ings else 1
     return len(matched)/total, matched, missing
 
+# Alerji grupları için kelime haritalaması
+ALLERGY_GROUPS = {
+    "fish": ["salmon", "tuna", "tilapia", "cod", "trout", "halibut", "fish", "mahi", "snapper", "sardine", "anchovy"],
+    "shellfish": ["shrimp", "crab", "lobster", "clam", "oyster", "mussel", "scallop", "prawn", "crawfish"],
+    "tree nuts": ["almond", "walnut", "pecan", "cashew", "pistachio", "hazelnut", "macadamia", "pine nut"],
+    "peanut": ["peanut", "goober"],
+    "milk": ["milk", "cheese", "cream", "butter", "yogurt", "whey", "lactose", "ghee"],
+    "egg": ["egg", "mayo"],
+    "soy": ["soy", "tofu", "edamame", "miso", "tempeh"],
+    "gluten": ["wheat", "flour", "bread", "pasta", "barley", "rye", "seitan", "bulgur"]
+}
+
 def is_disqualified(user, recipe):
     ings = recipe["ingredients"]
     for a in user.allergies:
-        if any(a.lower() in i for i in ings): return True
+        kw_list = ALLERGY_GROUPS.get(a.lower(), [a.lower()])
+        for kw in kw_list:
+            if any(kw in i for i in ings): return True
+            
     for a in user.avoid_ingredients:
         if any(a.lower() in i for i in ings): return True
+        
     meat_kw = ["chicken","beef","pork","lamb","turkey","sausage","bacon","ham","steak","meat","veal"]
     animal_kw = meat_kw+["milk","egg","cheese","cream","butter","honey","yogurt","gelatin","whey"]
     if user.diet_preference=="vegetarian" and any(k in i for k in meat_kw for i in ings): return True
@@ -321,21 +337,21 @@ def load_recipes(max_rows=20000):
         for i,row in enumerate(csv.DictReader(f)):
             if i>=max_rows: break
             try:
-                recipes.append({"name":row["name"],"nutrition":ast.literal_eval(row["nutrition"]),"ingredients":[x.lower().strip() for x in ast.literal_eval(row["ingredients"])],"tags":[x.lower().strip() for x in ast.literal_eval(row["tags"])],"minutes":int(row.get("minutes",0) or 0)})
+                recipes.append({"id":int(row["id"]),"name":row["name"],"nutrition":ast.literal_eval(row["nutrition"]),"ingredients":[x.lower().strip() for x in ast.literal_eval(row["ingredients"])],"tags":[x.lower().strip() for x in ast.literal_eval(row["tags"])],"minutes":int(row.get("minutes",0) or 0)})
             except: continue
     return recipes
 
 VIRTUAL_USERS = [
-    VirtualUser("Ahmet",30,"M","general_adult",2000,3),
-    VirtualUser("Elif",25,"F","general_adult",1800,3,diet_preference="vegetarian"),
-    VirtualUser("Mehmet",28,"M","athlete_bodybuilder",2800,5,is_athlete=True),
-    VirtualUser("Zeynep",32,"F","pregnant_lactating",2200,4,is_pregnant=True,allergies=["peanut"]),
-    VirtualUser("Can",16,"M","adolescent",2400,3),
-    VirtualUser("Ayşe",45,"F","general_adult",1600,3,allergies=["milk","cheese"],avoid_ingredients=["sugar","butter"]),
-    VirtualUser("Burak",35,"M","athlete_bodybuilder",3000,6,is_athlete=True,avoid_ingredients=["salt"]),
-    VirtualUser("Deniz",22,"F","general_adult",1800,3,diet_preference="vegan",allergies=["gluten"],avoid_ingredients=["wheat","flour","bread"]),
-    VirtualUser("Fatma",29,"F","pregnant_lactating",2300,4,is_pregnant=True,avoid_ingredients=["alcohol"]),
-    VirtualUser("Emre",14,"M","adolescent",2200,3,allergies=["peanut","tree nuts"]),
+    VirtualUser("Berk", 26, "M", "general_adult", 2400, 3, diet_preference="vegan"),
+    VirtualUser("Seda", 34, "F", "pregnant_lactating", 2400, 4, is_pregnant=True, allergies=["fish", "shellfish"]),
+    VirtualUser("Mert", 17, "M", "adolescent", 2800, 5, is_athlete=True, avoid_ingredients=["sugar", "candy", "chocolate"]),
+    VirtualUser("Aylin", 29, "F", "general_adult", 1700, 3, allergies=["egg", "peanut"]),
+    VirtualUser("Ozan", 40, "M", "athlete_bodybuilder", 3200, 6, is_athlete=True, avoid_ingredients=["bread", "pasta", "flour"]),
+    VirtualUser("Ceren", 21, "F", "general_adult", 1900, 3, diet_preference="vegetarian", allergies=["milk"]),
+    VirtualUser("Tarik", 50, "M", "general_adult", 2100, 3, avoid_ingredients=["salt", "butter", "cream"]),
+    VirtualUser("Gizem", 27, "F", "athlete_bodybuilder", 2600, 5, is_athlete=True),
+    VirtualUser("Pelin", 31, "F", "pregnant_lactating", 2200, 4, is_pregnant=True, avoid_ingredients=["alcohol", "caffeine", "coffee"]),
+    VirtualUser("Ali", 15, "M", "adolescent", 2500, 4, allergies=["tree nuts", "soy"])
 ]
 
 # ─── 5'li öneri: 3 tam + 2 kısmi ────────────────────────────────
@@ -575,7 +591,34 @@ def generate_test_results(all_results):
             p = r["pct"]
             ok = "PASS" if r["ok"] else "FAIL"
             f.write(f"{r['user']:<10} {r['profile']:<22} {r['scenario']:<14} {p['calories']:>5.0f}% {p['protein_pdv']:>6.0f}% {p['sugar_pdv']:>5.0f}% {p['sodium_pdv']:>5.0f}% {'Yok':>6} {ok:>6}\n")
-        f.write(f"\nSONUÇ: {passed}/{total} PASS\n")
+        f.write(f"\nSONUÇ: {passed}/{total} PASS\n\n")
+
+        # Kaynakça / References
+        f.write(f"{'━'*110}\n")
+        f.write("KAYNAKÇA VE PUANLAMA MANTIĞI DAYANAKLARI (BIBLIOGRAPHY)\n")
+        f.write(f"{'━'*110}\n")
+        f.write("Sistemdeki kısıtlamalar, cezalar ve bonuslar aşağıdaki bilimsel otoritelerin beslenme kılavuzlarına dayanmaktadır:\n\n")
+        f.write("1. Dünya Sağlık Örgütü (WHO) Makrobesin Kılavuzları:\n")
+        f.write("   - Yetişkinler için serbest şeker alımının toplam enerjinin %10'unun (ideali %5) altında tutulması.\n")
+        f.write("   - Toplam yağ alımının %30'u, doymuş yağın %10'u geçmemesi.\n")
+        f.write("   - Günlük sodyum alımının 2000mg (2g sodyum / 5g tuz) altında tutulması.\n")
+        f.write("   - Kaynak: 'Healthy diet Fact sheet N°394' (WHO, 2020).\n\n")
+        f.write("2. Sporcu Beslenmesi (Athlete / Bodybuilder):\n")
+        f.write("   - Vücut geliştiriciler ve sporcular için artırılmış protein ihtiyacı (1.6 - 2.2 g/kg/gün).\n")
+        f.write("   - Bu nedenle 'athlete_bodybuilder' profilinde protein eksikliği cezası (×2.0) ve protein telafi bonusu (×2.0) iki katına çıkarılmıştır.\n")
+        f.write("   - Kaynak: International Society of Sports Nutrition (ISSN) Position Stand: protein and exercise (2017).\n\n")
+        f.write("3. Hamile ve Emziren Kadınlar (Pregnant / Lactating):\n")
+        f.write("   - Preeklampsi riskini yönetmek için sodyum takibine daha fazla ağırlık verilmiştir (Sodyum cezası ×1.5).\n")
+        f.write("   - Fetal nöral gelişim ve anne sağlığı için folat (ıspanak vb.), demir ve kalsiyum kaynaklarına ekstra bonus verilmiştir.\n")
+        f.write("   - Alkol ve çiğ balık (sushi vb.) kesinlikle yasaklanmış / ağır cezalandırılmıştır (-50/-10 puan).\n")
+        f.write("   - Kaynak: 'WHO recommendations on antenatal care for a positive pregnancy experience' (WHO, 2016).\n\n")
+        f.write("4. Ergenlik Dönemi (Adolescent):\n")
+        f.write("   - Büyüme dönemi nedeniyle artan kalsiyum ve protein ihtiyacı (Süt, yumurta, peynir için artırılmış bonuslar).\n")
+        f.write("   - Çocukluk çağı obezitesini önlemek amacıyla şekerli içecekler ve atıştırmalıklara ağır cezalar (soda, candy -8 puan).\n")
+        f.write("   - Kaynak: 'Guideline: Sugars intake for adults and children' (WHO, 2015).\n\n")
+        f.write("5. Telafi ve Dengeleme Mantığı (Adaptive Meal Tracking):\n")
+        f.write("   - Günlük besin hedeflerine ulaşmak için öğün bazlı telafi (örneğin sabah eksik alınan proteinin öğlen tamamlanması).\n")
+        f.write("   - Bu mantık, toplam günlük alımın (Total Daily Energy Expenditure - TDEE ve Daily Value - DV) esnek bir şekilde gün içine yayılması prensibine dayanır.\n")
 
     print(f"\n📄 test_results.json ve test_results.txt oluşturuldu.")
 
