@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lifestyle Preferences</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#fd761a",
+                        "on-secondary-fixed-variant": "#783200",
+                        "on-secondary-container": "#5c2400",
+                        "primary": "#006e2f",
+                        "outline": "#6d7b6c",
+                        "surface": "#FFFFFF",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#3d4a3d",
+                        "on-primary-container": "#004b1e",
+                        "tertiary-fixed-dim": "#ffb4a9",
+                        "on-tertiary-fixed-variant": "#7f2a21",
+                        "surface-bright": "#f3fcef",
+                        "inverse-on-surface": "#ebf3e7",
+                        "on-primary-fixed-variant": "#005321",
+                        "surface-container": "#e8f0e4",
+                        "secondary": "#9d4300",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#dce5d9",
+                        "background": "#F8F9FA",
+                        "tertiary": "#9e4036",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "text-secondary": "#6B7280",
+                        "on-primary-fixed": "#002109",
+                        "surface-container-low": "#edf6ea",
+                        "on-secondary-fixed": "#341100",
+                        "on-error": "#ffffff",
+                        "text-primary": "#1F2937",
+                        "secondary-fixed": "#ffdbca",
+                        "border": "#E5E7EB",
+                        "inverse-surface": "#2a322a",
+                        "surface-dim": "#d4ddd0",
+                        "on-surface": "#161d16",
+                        "on-tertiary-container": "#76231b",
+                        "tertiary-fixed": "#ffdad5",
+                        "tertiary-container": "#ff8b7c",
+                        "primary-fixed-dim": "#4ae176",
+                        "surface-tint": "#006e2f",
+                        "surface-container-high": "#e2ebde",
+                        "inverse-primary": "#4ae176",
+                        "outline-variant": "#bccbb9",
+                        "primary-container": "#22c55e",
+                        "secondary-fixed-dim": "#ffb690",
+                        "primary-fixed": "#6bff8f",
+                        "surface-variant": "#dce5d9",
+                        "on-background": "#161d16",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#410001",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "margin-mobile": "1rem",
+                        "margin-desktop": "2rem",
+                        "gutter": "1rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-text-primary font-body-md text-body-md antialiased overflow-hidden h-screen w-full relative">
+<div class="absolute top-0 left-0 w-full h-16 bg-surface shadow-sm flex justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-sm z-0 blur-sm pointer-events-none opacity-40">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[24px]">menu</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">Fridge Manager</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-border"></div>
+</div>
+<div class="absolute inset-0 pt-20 px-margin-mobile z-0 blur-sm pointer-events-none opacity-40 grid gap-4 grid-cols-1 md:grid-cols-2">
+<div class="bg-surface rounded-xl p-4 shadow-sm h-32 border border-border"></div>
+<div class="bg-surface rounded-xl p-4 shadow-sm h-48 border border-border"></div>
+<div class="bg-surface rounded-xl p-4 shadow-sm h-24 border border-border"></div>
+</div>
+<div class="fixed inset-0 bg-[#000000]/40 z-40 flex flex-col justify-end backdrop-blur-[2px]">
+<div class="bg-surface w-full max-w-2xl mx-auto rounded-t-[32px] shadow-2xl relative pt-3 pb-8 px-margin-mobile md:px-margin-desktop flex flex-col max-h-[795px] overflow-y-auto">
+<div class="w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto mb-6 shrink-0"></div>
+<div class="flex flex-col gap-stack-lg">
+<header class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary tracking-widest uppercase">Step 2 of 3</span>
+<h1 class="font-headline-md text-headline-md text-on-surface">Lifestyle</h1>
+</header>
+<div class="flex flex-col gap-stack-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Do you exercise regularly?</h2>
+<div class="grid grid-cols-2 gap-3 mt-1">
+<div class="border-2 border-primary bg-surface-container-low rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer shadow-sm relative overflow-hidden group">
+<div class="absolute top-2 right-2">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[28px] mb-1">directions_run</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Yes</span>
+</div>
+<div class="border border-border bg-surface rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined text-text-secondary text-[28px] mb-1">weekend</span>
+<span class="font-headline-sm text-headline-sm text-text-secondary">No</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-3 pl-4 border-l-[3px] border-surface-container-high py-1 ml-2">
+<h3 class="font-body-md text-body-md text-on-surface-variant">What is your primary focus?</h3>
+<div class="flex flex-wrap gap-2">
+<div class="border border-border bg-surface px-4 py-2 rounded-full cursor-pointer hover:bg-surface-container-lowest transition-colors flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-text-secondary">Athlete</span>
+</div>
+<div class="border-2 border-primary bg-surface-container-low px-4 py-2 rounded-full cursor-pointer flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+<span class="font-label-sm text-label-sm text-on-surface">Bodybuilding</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-stack-sm pt-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Are you pregnant?</h2>
+<div class="grid grid-cols-2 gap-3 mt-1">
+<div class="border border-border bg-surface rounded-xl py-3 flex items-center justify-center gap-2 cursor-pointer hover:bg-surface-container-lowest transition-colors">
+<span class="font-label-sm text-label-sm text-text-secondary">Yes</span>
+</div>
+<div class="border-2 border-primary bg-surface-container-low rounded-xl py-3 flex items-center justify-center gap-2 cursor-pointer shadow-sm relative">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-sm text-label-sm text-on-surface">No</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-4 border-t border-border flex justify-between items-center shrink-0">
+<button class="px-6 py-2.5 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-highest transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    Back
+                </button>
+<button class="px-8 py-2.5 rounded-full font-label-sm text-label-sm bg-primary text-on-primary shadow-md hover:bg-primary/90 transition-colors flex items-center gap-2" type="button">
+                    Next
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>
