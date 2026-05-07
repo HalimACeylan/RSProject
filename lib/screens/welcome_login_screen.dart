@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fridge_app/routes.dart';
+import 'package:fridge_app/widgets/user_preferences_bottom_sheet.dart';
 
 class WelcomeLoginScreen extends StatelessWidget {
   const WelcomeLoginScreen({super.key});
@@ -120,9 +121,11 @@ class WelcomeLoginScreen extends StatelessWidget {
                                 // Get Started Button
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.insideFridge,
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (context) => const UserPreferencesBottomSheet(),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
