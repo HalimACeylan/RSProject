@@ -40,6 +40,11 @@ dependencies:
   firebase_core: ^4.4.0
   cloud_firestore: ^6.1.2
   firebase_auth: ^6.1.1
+  sqflite: ^2.4.2
+  sqflite_common_ffi: ^2.3.4+4
+  sqflite_common_ffi_web: ^0.4.5
+  path: ^1.9.0
+  csv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +70,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - datasets_to_use/daily_food_nutrition_dataset.csv
+    - datasets_to_use/RAW_recipes_filtered.csv
+    - datasets_to_use/synthetic_interactions.csv
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
