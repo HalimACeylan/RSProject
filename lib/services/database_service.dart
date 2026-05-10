@@ -14,30 +14,34 @@ class DatabaseService {
   Database? _db;
   bool _isInitialized = false;
 
-  Database get db {
-    assert(_db != null, 'DatabaseService not initialized. Call initialize() first.');
-    return _db!;
-  }
+  /// Whether the database was successfully opened.
+  bool get isReady => _db != null;
 
   // ── Initialization ────────────────────────────────────────────────
 
   Future<void> initialize() async {
     if (_isInitialized) return;
-    // On web, getDatabasesPath() is not supported.
-    // Just use the DB name directly — the factory handles storage internally.
-    String dbPath;
+    _isInitialized = true; // prevent re-entry
     try {
-      final dir = await getDatabasesPath();
-      dbPath = p.join(dir, 'fridge_app.db');
-    } catch (_) {
-      dbPath = 'fridge_app.db';
+      // On web, getDatabasesPath() is not supported.
+      String dbPath;
+      try {
+        final dir = await getDatabasesPath();
+        dbPath = p.join(dir, 'fridge_app.db');
+      } catch (_) {
+        dbPath = 'fridge_app.db';
+      }
+      debugPrint('[DB] Opening database at: $dbPath');
+      _db = await openDatabase(
+        dbPath,
+        version: 1,
+        onCreate: _onCreate,
+      );
+      debugPrint('[DB] Database opened successfully');
+    } catch (e) {
+      debugPrint('[DB] Failed to open database: $e');
+      _db = null;
     }
-    _db = await openDatabase(
-      dbPath,
-      version: 1,
-      onCreate: _onCreate,
-    );
-    _isInitialized = true;
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -134,6 +138,7 @@ class DatabaseService {
   /// Import all CSV datasets if they haven't been imported yet.
   /// Returns true if an import was performed.
   Future<bool> importCsvIfNeeded() async {
+    if (_db == null) return false;
     final result = await _db!.query('meta', where: 'key = ?', whereArgs: ['csv_imported']);
     if (result.isNotEmpty) return false;
 
@@ -266,6 +271,7 @@ class DatabaseService {
   // ── Generic Query Helpers ─────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> queryAll(String table) async {
+    if (_db == null) return [];
     return _db!.query(table);
   }
 
@@ -276,27 +282,32 @@ class DatabaseService {
     int? limit,
     String? orderBy,
   }) async {
+    if (_db == null) return [];
     return _db!.query(table,
         where: where, whereArgs: whereArgs, limit: limit, orderBy: orderBy);
   }
 
   Future<int> insert(String table, Map<String, dynamic> values,
       {ConflictAlgorithm? conflictAlgorithm}) async {
+    if (_db == null) return -1;
     return _db!.insert(table, values,
         conflictAlgorithm: conflictAlgorithm ?? ConflictAlgorithm.replace);
   }
 
   Future<int> update(String table, Map<String, dynamic> values,
       {String? where, List<Object?>? whereArgs}) async {
+    if (_db == null) return 0;
     return _db!.update(table, values, where: where, whereArgs: whereArgs);
   }
 
   Future<int> delete(String table,
       {String? where, List<Object?>? whereArgs}) async {
+    if (_db == null) return 0;
     return _db!.delete(table, where: where, whereArgs: whereArgs);
   }
 
   Future<int> count(String table) async {
+    if (_db == null) return 0;
     final result = await _db!.rawQuery('SELECT COUNT(*) as cnt FROM $table');
     return Sqflite.firstIntValue(result) ?? 0;
   }
