@@ -645,6 +645,26 @@ enum FridgeCategory {
   });
 
   String get displayName => '$emoji $label';
+
+  /// Maps a dataset category string (e.g. "Protein/Dairy", "Fruit", "Meal/Pasta") to a FridgeCategory
+  static FridgeCategory fromString(String category) {
+    final lower = category.toLowerCase();
+    
+    if (lower.contains('fruit')) return FridgeCategory.fruits;
+    if (lower.contains('vegetable') || lower.contains('produce')) return FridgeCategory.vegetables;
+    if (lower.contains('dairy')) return FridgeCategory.dairy;
+    if (lower.contains('meat') || lower.contains('poultry') || lower.contains('beef')) return FridgeCategory.meat;
+    if (lower.contains('fish') || lower.contains('seafood')) return FridgeCategory.fish;
+    if (lower.contains('grain') || lower.contains('pasta') || lower.contains('rice') || lower.contains('bread')) return FridgeCategory.grains;
+    if (lower.contains('legume') || lower.contains('bean')) return FridgeCategory.vegetables;
+    if (lower.contains('nut') || lower.contains('seed')) return FridgeCategory.snacks;
+    if (lower.contains('condiment') || lower.contains('sauce')) return FridgeCategory.condiments;
+    if (lower.contains('beverage') || lower.contains('drink')) return FridgeCategory.beverages;
+    if (lower.contains('dessert') || lower.contains('sweet')) return FridgeCategory.candy;
+    if (lower.contains('protein')) return FridgeCategory.meat;
+    
+    return FridgeCategory.other;
+  }
 }
 
 /// Freshness status computed from the expiry date.
