@@ -168,15 +168,6 @@ class FridgeService {
     if (_isInitialized) return;
     _isInitialized = true;
 
-    final dbService = DatabaseService.instance;
-    final count = await dbService.count('fridge_items');
-    if (count == 0) {
-      // Seed DB with sample data
-      for (final item in _sampleItems) {
-        await dbService.insert('fridge_items', _toDbMap(item));
-      }
-    }
-
     // Load from DB into memory cache
     await _loadFromDb();
   }
@@ -241,22 +232,22 @@ class FridgeService {
 
   // ── Write operations ─────────────────────────────────────────────
 
-  void addItem(FridgeItem item) {
+  void addItem(FridgeItem item) async {
     final existingIndex = _items.indexWhere((e) => e.id == item.id);
     if (existingIndex == -1) {
       _items.add(item);
     } else {
       _items[existingIndex] = item;
     }
-    DatabaseService.instance.insert('fridge_items', _toDbMap(item));
+    await DatabaseService.instance.insert('fridge_items', _toDbMap(item));
   }
 
-  void updateItem(FridgeItem updated) {
+  void updateItem(FridgeItem updated) async {
     final index = _items.indexWhere((item) => item.id == updated.id);
     if (index != -1) {
       _items[index] = updated;
     }
-    DatabaseService.instance.update(
+    await DatabaseService.instance.update(
       'fridge_items',
       _toDbMap(updated),
       where: 'id = ?',
@@ -264,16 +255,15 @@ class FridgeService {
     );
   }
 
-  void deleteItem(String id) {
+  void deleteItem(String id) async {
     _items.removeWhere((item) => item.id == id);
-    DatabaseService.instance.delete('fridge_items', where: 'id = ?', whereArgs: [id]);
+    await DatabaseService.instance.delete('fridge_items', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<bool> deleteItemById(String id) async {
-    final initialLength = _items.length;
     _items.removeWhere((item) => item.id == id);
-    if (_items.length >= initialLength) return false;
-    await DatabaseService.instance.delete('fridge_items', where: 'id = ?', whereArgs: [id]);
+    final rowsAffected = await DatabaseService.instance.delete('fridge_items', where: 'id = ?', whereArgs: [id]);
+    // Always return true if it was deleted from memory or DB
     return true;
   }
 

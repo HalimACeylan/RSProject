@@ -275,6 +275,36 @@ class DatabaseService {
     return _db!.query(table);
   }
 
+  /// Search food items by name, returning up to [limit] results.
+  Future<List<Map<String, dynamic>>> searchFoodItems(String query, {int limit = 30}) async {
+    if (_db == null) return [];
+    
+    // Check if we want all items (empty query) or specific ones
+    if (query.trim().isEmpty) {
+      return _db!.query('food_items', limit: limit);
+    }
+    
+    // SQLite LIKE is case-insensitive by default
+    return _db!.query(
+      'food_items',
+      where: 'name LIKE ?',
+      whereArgs: ['%${query.trim()}%'],
+      limit: limit,
+    );
+  }
+
+  /// Search food items by dataset category (e.g. "Fruit", "Vegetable", "Dairy").
+  Future<List<Map<String, dynamic>>> getPopularFoodItemsByCategory(String categoryKeyword, {int limit = 10}) async {
+    if (_db == null) return [];
+    
+    return _db!.query(
+      'food_items',
+      where: 'category LIKE ?',
+      whereArgs: ['%${categoryKeyword.trim()}%'],
+      limit: limit,
+    );
+  }
+
   Future<List<Map<String, dynamic>>> queryWhere(
     String table, {
     String? where,

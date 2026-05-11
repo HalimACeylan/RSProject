@@ -103,33 +103,36 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
                 _buildHeader(context),
                 _buildSearchBar(),
                 Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
-                    children: [
-                      _buildStatsGrid(stats),
-                      const SizedBox(height: 24),
-                      // ── Urgent items ───────────────────────────
-                      if (urgentItems.isNotEmpty) ...[
-                        _buildSectionHeader(
-                          'Use Immediately',
-                          '${urgentItems.length} items',
-                          isUrgent: true,
+                  child: service.getAllItems().isEmpty
+                      ? _buildEmptyState()
+                      : ListView(
+                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+                          children: [
+                            _buildStatsGrid(stats),
+                            const SizedBox(height: 24),
+                            // ── Urgent items ───────────────────────────
+                            if (urgentItems.isNotEmpty) ...[
+                              _buildSectionHeader(
+                                'Use Immediately',
+                                '${urgentItems.length} items',
+                                isUrgent: true,
+                              ),
+                              const SizedBox(height: 12),
+                              ...urgentItems.map(
+                                (item) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: _buildUrgentItem(item),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            // ── Category sections ──────────────────────
+                            ...categories.map(
+                              (cat) => _buildCategorySection(
+                                  context, service, cat),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        ...urgentItems.map(
-                          (item) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildUrgentItem(item),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      // ── Category sections ──────────────────────
-                      ...categories.map(
-                        (cat) => _buildCategorySection(context, service, cat),
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),
@@ -144,8 +147,9 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
               bottom: 90, // Adjusted for bottom nav height
               right: 24,
               child: FloatingActionButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.addIngredients);
+                onPressed: () async {
+                  await Navigator.pushNamed(context, AppRoutes.addIngredients);
+                  _refreshFromCloud();
                 },
                 backgroundColor: const Color(0xFF13EC13),
                 child: const Icon(Icons.add, color: Colors.white),
@@ -250,6 +254,43 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
   }
 
   // ── Reusable widgets (unchanged visuals) ─────────────────────────
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.kitchen_outlined, size: 60, color: Colors.grey),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Your fridge is empty!',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tap the + button below to start\nadding ingredients to your fridge.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildHeader(BuildContext context) {
     return FridgeHeader(
