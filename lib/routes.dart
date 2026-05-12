@@ -8,6 +8,7 @@ import 'package:fridge_app/screens/food_item_details_screen.dart';
 import 'package:fridge_app/screens/recipe_preparation_guide_screen.dart';
 import 'package:fridge_app/screens/add_ingredients_screen.dart';
 import 'package:fridge_app/screens/manual_entry_screen.dart';
+import 'package:fridge_app/screens/log_consumption_screen.dart';
 
 class AppRoutes {
   static const String welcomeLogin = '/';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String recipePreparation = '/recipe_preparation';
   static const String addIngredients = '/add_ingredients';
   static const String manualEntry = '/manual_entry';
+  static const String logConsumption = '/log_consumption';
 
   static Map<String, WidgetBuilder> get routes => {
     welcomeLogin: (context) => const WelcomeLoginScreen(),
@@ -30,5 +32,6 @@ class AppRoutes {
     recipePreparation: (context) => const RecipePreparationGuideScreen(),
     addIngredients: (context) => const AddIngredientsScreen(),
     manualEntry: (context) => const ManualEntryScreen(),
+    logConsumption: (context) => const LogConsumptionScreen(),
   };
 }
