@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fridge_app/routes.dart';
 
-enum FridgeTab { fridge, cook }
+enum FridgeTab { fridge, cook, log }
 
 class FridgeBottomNavigation extends StatelessWidget {
   final FridgeTab currentTab;
@@ -39,6 +39,13 @@ class FridgeBottomNavigation extends StatelessWidget {
             'Cook',
             FridgeTab.cook,
             AppRoutes.suggestedRecipes,
+          ),
+          _buildNavItem(
+            context,
+            Icons.history,
+            'Log',
+            FridgeTab.log,
+            AppRoutes.logConsumption,
           ),
         ],
       ),

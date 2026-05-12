@@ -229,9 +229,6 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
             Column(
               children: [
                 _buildHeader(context),
-                _buildRecipeSearchBar(),
-                _buildIngredientSearchPicker(),
-                _buildSelectedIngredientCards(),
                 Expanded(child: _buildRecipeList(context, recipes)),
               ],
             ),

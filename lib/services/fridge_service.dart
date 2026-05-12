@@ -255,6 +255,24 @@ class FridgeService {
     );
   }
 
+  /// Consume a certain amount of an item by name. 
+  /// Returns true if the item was found and modified/deleted.
+  Future<bool> consumeItem(String name, double amount) async {
+    final index = _items.indexWhere((item) => item.name.toLowerCase() == name.toLowerCase());
+    if (index == -1) return false;
+
+    final item = _items[index];
+    final remaining = item.amount - amount;
+
+    if (remaining <= 0) {
+      await deleteItemById(item.id);
+    } else {
+      final updated = item.copyWith(amount: remaining);
+      updateItem(updated);
+    }
+    return true;
+  }
+
   void deleteItem(String id) async {
     _items.removeWhere((item) => item.id == id);
     await DatabaseService.instance.delete('fridge_items', where: 'id = ?', whereArgs: [id]);

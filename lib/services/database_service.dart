@@ -37,6 +37,23 @@ class DatabaseService {
         version: 1,
         onCreate: _onCreate,
       );
+      
+      // Ensure consumption_logs exists for existing databases
+      if (_db != null) {
+        await _db!.execute('''
+          CREATE TABLE IF NOT EXISTS consumption_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_name TEXT NOT NULL,
+            category TEXT,
+            amount REAL,
+            unit TEXT,
+            is_from_fridge INTEGER,
+            date INTEGER
+          )
+        ''');
+        await _db!.execute('CREATE INDEX IF NOT EXISTS idx_consumption_logs_name ON consumption_logs(item_name)');
+      }
+      
       debugPrint('[DB] Database opened successfully');
     } catch (e) {
       debugPrint('[DB] Failed to open database: $e');
@@ -131,6 +148,19 @@ class DatabaseService {
     await db.execute('CREATE INDEX idx_interactions_user ON user_interactions(user_id)');
     await db.execute('CREATE INDEX idx_interactions_recipe ON user_interactions(recipe_id)');
     await db.execute('CREATE INDEX idx_fridge_category ON fridge_items(category)');
+
+    await db.execute('''
+      CREATE TABLE consumption_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        item_name TEXT NOT NULL,
+        category TEXT,
+        amount REAL,
+        unit TEXT,
+        is_from_fridge INTEGER,
+        date INTEGER
+      )
+    ''');
+    await db.execute('CREATE INDEX idx_consumption_logs_name ON consumption_logs(item_name)');
   }
 
   // ── CSV Import ────────────────────────────────────────────────────
@@ -303,6 +333,25 @@ class DatabaseService {
       whereArgs: ['%${categoryKeyword.trim()}%'],
       limit: limit,
     );
+  }
+
+  /// Log a consumption event.
+  Future<int> logConsumption({
+    required String itemName,
+    required String category,
+    required double amount,
+    required String unit,
+    required bool isFromFridge,
+  }) async {
+    if (_db == null) return -1;
+    return _db!.insert('consumption_logs', {
+      'item_name': itemName,
+      'category': category,
+      'amount': amount,
+      'unit': unit,
+      'is_from_fridge': isFromFridge ? 1 : 0,
+      'date': DateTime.now().millisecondsSinceEpoch,
+    });
   }
 
   Future<List<Map<String, dynamic>>> queryWhere(
