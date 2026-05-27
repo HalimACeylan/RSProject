@@ -13,12 +13,12 @@ class ManualEntryScreen extends StatefulWidget {
 
 class _ManualEntryScreenState extends State<ManualEntryScreen> {
   final _nameController = TextEditingController();
-  
+
   FridgeCategory _selectedCategory = FridgeCategory.dairy;
   double _quantity = 1.0;
   FridgeUnit _selectedUnit = FridgeUnit.liters;
   DateTime? _expiryDate;
-  
+
   // Storage Location
   // 0 = Fridge, 1 = Freezer, 2 = Pantry
   int _storageLocationIndex = 0;
@@ -59,7 +59,9 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
     final now = DateTime.now();
     final date = await showDatePicker(
       context: context,
-      initialDate: _expiryDate ?? now.add(Duration(days: _selectedCategory.defaultExpiryDays)),
+      initialDate:
+          _expiryDate ??
+          now.add(Duration(days: _selectedCategory.defaultExpiryDays)),
       firstDate: now,
       lastDate: now.add(const Duration(days: 3650)),
       builder: (context, child) {
@@ -140,7 +142,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Product Name
-              const Text('Product Name', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+              const Text(
+                'Product Name',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
               TextField(
                 controller: _nameController,
@@ -148,7 +156,10 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                   hintText: 'e.g. Fresh Milk',
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -159,14 +170,23 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF13EC13), width: 2),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF13EC13),
+                      width: 2,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
 
               // Choose an Icon
-              const Text('Choose an Icon', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+              const Text(
+                'Choose an Icon',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
               SizedBox(
                 height: 56,
@@ -181,9 +201,9 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                         setState(() {
                           _selectedCategory = cat;
                           // Auto-update expiry date if not explicitly set
-                          if (_expiryDate == null) {
-                            _expiryDate = DateTime.now().add(Duration(days: cat.defaultExpiryDays));
-                          }
+                          _expiryDate ??= DateTime.now().add(
+                            Duration(days: cat.defaultExpiryDays),
+                          );
                         });
                       },
                       child: Container(
@@ -191,9 +211,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF13EC13).withOpacity(0.2) : Colors.white,
+                          color: isSelected
+                              ? const Color(0xFF13EC13).withOpacity(0.2)
+                              : Colors.white,
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF13EC13) : Colors.grey.shade300,
+                            color: isSelected
+                                ? const Color(0xFF13EC13)
+                                : Colors.grey.shade300,
                             width: isSelected ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -219,7 +243,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Quantity', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+                        const Text(
+                          'Quantity',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Container(
                           height: 56,
@@ -232,7 +262,10 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.remove, color: Colors.black54),
+                                icon: const Icon(
+                                  Icons.remove,
+                                  color: Colors.black54,
+                                ),
                                 onPressed: () {
                                   if (_quantity > 1) {
                                     setState(() => _quantity--);
@@ -241,10 +274,16 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                               ),
                               Text(
                                 _quantity.toInt().toString(),
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.add, color: Colors.black54),
+                                icon: const Icon(
+                                  Icons.add,
+                                  color: Colors.black54,
+                                ),
                                 onPressed: () {
                                   setState(() => _quantity++);
                                 },
@@ -261,7 +300,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Unit', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+                        const Text(
+                          'Unit',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Container(
                           height: 56,
@@ -275,7 +320,10 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                             child: DropdownButton<FridgeUnit>(
                               value: _selectedUnit,
                               isExpanded: true,
-                              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.black54,
+                              ),
                               items: FridgeUnit.values.map((unit) {
                                 return DropdownMenuItem(
                                   value: unit,
@@ -283,7 +331,8 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                                 );
                               }).toList(),
                               onChanged: (val) {
-                                if (val != null) setState(() => _selectedUnit = val);
+                                if (val != null)
+                                  setState(() => _selectedUnit = val);
                               },
                             ),
                           ),
@@ -296,7 +345,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
               const SizedBox(height: 24),
 
               // Expiration Date
-              const Text('Expiration Date (Optional)', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+              const Text(
+                'Expiration Date (Optional)',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: _pickExpiryDate,
@@ -310,7 +365,11 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: Colors.black54, size: 20),
+                      const Icon(
+                        Icons.calendar_today,
+                        color: Colors.black54,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(
                         _expiryDate == null
@@ -318,7 +377,9 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                             : DateFormat('MMM dd, yyyy').format(_expiryDate!),
                         style: TextStyle(
                           fontSize: 16,
-                          color: _expiryDate == null ? Colors.black54 : Colors.black87,
+                          color: _expiryDate == null
+                              ? Colors.black54
+                              : Colors.black87,
                         ),
                       ),
                     ],
@@ -328,7 +389,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
               const SizedBox(height: 24),
 
               // Category Full Dropdown
-              const Text('Category', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+              const Text(
+                'Category',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
               Container(
                 height: 56,
@@ -358,7 +425,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
               const SizedBox(height: 24),
 
               // Location in Kitchen
-              const Text('Store In', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+              const Text(
+                'Store In',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -412,9 +485,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF13EC13).withOpacity(0.1) : Colors.white,
+            color: isSelected
+                ? const Color(0xFF13EC13).withOpacity(0.1)
+                : Colors.white,
             border: Border.all(
-              color: isSelected ? const Color(0xFF13EC13) : Colors.grey.shade300,
+              color: isSelected
+                  ? const Color(0xFF13EC13)
+                  : Colors.grey.shade300,
               width: 1,
             ),
             borderRadius: BorderRadius.circular(12),

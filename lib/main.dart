@@ -21,9 +21,6 @@ Future<void> _initializeServices() async {
     // 1. Open / create the SQLite database
     await DatabaseService.instance.initialize();
 
-    // 2. One-time CSV dataset import (skipped on subsequent launches)
-    await DatabaseService.instance.importCsvIfNeeded();
-
     // 3. Load fridge items from DB
     await FridgeService.instance.initialize();
 

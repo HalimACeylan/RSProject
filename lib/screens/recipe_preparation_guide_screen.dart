@@ -233,7 +233,15 @@ class _RecipePreparationGuideScreenState
                               Container(color: Colors.grey[800]),
                         )
                       else
-                        Container(color: Colors.grey[800]),
+                        Container(
+                          color: FridgeCategory.fromString(recipe.ingredients.isNotEmpty ? recipe.ingredients.first.name : '').color.withOpacity(0.2),
+                          child: Center(
+                            child: Text(
+                              FridgeCategory.fromString(recipe.ingredients.isNotEmpty ? recipe.ingredients.first.name : '').emoji,
+                              style: const TextStyle(fontSize: 100),
+                            ),
+                          ),
+                        ),
 
                       Container(
                         decoration: BoxDecoration(

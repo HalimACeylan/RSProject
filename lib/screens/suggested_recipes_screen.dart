@@ -545,8 +545,14 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
                 else
                   Container(
                     height: 220,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image),
+                    width: double.infinity,
+                    color: FridgeCategory.fromString(recipe.ingredients.isNotEmpty ? recipe.ingredients.first.name : '').color.withOpacity(0.1),
+                    child: Center(
+                      child: Text(
+                        FridgeCategory.fromString(recipe.ingredients.isNotEmpty ? recipe.ingredients.first.name : '').emoji,
+                        style: const TextStyle(fontSize: 80),
+                      ),
+                    ),
                   ),
                 Positioned(
                   top: 12,

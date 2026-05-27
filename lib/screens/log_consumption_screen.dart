@@ -89,12 +89,17 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
 
     for (final log in _pendingLogs) {
       if (log.usedFromFridge) {
-        final consumed = await FridgeService.instance.consumeItem(log.item.name, log.quantity);
+        final consumed = await FridgeService.instance.consumeItem(
+          log.item.name,
+          log.quantity,
+        );
         if (!consumed && mounted && !showedWarning) {
           showedWarning = true;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Warning: Only existing ingredients can be removed from your fridge.'),
+              content: Text(
+                'Warning: Only existing ingredients can be removed from your fridge.',
+              ),
               backgroundColor: Colors.amber,
               duration: Duration(seconds: 3),
             ),
@@ -138,12 +143,14 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
         item: food,
         onAdd: (quantity, unit, usedFromFridge) {
           setState(() {
-            _pendingLogs.add(PendingLog(
-              item: food,
-              quantity: quantity,
-              unit: unit,
-              usedFromFridge: usedFromFridge,
-            ));
+            _pendingLogs.add(
+              PendingLog(
+                item: food,
+                quantity: quantity,
+                unit: unit,
+                usedFromFridge: usedFromFridge,
+              ),
+            );
             _searchController.clear();
             _searchResults.clear();
           });
@@ -284,7 +291,10 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
     if (_searchResults.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text('No ingredients found.', style: TextStyle(color: Colors.grey)),
+        child: Text(
+          'No ingredients found.',
+          style: TextStyle(color: Colors.grey),
+        ),
       );
     }
 
@@ -312,7 +322,10 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
                 Expanded(
                   child: Text(
                     food.name,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 const Icon(Icons.add_circle_outline, color: Color(0xFF13EC13)),
@@ -333,7 +346,11 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
           children: [
             const Text(
               'Items to Log',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
             Text(
               '${_pendingLogs.length} items',
@@ -380,17 +397,26 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
                     children: [
                       Text(
                         log.item.name,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         '${log.quantity} ${log.unit.displayName} • ${log.usedFromFridge ? "From Fridge" : "External"}',
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                  icon: const Icon(
+                    Icons.remove_circle_outline,
+                    color: Colors.red,
+                  ),
                   onPressed: () {
                     setState(() {
                       _pendingLogs.removeAt(index);
@@ -487,7 +513,10 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                   children: [
                     Text(
                       widget.item.name,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       widget.item.category,
@@ -499,7 +528,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
-              )
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -510,7 +539,10 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Unit', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Unit',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     Container(
                       height: 56,
@@ -531,7 +563,8 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                             );
                           }).toList(),
                           onChanged: (val) {
-                            if (val != null) setState(() => _selectedUnit = val);
+                            if (val != null)
+                              setState(() => _selectedUnit = val);
                           },
                         ),
                       ),
@@ -545,7 +578,10 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Quantity', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Quantity',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     Container(
                       height: 56,
@@ -565,7 +601,10 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                           ),
                           Text(
                             _quantity.toInt().toString(),
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           IconButton(
                             icon: const Icon(Icons.add),
@@ -586,10 +625,13 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               border: Border.all(color: Colors.grey.shade200),
             ),
             child: SwitchListTile(
-              title: const Text('Used from my fridge', style: TextStyle(fontWeight: FontWeight.w600)),
+              title: const Text(
+                'Used from my fridge',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               value: _usedFromFridge,
               onChanged: (val) => setState(() => _usedFromFridge = val),
-              activeColor: const Color(0xFF13EC13),
+              activeThumbColor: const Color(0xFF13EC13),
             ),
           ),
           const SizedBox(height: 24),
@@ -604,9 +646,14 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
-              child: const Text('Add to List', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Add to List',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],
