@@ -3,6 +3,7 @@ import 'package:fridge_app/models/fridge_item.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/routes.dart';
 import 'package:fridge_app/services/fridge_service.dart';
+import 'package:fridge_app/widgets/ingredient_thumbnail.dart';
 
 class RecipePreparationGuideScreen extends StatefulWidget {
   const RecipePreparationGuideScreen({super.key, this.recipe});
@@ -24,15 +25,23 @@ class _RecipePreparationGuideScreenState
         (ModalRoute.of(context)!.settings.arguments as Recipe);
   }
 
+  Widget _ingredientHero(Recipe recipe) {
+    return IngredientThumbnail(
+      ingredientNames: recipe.ingredients.map((i) => i.name).toList(),
+      size: 350,
+      borderRadius: BorderRadius.zero,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _fridgeItems = FridgeService.instance.getAllItems();
-    _refreshFridgeItemsFromCloud();
+    _refreshFridgeItems();
   }
 
-  Future<void> _refreshFridgeItemsFromCloud() async {
-    await FridgeService.instance.refreshFromCloud();
+  Future<void> _refreshFridgeItems() async {
+    await FridgeService.instance.refreshFromDb();
     if (!mounted) return;
     setState(() {
       _fridgeItems = FridgeService.instance.getAllItems();
@@ -137,7 +146,7 @@ class _RecipePreparationGuideScreenState
         final deleted = await FridgeService.instance.deleteItemById(id);
         if (deleted) removedCount++;
       }
-      await FridgeService.instance.refreshFromCloud();
+      await FridgeService.instance.refreshFromDb();
       _fridgeItems = FridgeService.instance.getAllItems();
     } finally {
       if (mounted) {
@@ -222,26 +231,16 @@ class _RecipePreparationGuideScreenState
                         Image.network(
                           recipe.imageUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              Container(color: Colors.grey[800]),
+                          errorBuilder: (_, _, _) => _ingredientHero(recipe),
                         )
                       else if (recipe.imageUrl != null)
                         Image.asset(
                           recipe.imageUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              Container(color: Colors.grey[800]),
+                          errorBuilder: (_, _, _) => _ingredientHero(recipe),
                         )
                       else
-                        Container(
-                          color: FridgeCategory.fromString(recipe.ingredients.isNotEmpty ? recipe.ingredients.first.name : '').color.withOpacity(0.2),
-                          child: Center(
-                            child: Text(
-                              FridgeCategory.fromString(recipe.ingredients.isNotEmpty ? recipe.ingredients.first.name : '').emoji,
-                              style: const TextStyle(fontSize: 100),
-                            ),
-                          ),
-                        ),
+                        _ingredientHero(recipe),
 
                       Container(
                         decoration: BoxDecoration(

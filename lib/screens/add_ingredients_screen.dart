@@ -93,7 +93,7 @@ class _AddIngredientsScreenState extends State<AddIngredientsScreen> {
     }
   }
 
-  void _addFoodItemToFridge(FoodItem food) {
+  Future<void> _addFoodItemToFridge(FoodItem food) async {
     final category = FridgeCategory.fromString(food.category);
     final now = DateTime.now();
 
@@ -108,8 +108,20 @@ class _AddIngredientsScreenState extends State<AddIngredientsScreen> {
       notes: 'Added from database',
     );
 
-    FridgeService.instance.addItem(newItem);
+    try {
+      await FridgeService.instance.addItem(newItem);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not save ${food.name}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${food.name} added to fridge!'),

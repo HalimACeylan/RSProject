@@ -1,52 +1,44 @@
 # Fridge App
 
-A streamlined Flutter application to manage your fridge inventory.
+A streamlined Flutter application to manage your fridge inventory and surface recipe suggestions based on what's on hand.
 
 ## Getting Started
 
-If you are a new developer who has just cloned the application, you can get it up and running in a few simple steps. The app is configured to use **mock data** by default, meaning you do not need to configure Firebase to test the application.
-
 ### 1. Prerequisites
-Ensure you have the [Flutter SDK](https://docs.flutter.dev/get-started/install) installed.
+Install the [Flutter SDK](https://docs.flutter.dev/get-started/install).
 
 ### 2. Setup & Run
-Run the following commands in your terminal at the root of the project:
-
 ```bash
-# 1. Clean any stale build files (crucial after a fresh clone)
-flutter clean
-
-# 2. Get the necessary packages
-flutter pub get
-
-# 3. Run the app
-flutter run
+flutter clean        # Required after a fresh clone
+flutter pub get      # Fetch dependencies
+flutter run          # Launch on the connected device
 ```
 
-## Architecture & Mock Data
+## Architecture
 
-To make onboarding easy, the app does not strictly require a backend to run. Because the Firebase configuration file (`firebase_options.dart`) is not committed to source control for security reasons, the app is designed to gracefully fall back to **in-memory mock data**.
+All data is stored locally in a SQLite database that ships with the app at `assets/fridge_app.db`. On first launch, `DatabaseService` copies the asset into the platform's databases directory and opens it. There is no backend.
 
-When you run the app, it will attempt to initialize Firebase. If it fails or the configuration is missing, services like `FridgeService` will automatically load mock files/sample items. This allows you to immediately interact with the UI, view items, and test the basic logic without spending time on backend setup.
-
-### Sample Data Modes
-
-If you eventually connect the app to Firebase, you can control how the sample data behaves using run-time variables:
+The asset DB is built offline from the CSVs in `datasets_to_use/`:
 
 ```bash
-flutter run --dart-define=FIREBASE_SEED_MODE=if-empty   # Seeds sample data only if cloud is empty (default)
-flutter run --dart-define=FIREBASE_SEED_MODE=overwrite  # Replaces active cloud data with sample data
-flutter run --dart-define=FIREBASE_SEED_MODE=skip       # Skips seeding entirely
+dart run scripts/build_db.dart
 ```
 
-## Firebase Backend (Optional Setup)
+Run `flutter clean` after rebuilding the asset so Flutter picks up the new bundle.
 
-If you wish to connect your own Firebase project:
+### Inspecting the live app DB
 
-1. Create a Firebase project and add a Flutter app via the Firebase Console.
-2. Run `flutterfire configure` at the root of this project to generate `lib/firebase_options.dart`.
-3. Enable **Anonymous** Authentication in the Firebase Console (`Authentication > Sign-in method > Anonymous`).
-4. Deploy the necessary Firestore rules and indexes:
-   ```bash
-   firebase deploy --only firestore:rules,firestore:indexes
-   ```
+By default, the app copies `assets/fridge_app.db` into the platform sandbox on first launch and writes to that copy. For development you can point the app at the asset file directly so external scripts can read the same DB:
+
+```bash
+flutter run -d macos --dart-define=DB_FILE=$(pwd)/assets/fridge_app.db
+```
+
+Then, while the app is running:
+
+```bash
+python3 datasets_to_use/inspect_app_state.py            # dump fridge / logs / user profile
+python3 datasets_to_use/inspect_app_state.py --recs     # also rank top KB picks for the saved user
+```
+
+Desktop only — mobile asset bundles are read-only at runtime.

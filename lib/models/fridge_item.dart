@@ -765,7 +765,7 @@ class FridgeItem {
   /// Returns null for pieces.
   double? get amountInImperial => UnitConverter.toImperial(amount, unit);
 
-  // ── Serialization (Firebase-ready) ───────────────────────────────
+  // ── Serialization ────────────────────────────────────────────────
 
   Map<String, dynamic> toMap() {
     return {

@@ -89,7 +89,13 @@ void main() async {
             category TEXT,
             amount REAL,
             unit TEXT,
-            date_added INTEGER
+            expiry_date INTEGER,
+            added_date INTEGER NOT NULL,
+            image_url TEXT,
+            notes TEXT,
+            receipt_id TEXT,
+            household_id TEXT,
+            is_frozen INTEGER NOT NULL DEFAULT 0
           )
         ''');
         await db.execute('CREATE INDEX idx_fridge_category ON fridge_items(category)');
@@ -106,6 +112,23 @@ void main() async {
           )
         ''');
         await db.execute('CREATE INDEX idx_consumption_logs_name ON consumption_logs(item_name)');
+
+        await db.execute('''
+          CREATE TABLE users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_key TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            sex TEXT NOT NULL,
+            weight_kg REAL NOT NULL,
+            height_cm REAL NOT NULL,
+            activity_level TEXT NOT NULL,
+            meals_per_day INTEGER NOT NULL,
+            daily_calories INTEGER NOT NULL,
+            dietary_restrictions TEXT,
+            avoid_ingredients TEXT,
+            created_at INTEGER NOT NULL
+          )
+        ''');
       },
     ),
   );

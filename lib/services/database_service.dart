@@ -18,37 +18,76 @@ class DatabaseService {
 
   // ── Initialization ────────────────────────────────────────────────
 
+  /// Optional dev-mode override: pass an absolute path with
+  /// `--dart-define=DB_FILE=/abs/path/to/assets/fridge_app.db`. When set, the
+  /// app opens that file directly and skips the asset-copy + platform-path
+  /// dance. This lets Python scripts in `datasets_to_use/` read the live app
+  /// state while the app is running (desktop only — mobile asset bundles are
+  /// read-only).
+  static const String _dbFileOverride =
+      String.fromEnvironment('DB_FILE', defaultValue: '');
+
   Future<void> initialize() async {
     if (_isInitialized) return;
     _isInitialized = true; // prevent re-entry
     try {
-      // On web, getDatabasesPath() is not supported.
-      String dbPath;
-      try {
-        final dir = await getDatabasesPath();
-        dbPath = p.join(dir, 'fridge_app.db');
-      } catch (_) {
-        dbPath = 'fridge_app.db';
-      }
-
-      final dbExists = await databaseFactory.databaseExists(dbPath);
-      if (!dbExists) {
-        debugPrint('[DB] Pre-populated database not found locally. Copying from assets...');
+      final String dbPath;
+      if (_dbFileOverride.isNotEmpty) {
+        dbPath = _dbFileOverride;
+        debugPrint('[DB] Using DB_FILE override: $dbPath');
+      } else {
+        String resolved;
         try {
-          final ByteData data = await rootBundle.load('assets/fridge_app.db');
-          final Uint8List bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-          await databaseFactory.writeDatabaseBytes(dbPath, bytes);
-          debugPrint('[DB] Database copied successfully.');
-        } catch (e) {
-          debugPrint('[DB] Error copying database from assets: $e');
+          final dir = await getDatabasesPath();
+          resolved = p.join(dir, 'fridge_app.db');
+        } catch (_) {
+          resolved = 'fridge_app.db';
+        }
+        dbPath = resolved;
+
+        final dbExists = await databaseFactory.databaseExists(dbPath);
+        if (!dbExists) {
+          debugPrint('[DB] Pre-populated database not found locally. Copying from assets...');
+          try {
+            final ByteData data = await rootBundle.load('assets/fridge_app.db');
+            final Uint8List bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+            await databaseFactory.writeDatabaseBytes(dbPath, bytes);
+            debugPrint('[DB] Database copied successfully.');
+          } catch (e) {
+            debugPrint('[DB] Error copying database from assets: $e');
+          }
         }
       }
 
-      debugPrint('[DB] Opening database at: $dbPath');
+      debugPrint('────────────────────────────────────────────');
+      if (_dbFileOverride.isNotEmpty) {
+        debugPrint('[DB] DB_FILE override ACTIVE — writing to your repo asset.');
+      } else {
+        debugPrint('[DB] DB_FILE override NOT SET — writing to OS sandbox.');
+        debugPrint('     To inspect from DBeaver/Python:');
+        debugPrint('     - On macOS desktop: re-run with --dart-define=DB_FILE=\$(pwd)/assets/fridge_app.db');
+        debugPrint('     - Otherwise: open the path below directly in DBeaver.');
+      }
+      debugPrint('[DB] Path: $dbPath');
+      debugPrint('────────────────────────────────────────────');
       _db = await openDatabase(
         dbPath,
         version: 1,
       );
+
+      // WAL lets external read-only processes (e.g. the Python inspector in
+      // datasets_to_use/) query the DB concurrently with the app without
+      // hitting "database is locked". The setting persists in the file header
+      // so it only needs to be applied once, but it's cheap to re-run on every
+      // open. synchronous=NORMAL is the recommended pairing for WAL.
+      if (_db != null) {
+        try {
+          await _db!.rawQuery('PRAGMA journal_mode=WAL');
+          await _db!.execute('PRAGMA synchronous=NORMAL');
+        } catch (e) {
+          debugPrint('[DB] WAL setup failed (continuing): $e');
+        }
+      }
       
       // Safety check in case the asset DB was missing tables from recent migrations
       if (_db != null) {
@@ -64,12 +103,62 @@ class DatabaseService {
           )
         ''');
         await _db!.execute('CREATE INDEX IF NOT EXISTS idx_consumption_logs_name ON consumption_logs(item_name)');
+
+        await _db!.execute('''
+          CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_key TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            sex TEXT NOT NULL,
+            weight_kg REAL NOT NULL,
+            height_cm REAL NOT NULL,
+            activity_level TEXT NOT NULL,
+            meals_per_day INTEGER NOT NULL,
+            daily_calories INTEGER NOT NULL,
+            dietary_restrictions TEXT,
+            avoid_ingredients TEXT,
+            created_at INTEGER NOT NULL
+          )
+        ''');
+
+        await _migrateFridgeItemsColumns();
       }
       
       debugPrint('[DB] Database opened successfully');
     } catch (e) {
       debugPrint('[DB] Failed to open database: $e');
       _db = null;
+    }
+  }
+
+  /// Bring older `fridge_items` schemas up to what `FridgeService._toDbMap`
+  /// writes. The original asset DB shipped with only 6 columns, so inserts
+  /// from the app failed with "no column named expiry_date". Adds any missing
+  /// columns idempotently using ALTER TABLE ADD COLUMN.
+  Future<void> _migrateFridgeItemsColumns() async {
+    if (_db == null) return;
+    final existing = (await _db!.rawQuery('PRAGMA table_info(fridge_items)'))
+        .map((r) => r['name'] as String)
+        .toSet();
+    const desired = <String, String>{
+      'expiry_date': 'INTEGER',
+      'added_date': 'INTEGER',
+      'image_url': 'TEXT',
+      'notes': 'TEXT',
+      'receipt_id': 'TEXT',
+      'household_id': 'TEXT',
+      'is_frozen': 'INTEGER NOT NULL DEFAULT 0',
+    };
+    for (final entry in desired.entries) {
+      if (existing.contains(entry.key)) continue;
+      try {
+        await _db!.execute(
+          'ALTER TABLE fridge_items ADD COLUMN ${entry.key} ${entry.value}',
+        );
+        debugPrint('[DB] Added missing column fridge_items.${entry.key}');
+      } catch (e) {
+        debugPrint('[DB] Failed to add column ${entry.key}: $e');
+      }
     }
   }
 

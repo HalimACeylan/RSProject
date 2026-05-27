@@ -29,7 +29,7 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
     super.dispose();
   }
 
-  void _saveIngredient() {
+  Future<void> _saveIngredient() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -49,9 +49,20 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
       isFrozen: _storageLocationIndex == 1, // 1 is Freezer
     );
 
-    FridgeService.instance.addItem(newItem);
+    try {
+      await FridgeService.instance.addItem(newItem);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not save: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
-    // Pop back to the fridge grid directly (or pop twice if we came from add_ingredients)
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 

@@ -17,11 +17,11 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
   @override
   void initState() {
     super.initState();
-    _refreshFromCloud();
+    _refreshFromDb();
   }
 
-  Future<void> _refreshFromCloud() async {
-    await FridgeService.instance.refreshFromCloud();
+  Future<void> _refreshFromDb() async {
+    await FridgeService.instance.refreshFromDb();
     if (!mounted) return;
     setState(() {});
   }
@@ -35,7 +35,7 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
 
     if (!mounted || didDelete != true) return;
 
-    await _refreshFromCloud();
+    await _refreshFromDb();
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('${item.name} removed from fridge')));
@@ -79,7 +79,7 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
       return;
     }
 
-    await _refreshFromCloud();
+    await _refreshFromDb();
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('${item.name} removed from fridge')));
@@ -149,7 +149,7 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
               child: FloatingActionButton(
                 onPressed: () async {
                   await Navigator.pushNamed(context, AppRoutes.addIngredients);
-                  _refreshFromCloud();
+                  _refreshFromDb();
                 },
                 backgroundColor: const Color(0xFF13EC13),
                 child: const Icon(Icons.add, color: Colors.white),

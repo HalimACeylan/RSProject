@@ -46,15 +46,7 @@ app.*.map.json
 ios/Runner.xcodeproj/project.pbxproj
 ios/Podfile.lock
 
-# Firebase config
-lib/firebase_options.dart
-
 # Environment variables
 *.env
 
-# Firebase Google Services config
-android/app/google-services.json
-ios/Runner/GoogleService-Info.plist
-macos/Runner/GoogleService-Info.plist
-ios/Runner.xcodeproj/project.pbxproj
 .agent/rules/.clinerules

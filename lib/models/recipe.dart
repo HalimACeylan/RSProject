@@ -69,6 +69,11 @@ class Recipe {
   // Computed / Logic
   final List<String> missingIngredients; // Names of missing items
 
+  /// Raw nutrition array from the dataset, in this order:
+  /// [calories, total_fat_pdv, sugar_pdv, sodium_pdv, protein_pdv, saturated_fat_pdv, carbs_pdv].
+  /// Empty for hand-crafted sample recipes.
+  final List<double> nutrition;
+
   const Recipe({
     required this.id,
     required this.title,
@@ -84,6 +89,7 @@ class Recipe {
     this.ingredients = const [],
     this.steps = const [],
     this.missingIngredients = const [],
+    this.nutrition = const [],
   });
 
   // ── Computed ─────────────────────────────────────────────────────
@@ -161,6 +167,7 @@ class Recipe {
     List<RecipeIngredient>? ingredients,
     List<RecipeStep>? steps,
     List<String>? missingIngredients,
+    List<double>? nutrition,
   }) {
     return Recipe(
       id: id ?? this.id,
@@ -177,6 +184,7 @@ class Recipe {
       ingredients: ingredients ?? this.ingredients,
       steps: steps ?? this.steps,
       missingIngredients: missingIngredients ?? this.missingIngredients,
+      nutrition: nutrition ?? this.nutrition,
     );
   }
 

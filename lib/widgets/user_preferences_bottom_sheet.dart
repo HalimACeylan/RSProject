@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fridge_app/models/user_profile.dart';
 import 'package:fridge_app/routes.dart';
+import 'package:fridge_app/services/user_profile_service.dart';
 
 class UserPreferencesBottomSheet extends StatefulWidget {
   const UserPreferencesBottomSheet({super.key});
@@ -57,8 +59,115 @@ class _UserPreferencesBottomSheetState
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.pop(context);
-      Navigator.pushNamed(context, AppRoutes.insideFridge);
+      _finish();
+    }
+  }
+
+  Future<void> _finish() async {
+    final profile = _buildProfile();
+    await UserProfileService.instance.save(profile);
+    if (!mounted) return;
+    Navigator.pop(context);
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.insideFridge,
+      (route) => false,
+    );
+  }
+
+  /// Translate the 4-step answers into a [UserProfile] matching the KB
+  /// recommender's shape. Falls back to sensible defaults for fields the sheet
+  /// doesn't ask about (weight/height/meals-per-day).
+  UserProfile _buildProfile() {
+    final sex = _selectedGender == 'Female' ? Sex.female : Sex.male;
+    final age = _ageFromRange(_selectedAgeRange);
+
+    // Activity level mirrors the sheet's exercise question.
+    final activity = _exercisesRegularly == true
+        ? (_primaryFocus != null ? ActivityLevel.veryActive : ActivityLevel.moderate)
+        : ActivityLevel.sedentary;
+
+    // KB profile: pregnancy overrides everything else; otherwise athlete
+    // focus → athlete_bodybuilder; otherwise general_adult. Adolescent isn't
+    // surfaced because the youngest sheet bucket is 18–25.
+    ProfileKey profileKey;
+    if (_isPregnant == true) {
+      profileKey = ProfileKey.pregnantLactating;
+    } else if (_primaryFocus == 'Athlete' || _primaryFocus == 'Bodybuilding') {
+      profileKey = ProfileKey.athleteBodybuilder;
+    } else {
+      profileKey = ProfileKey.generalAdult;
+    }
+
+    // Default biometrics by sex — gives Mifflin-St Jeor something to chew on
+    // without an extra screen.
+    final defaultWeight = sex == Sex.male ? 75.0 : 65.0;
+    final defaultHeight = sex == Sex.male ? 175.0 : 165.0;
+    final dailyCals = UserProfile.computeDailyCalories(
+      sex: sex, age: age, weightKg: defaultWeight,
+      heightCm: defaultHeight, activity: activity,
+    );
+
+    // Diet + allergies → DietaryRestriction enum.
+    final restrictions = <DietaryRestriction>{};
+    switch (_mainDiet) {
+      case 'Vegetarian':
+        restrictions.add(DietaryRestriction.vegetarian);
+        break;
+      case 'Vegan':
+        restrictions.add(DietaryRestriction.vegan);
+        break;
+    }
+    const allergyLabelToEnum = {
+      'Peanuts': DietaryRestriction.peanut,
+      'Tree Nuts': DietaryRestriction.treeNuts,
+      'Soy': DietaryRestriction.soy,
+      'Eggs': DietaryRestriction.egg,
+      'Fish': DietaryRestriction.fish,
+      'Shellfish': DietaryRestriction.shellfish,
+    };
+    for (final a in _allergies) {
+      final r = allergyLabelToEnum[a];
+      if (r != null) restrictions.add(r);
+    }
+    // Excludes: gluten / lactose map to restrictions; the rest become avoid items.
+    final avoidItems = <String>[];
+    if (_excludes.contains('Gluten')) restrictions.add(DietaryRestriction.gluten);
+    if (_excludes.contains('Lactose')) restrictions.add(DietaryRestriction.milk);
+    if (_excludes.contains('Sugar')) avoidItems.add('sugar');
+    if (_excludes.contains('Salt')) avoidItems.add('salt');
+    avoidItems.addAll(_customExcludes.map((e) => e.toLowerCase()));
+    // Custom allergy tags go into avoidIngredients (KB also greps these).
+    avoidItems.addAll(_customAllergies.map((e) => e.toLowerCase()));
+
+    return UserProfile(
+      profileKey: profileKey,
+      age: age,
+      sex: sex,
+      weightKg: defaultWeight,
+      heightCm: defaultHeight,
+      activityLevel: activity,
+      mealsPerDay: 3,
+      dailyCalories: dailyCals,
+      dietaryRestrictions: restrictions.toList(),
+      avoidIngredients: avoidItems,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  /// Age-range buckets in the sheet (18-25, 25-30, 35-40, 40+) → midpoint years.
+  int _ageFromRange(String? range) {
+    switch (range) {
+      case '18 - 25':
+        return 22;
+      case '25 - 30':
+        return 28;
+      case '35 - 40':
+        return 38;
+      case '40+':
+        return 45;
+      default:
+        return 30;
     }
   }
 

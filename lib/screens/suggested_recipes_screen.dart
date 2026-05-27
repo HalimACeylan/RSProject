@@ -6,8 +6,10 @@ import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/routes.dart';
 import 'package:fridge_app/services/fridge_service.dart';
 import 'package:fridge_app/services/recipe_service.dart';
+import 'package:fridge_app/services/recommendation_service.dart';
 import 'package:fridge_app/widgets/fridge_bottom_navigation.dart';
 import 'package:fridge_app/widgets/fridge_header.dart';
+import 'package:fridge_app/widgets/ingredient_thumbnail.dart';
 
 class SuggestedRecipesScreen extends StatefulWidget {
   const SuggestedRecipesScreen({super.key});
@@ -30,6 +32,10 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
   String _recipeSearchQuery = '';
   String _ingredientQuery = '';
 
+  List<Recipe> _recommended = const [];
+  bool _cfAvailable = false;
+  bool _loadingRecs = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,7 +46,7 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
     _fridgeIngredients = const [];
     _recipes = const [];
     _loadData();
-    _refreshFromCloud();
+    _refreshFromDb();
   }
 
   @override
@@ -57,7 +63,7 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
     super.dispose();
   }
 
-  void _loadData() {
+  Future<void> _loadData() async {
     final uniqueByName = <String, FridgeItem>{};
     for (final item in FridgeService.instance.getAllItems()) {
       final key = item.name.toLowerCase();
@@ -66,16 +72,41 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
 
     _fridgeIngredients = uniqueByName.values.toList()
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-    _recipes = RecipeService.instance.getSuggestedRecipes();
-    _tryApplyPendingRouteFilter();
+
+    if (mounted) setState(() => _loadingRecs = true);
+    try {
+      // Recipe cache may still be hydrating in the background.
+      await RecipeService.instance.ready;
+      if (!mounted) return;
+
+      _recipes = RecipeService.instance.getSuggestedRecipes();
+      _tryApplyPendingRouteFilter();
+      await _loadRecommendations();
+    } catch (e, st) {
+      debugPrint('[Recs] _loadData failed: $e\n$st');
+      if (mounted) setState(() => _loadingRecs = false);
+    }
   }
 
-  Future<void> _refreshFromCloud() async {
-    await FridgeService.instance.refreshFromCloud();
+  Future<void> _loadRecommendations() async {
+    try {
+      final bundle = await RecommendationService.instance.getRecommendations(limit: 5);
+      if (!mounted) return;
+      setState(() {
+        _recommended = bundle.recipes.map((s) => s.recipe).toList();
+        _cfAvailable = bundle.cfAvailable;
+      });
+    } catch (e, st) {
+      debugPrint('[Recs] _loadRecommendations failed: $e\n$st');
+    } finally {
+      if (mounted) setState(() => _loadingRecs = false);
+    }
+  }
+
+  Future<void> _refreshFromDb() async {
+    await FridgeService.instance.refreshFromDb();
     if (!mounted) return;
-    setState(() {
-      _loadData();
-    });
+    await _loadData();
   }
 
   void _readRouteFiltersIfNeeded() {
@@ -181,8 +212,15 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
     );
   }
 
+  bool get _hasActiveFilters =>
+      _recipeSearchQuery.isNotEmpty || _selectedIngredientIds.isNotEmpty;
+
   List<Recipe> get _visibleRecipes {
-    Iterable<Recipe> filtered = _recipes;
+    // No active filter → show personalised recommendations; otherwise filter
+    // the full recipe set.
+    Iterable<Recipe> filtered = _hasActiveFilters
+        ? _recipes
+        : (_recommended.isNotEmpty ? _recommended : _recipes);
 
     if (_recipeSearchQuery.isNotEmpty) {
       filtered = filtered.where(
@@ -436,6 +474,18 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
   }
 
   Widget _buildRecipeList(BuildContext context, List<Recipe> recipes) {
+    if (recipes.isEmpty && _loadingRecs) {
+      return const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: Color(0xFF13EC13)),
+            SizedBox(height: 12),
+            Text('Loading recipes…', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
+    }
     if (recipes.isEmpty) {
       return Center(
         child: Padding(
@@ -461,11 +511,14 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
       );
     }
 
-    final hasFilters =
-        _recipeSearchQuery.isNotEmpty || _selectedIngredientIds.isNotEmpty;
+    final hasFilters = _hasActiveFilters;
     final footerText = hasFilters
         ? 'Showing ${recipes.length} filtered recipe${recipes.length == 1 ? '' : 's'}.'
-        : 'Showing top matches for your inventory.';
+        : _loadingRecs
+            ? 'Loading personalised picks…'
+            : _cfAvailable
+                ? 'Top picks blended from your kitchen + ML model.'
+                : 'Top picks from your kitchen (CF service offline — KB only).';
 
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
@@ -487,6 +540,18 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
         final recipe = recipes[index];
         return _buildRecipeCard(context, recipe);
       },
+    );
+  }
+
+  Widget _ingredientHero(Recipe recipe) {
+    return SizedBox(
+      height: 220,
+      width: double.infinity,
+      child: IngredientThumbnail(
+        ingredientNames: recipe.ingredients.map((i) => i.name).toList(),
+        size: 220,
+        borderRadius: BorderRadius.zero,
+      ),
     );
   }
 
@@ -524,11 +589,7 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
                     height: 220,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      height: 220,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image),
-                    ),
+                    errorBuilder: (_, _, _) => _ingredientHero(recipe),
                   )
                 else if (recipe.imageUrl != null)
                   Image.asset(
@@ -536,24 +597,10 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
                     height: 220,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      height: 220,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image),
-                    ),
+                    errorBuilder: (_, _, _) => _ingredientHero(recipe),
                   )
                 else
-                  Container(
-                    height: 220,
-                    width: double.infinity,
-                    color: FridgeCategory.fromString(recipe.ingredients.isNotEmpty ? recipe.ingredients.first.name : '').color.withOpacity(0.1),
-                    child: Center(
-                      child: Text(
-                        FridgeCategory.fromString(recipe.ingredients.isNotEmpty ? recipe.ingredients.first.name : '').emoji,
-                        style: const TextStyle(fontSize: 80),
-                      ),
-                    ),
-                  ),
+                  _ingredientHero(recipe),
                 Positioned(
                   top: 12,
                   right: 12,
@@ -664,17 +711,19 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  Row(
+                  // Wrap (not Row) — long recipe types like
+                  // "north-american vegetarian" push past the 314px card on
+                  // narrow phones; Wrap reflows instead of overflowing.
+                  Wrap(
+                    spacing: 24,
+                    runSpacing: 8,
                     children: [
                       _buildIconText(Icons.schedule, recipe.prepTime),
-                      const SizedBox(width: 24),
-                      if (recipe.calories.isNotEmpty) ...[
+                      if (recipe.calories.isNotEmpty)
                         _buildIconText(
                           Icons.local_fire_department,
                           recipe.calories,
                         ),
-                        const SizedBox(width: 24),
-                      ],
                       if (recipe.type.isNotEmpty)
                         _buildIconText(Icons.restaurant_menu, recipe.type),
                     ],

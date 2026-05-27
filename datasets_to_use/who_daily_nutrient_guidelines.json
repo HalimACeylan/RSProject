@@ -1,0 +1,54 @@
+{
+  "engine_constants": {
+    "dv_references": {
+      "total_fat_g": 78,
+      "sugar_g": 50,
+      "sodium_mg": 2300,
+      "protein_g": 50,
+      "saturated_fat_g": 20,
+      "carbs_g": 275
+    }
+  },
+  "recommendation_profiles": {
+    "general_adult": {
+      "macronutrient_rules": {
+        "fat_pct_max": 30,
+        "sugar_pct_max": 10,
+        "sodium_max_mg": 2000,
+        "protein_pct_min": 15,
+        "sat_fat_pct_max": 10,
+        "carbs_pct_max": 60
+      }
+    },
+    "athlete_bodybuilder": {
+      "macronutrient_rules": {
+        "fat_pct_max": 30,
+        "sugar_pct_max": 10,
+        "sodium_max_mg": 2300,
+        "protein_pct_min": 25,
+        "sat_fat_pct_max": 10,
+        "carbs_pct_max": 55
+      }
+    },
+    "adolescent": {
+      "macronutrient_rules": {
+        "fat_pct_max": 30,
+        "sugar_pct_max": 10,
+        "sodium_max_mg": 1900,
+        "protein_pct_min": 18,
+        "sat_fat_pct_max": 10,
+        "carbs_pct_max": 60
+      }
+    },
+    "pregnant_lactating": {
+      "macronutrient_rules": {
+        "fat_pct_max": 30,
+        "sugar_pct_max": 10,
+        "sodium_max_mg": 1800,
+        "protein_pct_min": 20,
+        "sat_fat_pct_max": 10,
+        "carbs_pct_max": 60
+      }
+    }
+  }
+}

@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fridge_app/routes.dart';
 import 'package:fridge_app/services/database_service.dart';
 import 'package:fridge_app/services/db_factory.dart';
 import 'package:fridge_app/services/fridge_service.dart';
 import 'package:fridge_app/services/recipe_service.dart';
+import 'package:fridge_app/services/user_profile_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
@@ -18,14 +21,12 @@ Future<void> main() async {
 
 Future<void> _initializeServices() async {
   try {
-    // 1. Open / create the SQLite database
     await DatabaseService.instance.initialize();
-
-    // 3. Load fridge items from DB
+    await UserProfileService.instance.initialize();
     await FridgeService.instance.initialize();
-
-    // 4. Load recipes from DB
-    await RecipeService.instance.initialize();
+    // Recipes (~20k rows) load in the background — first paint shouldn't wait
+    // on the SQLite scan. Screens that need them await RecipeService.ready.
+    unawaited(RecipeService.instance.initialize());
   } catch (e) {
     debugPrint('Service initialization error: $e');
   }
@@ -36,6 +37,9 @@ class FridgeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final startRoute = UserProfileService.instance.hasProfile
+        ? AppRoutes.insideFridge
+        : AppRoutes.welcomeLogin;
     return MaterialApp(
       title: 'FridgeApp',
       debugShowCheckedModeBanner: false,
@@ -47,7 +51,7 @@ class FridgeApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.workSansTextTheme(),
       ),
-      initialRoute: AppRoutes.welcomeLogin,
+      initialRoute: startRoute,
       routes: AppRoutes.routes,
     );
   }

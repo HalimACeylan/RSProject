@@ -2,10 +2,7 @@ import 'package:fridge_app/models/fridge_item.dart';
 import 'package:fridge_app/models/units.dart';
 import 'package:fridge_app/services/database_service.dart';
 
-/// Fridge service backed by local SQLite database.
-///
-/// Maintains the same public API as the previous Firebase-backed version
-/// so that all screen widgets continue to work without changes.
+/// Fridge service backed by the local SQLite database.
 class FridgeService {
   // Singleton
   FridgeService._();
@@ -172,8 +169,8 @@ class FridgeService {
     await _loadFromDb();
   }
 
-  /// No-op — kept for API compatibility with screens that used the Firebase version.
-  Future<void> refreshFromCloud() async {
+  /// Reload the in-memory cache from the SQLite store.
+  Future<void> refreshFromDb() async {
     await _loadFromDb();
   }
 
@@ -232,7 +229,11 @@ class FridgeService {
 
   // ── Write operations ─────────────────────────────────────────────
 
-  void addItem(FridgeItem item) async {
+  /// Insert (or upsert) an item. Returns once the DB write has landed so
+  /// callers that pop a screen straight after won't lose the write — earlier
+  /// this was a fire-and-forget `void ... async` which dropped exceptions on
+  /// the floor on slower iOS simulators.
+  Future<void> addItem(FridgeItem item) async {
     final existingIndex = _items.indexWhere((e) => e.id == item.id);
     if (existingIndex == -1) {
       _items.add(item);
@@ -242,7 +243,7 @@ class FridgeService {
     await DatabaseService.instance.insert('fridge_items', _toDbMap(item));
   }
 
-  void updateItem(FridgeItem updated) async {
+  Future<void> updateItem(FridgeItem updated) async {
     final index = _items.indexWhere((item) => item.id == updated.id);
     if (index != -1) {
       _items[index] = updated;
@@ -255,7 +256,7 @@ class FridgeService {
     );
   }
 
-  /// Consume a certain amount of an item by name. 
+  /// Consume a certain amount of an item by name.
   /// Returns true if the item was found and modified/deleted.
   Future<bool> consumeItem(String name, double amount) async {
     final index = _items.indexWhere((item) => item.name.toLowerCase() == name.toLowerCase());
@@ -267,21 +268,19 @@ class FridgeService {
     if (remaining <= 0) {
       await deleteItemById(item.id);
     } else {
-      final updated = item.copyWith(amount: remaining);
-      updateItem(updated);
+      await updateItem(item.copyWith(amount: remaining));
     }
     return true;
   }
 
-  void deleteItem(String id) async {
+  Future<void> deleteItem(String id) async {
     _items.removeWhere((item) => item.id == id);
     await DatabaseService.instance.delete('fridge_items', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<bool> deleteItemById(String id) async {
     _items.removeWhere((item) => item.id == id);
-    final rowsAffected = await DatabaseService.instance.delete('fridge_items', where: 'id = ?', whereArgs: [id]);
-    // Always return true if it was deleted from memory or DB
+    await DatabaseService.instance.delete('fridge_items', where: 'id = ?', whereArgs: [id]);
     return true;
   }
 
