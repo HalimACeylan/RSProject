@@ -104,22 +104,7 @@ class DatabaseService {
         ''');
         await _db!.execute('CREATE INDEX IF NOT EXISTS idx_consumption_logs_name ON consumption_logs(item_name)');
 
-        await _db!.execute('''
-          CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            profile_key TEXT NOT NULL,
-            age INTEGER NOT NULL,
-            sex TEXT NOT NULL,
-            weight_kg REAL NOT NULL,
-            height_cm REAL NOT NULL,
-            activity_level TEXT NOT NULL,
-            meals_per_day INTEGER NOT NULL,
-            daily_calories INTEGER NOT NULL,
-            dietary_restrictions TEXT,
-            avoid_ingredients TEXT,
-            created_at INTEGER NOT NULL
-          )
-        ''');
+        await _migrateUsersTable();
 
         await _db!.execute('''
           CREATE TABLE IF NOT EXISTS cooked_recipes (
@@ -139,6 +124,42 @@ class DatabaseService {
       debugPrint('[DB] Failed to open database: $e');
       _db = null;
     }
+  }
+
+  /// Ensure `users` has the current (slimmed-down) schema. Older installs
+  /// may have NOT NULL columns for weight/height/activity/meals/daily_calories
+  /// that the app no longer writes — dropping and recreating is the safest
+  /// path since `users` only ever holds rows the user can recreate by walking
+  /// through the welcome bottom sheet again.
+  Future<void> _migrateUsersTable() async {
+    if (_db == null) return;
+    const desiredCols = <String>{
+      'id', 'profile_key', 'age', 'sex',
+      'dietary_restrictions', 'avoid_ingredients', 'created_at',
+    };
+    final existing = (await _db!.rawQuery('PRAGMA table_info(users)'))
+        .map((r) => r['name'] as String)
+        .toSet();
+
+    final isStaleSchema = existing.isNotEmpty &&
+        existing.difference(desiredCols).isNotEmpty;
+
+    if (isStaleSchema) {
+      debugPrint('[DB] users table has stale columns ${existing.difference(desiredCols)} — dropping & recreating.');
+      await _db!.execute('DROP TABLE users');
+    }
+
+    await _db!.execute('''
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        profile_key TEXT NOT NULL,
+        age INTEGER NOT NULL,
+        sex TEXT NOT NULL,
+        dietary_restrictions TEXT,
+        avoid_ingredients TEXT,
+        created_at INTEGER NOT NULL
+      )
+    ''');
   }
 
   /// Bring older `fridge_items` schemas up to what `FridgeService._toDbMap`

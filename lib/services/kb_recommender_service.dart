@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:fridge_app/models/meal_type.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/models/user_profile.dart';
 import 'package:fridge_app/services/database_service.dart';
@@ -86,7 +87,10 @@ class KbRecommenderService {
   /// the current fridge contents and today's consumption history. Slot
   /// allocation: 3 full-match (>=80% ingredients) + 2 partial (30-80%).
   /// Returns empty if no profile is set.
-  Future<List<ScoredRecipe>> recommend({int limit = 5}) async {
+  Future<List<ScoredRecipe>> recommend({
+    int limit = 5,
+    MealType mealType = MealType.all,
+  }) async {
     final sw = Stopwatch()..start();
     final user = UserProfileService.instance.current;
     if (user == null) {
@@ -107,11 +111,18 @@ class KbRecommenderService {
     final fullMatch = <ScoredRecipe>[];
     final partialMatch = <ScoredRecipe>[];
     int considered = 0;
+    int mealMissed = 0;
     int prefiltered = 0;
     int disqualified = 0;
 
     for (final recipe in RecipeService.instance.allRecipes) {
       if (recipe.nutrition.length < 7) continue;
+      // Meal-of-day filter is the cheapest check (string compare on tags),
+      // so run it before ingredient tokenization.
+      if (!mealType.matches(recipe.tags)) {
+        mealMissed++;
+        continue;
+      }
       final ingNames = recipe.ingredients.map((i) => i.name.toLowerCase()).toList();
       if (ingNames.isEmpty) continue;
       considered++;
@@ -146,8 +157,9 @@ class KbRecommenderService {
     }
     sw.stop();
     debugPrint(
-      '[KB] profile=${user.profileKey.dbValue} fridge=${fridge.length} '
-      'recipes=$considered prefiltered=$prefiltered '
+      '[KB] profile=${user.profileKey.dbValue} meal=${mealType.name} '
+      'fridge=${fridge.length} recipes=$considered '
+      'mealMissed=$mealMissed prefiltered=$prefiltered '
       'disqualified=$disqualified full=${fullMatch.length} '
       'partial=${partialMatch.length} took=${sw.elapsedMilliseconds}ms',
     );
@@ -265,37 +277,40 @@ class KbRecommenderService {
   Future<_DailyTracker> _buildTrackerFromToday(UserProfile user) async {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
-    final results = await Future.wait([
-      DatabaseService.instance.queryWhere(
-        'consumption_logs',
-        where: 'date >= ?',
-        whereArgs: [startOfDay],
-      ),
-      DatabaseService.instance.queryWhere(
-        'cooked_recipes',
-        where: 'cooked_at >= ?',
-        whereArgs: [startOfDay],
-      ),
-    ]);
-    final logs = results[0];
-    final cookedToday = results[1];
+    final cookedToday = await DatabaseService.instance.queryWhere(
+      'cooked_recipes',
+      where: 'cooked_at >= ?',
+      whereArgs: [startOfDay],
+    );
 
-    final limits = _dailyLimits(user);
-    // Without per-food nutrition lookup we treat each log as one meal of
-    // average size. Refining this (joining to food_items nutrition) is a
-    // future improvement.
+    // Accumulate today's macros from cooked recipes — equivalent to Python's
+    // DailyMealTracker.record_meal which sums recipe["nutrition"] into
+    // self.consumed. We deliberately ignore standalone consumption_logs rows
+    // here: their amounts are in the user's chosen unit (cups/pieces/grams)
+    // not in the %DV scale the recipe nutrition array uses, so mixing them
+    // would distort adaptive limits and deficit bonuses.
     final consumed = {for (final k in nutrKeys) k: 0.0};
-    final eatenRecipeNames = cookedToday
-        .map((r) => (r['recipe_name'] as String? ?? '').toLowerCase())
-        .where((s) => s.isNotEmpty)
-        .toSet();
-    final mealsEaten = logs.length;
+    final eatenRecipeNames = <String>{};
+    for (final row in cookedToday) {
+      final name = (row['recipe_name'] as String? ?? '').toLowerCase();
+      if (name.isNotEmpty) eatenRecipeNames.add(name);
+
+      final recipeId = (row['recipe_id'] as num?)?.toInt();
+      if (recipeId == null) continue;
+      final recipe = RecipeService.instance.getRecipeByDbId(recipeId);
+      if (recipe == null || recipe.nutrition.length < nutrKeys.length) continue;
+      for (var i = 0; i < nutrKeys.length; i++) {
+        consumed[nutrKeys[i]] = consumed[nutrKeys[i]]! + recipe.nutrition[i];
+      }
+    }
 
     return _DailyTracker(
       user: user,
-      dailyLimits: limits,
+      dailyLimits: _dailyLimits(user),
       consumed: consumed,
-      mealsEatenCount: mealsEaten,
+      // Matches Python: one record_meal per cooked recipe → one increment to
+      // meals_eaten. Standalone ingredient logs don't count as "meals" here.
+      mealsEatenCount: cookedToday.length,
       eatenRecipeNames: eatenRecipeNames,
     );
   }

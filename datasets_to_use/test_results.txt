@@ -1,0 +1,481 @@
+KB Öneri Sistemi v3 Test Sonuçları — 2026-05-19 17:33:15
+==============================================================================================================
+Özellikler: Buzdolabı eşleştirme | 5 öneri/öğün (3 tam+2 kısmi) | Tekrar engeli | Adaptif besin | Profil bazlı puanlama
+Sonuç: 9/10 PASS
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+PROFİL BAZLI PUANLAMA AĞIRLIKLARI
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Profil                     Prot↓   Prot🔼   Cal↑   Yağ↑  Şeker↑    Na↑   DYağ↑   Karb↑   Şeker🔼
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+general_adult             ×0.8  ×0.8   ×1.0  ×1.0  ×1.2   ×1.0  ×1.0   ×0.8   ×1.0  
+athlete_bodybuilder       ×2.0  ×2.0   ×0.6  ×0.8  ×1.5   ×0.7  ×1.0   ×0.5   ×1.2  
+adolescent                ×1.5  ×1.5   ×0.8  ×1.0  ×1.5   ×1.2  ×1.2   ×0.7   ×1.5  
+pregnant_lactating        ×1.3  ×1.3   ×0.8  ×1.0  ×1.3   ×1.5  ×1.2   ×0.7   ×1.2  
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+PROFİL BAZLI MALZEME BONUS/CEZALARI
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  general_adult — Dengeli beslenme odaklı
+    ✨ Bonus: vegetables(+3), fruits(+2), whole grains(+3), fish(+2), olive oil(+2), nuts(+2)
+    ⚠️  Ceza:  fatty meat(-5), butter(-3), cream(-3), lard(-5), palm oil(-4), coconut oil(-3)
+
+  athlete_bodybuilder — Yüksek protein, kas gelişimi odaklı
+    ✨ Bonus: chicken(+5), salmon(+5), egg(+4), fish(+5), broccoli(+3), spinach(+3)
+    ⚠️  Ceza:  fatty meat(-2), butter(-3), cream(-4), lard(-5), sugar(-5), candy(-8)
+
+  adolescent — Büyüme dönemi, dengeli besin ve yüksek protein
+    ✨ Bonus: milk(+3), egg(+3), chicken(+3), fish(+3), vegetables(+3), fruits(+3)
+    ⚠️  Ceza:  candy(-8), soda(-8), sugar(-4), syrup(-5), fatty meat(-3), lard(-5)
+
+  pregnant_lactating — Anne-bebek sağlığı, folat/demir/kalsiyum odaklı
+    ✨ Bonus: spinach(+5), egg(+4), fish(+4), salmon(+4), milk(+3), yogurt(+3)
+    ⚠️  Ceza:  alcohol(-50), wine(-50), beer(-50), rum(-50), raw fish(-10), sushi(-10)
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Berk | general_adult (Dengeli beslenme odaklı) | 2400kcal | 3 öğün
+   Diyet: vegan
+   Puanlama: Prot ceza ×0.8 | Prot bonus ×0.8 | Şeker ceza ×1.2 | Na ceza ×1.0
+   Buzdolabı: rice, onion, garlic, olive oil, tomatoes, bell pepper, avocado, lemon juice, tofu, coconut milk, soy sauce, ginger, sesame oil, cilantro, lime juice
+
+   📌 Kahvaltı (simüle): [Simüle] high_sugar
+      Cal:350 | Prot:10%DV | Sugar:60%DV
+
+   📌 Öğle Yemeği — Seçilen: baked salmon and ginger
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      111      80%  baked salmon and ginger                       salmon fillets ⭐
+      2   🟢Tam       97      83%  asian tilapia in foil                         tilapia fillets
+      3   🟢Tam       95     100%  basic confit of garlic                        -
+      4   🟡Kısmi    119      50%  easy pesto halibut                            pesto sauce mix, halibut fillets
+      5   🟡Kısmi    115      44%  ahi poke                                      fresh ahi tuna, hawaiian sea salt, macadamia nut oil, macadamia nuts
+
+   📌 Akşam Yemeği — Seçilen: asian tilapia in foil
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      100      83%  asian tilapia in foil                         tilapia fillets ⭐
+      2   🟢Tam      100      80%  grilled asian salmon                          salmon fillets
+      3   🟢Tam       91     100%  basic marinated and baked tofu                -
+      4   🟡Kısmi    106      40%  baked cod with vegetables  prosciutto and p   fresh green beans, mushrooms, salt & freshly ground black pepper, cod fish fillets
+      5   🟡Kısmi    104      57%  cod baked in foil   bittman                   cod fish fillets, salt, fresh parsley
+
+   Gün Sonu: Cal:41% Fat:43% Sugar:53% Prot:117% Na:71%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Seda | pregnant_lactating (Anne-bebek sağlığı, folat/demir/kalsiyum odaklı) | 2400kcal | 4 öğün
+   Alerji: fish,shellfish
+   🤰 Hamile/Emziren
+   Puanlama: Prot ceza ×1.3 | Prot bonus ×1.3 | Şeker ceza ×1.3 | Na ceza ×1.5
+   Buzdolabı: chicken breast, eggs, rice, spinach, tomatoes, onion, garlic, olive oil, lemon juice, carrot, potato, yogurt, whole wheat bread, apple, orange
+
+   📌 Kahvaltı (simüle): [Simüle] balanced
+      Cal:400 | Prot:25%DV | Sugar:10%DV
+
+   📌 Öğle Yemeği — Seçilen: crunchy onion chicken
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      102     100%  crunchy onion chicken                         - ⭐
+      2   🟢Tam       97      80%  garlic chicken melt                           mozzarella cheese
+      3   🟢Tam       96     100%  berry s chicken                               -
+      4   🟡Kısmi    120      50%  frozen chicken breasts in microwave           water
+      5   🟡Kısmi    119      40%  beef roast with veggies                       beef eye round, bacon, dijon mustard, mushrooms
+
+   📌 Ara Öğün — Seçilen: bbq hash
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam       98      83%  bbq hash                                      pork ⭐
+      2   🟢Tam       96      80%  garlic chicken melt                           mozzarella cheese
+      3   🟢Tam       95     100%  berry s chicken                               -
+      4   🟡Kısmi    120      50%  frozen chicken breasts in microwave           water
+      5   🟡Kısmi    120      43%  beef roast with golden mushroom gravy         beef eye round, campbell's golden mushroom soup, salt, pepper
+
+   📌 Akşam Yemeği — Seçilen: green greek goddess dressing
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      110      83%  green greek goddess dressing                  feta cheese ⭐
+      2   🟢Tam      104     100%  berry s chicken                               -
+      3   🟢Tam      104     100%  bird s nest breakfast                         -
+      4   🟡Kısmi    114      62%  breakfast empanadas  light version   3 pt     egg beaters egg substitute, lean bacon, refrigerated reduced-fat buttermilk biscuits
+      5   🟡Kısmi    114      44%  crustless stir fry quiche  or scrambled ome   ham, fresh parsley, milk, salt & pepper
+
+   Gün Sonu: Cal:63% Fat:94% Sugar:28% Prot:108% Na:37%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Mert | adolescent (Büyüme dönemi, dengeli besin ve yüksek protein) | 2800kcal | 5 öğün
+   Kaçın: sugar,candy,chocolate
+   🏋️ Sporcu/Bodybuilder
+   Puanlama: Prot ceza ×1.5 | Prot bonus ×1.5 | Şeker ceza ×1.5 | Na ceza ×1.2
+   Buzdolabı: chicken breast, salmon fillet, eggs, rice, oats, broccoli, spinach, olive oil, garlic, onion, sweet potato, greek yogurt, banana, almonds, protein powder
+
+   📌 Kahvaltı (simüle): [Simüle] low_protein
+      Cal:200 | Prot:5%DV | Sugar:10%DV
+
+   📌 Ara Öğün 1 — Seçilen: crunchy onion chicken
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      108     100%  crunchy onion chicken                         - ⭐
+      2   🟢Tam      102      83%  frenchs crunchy onion chicken                 salt & pepper
+      3   🟢Tam       93      80%  20 minute chicken   rice with broccoli        condensed cream of chicken soup
+      4   🟡Kısmi    128      50%  20 minute skillet salmon                      skim milk, cucumber, dill
+      5   🟡Kısmi    126      33%  easy garlic pepper chicken                    chicken tenders, seasoning salt
+
+   📌 Öğle Yemeği — Seçilen: frenchs crunchy onion chicken
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      103      83%  frenchs crunchy onion chicken                 salt & pepper ⭐
+      2   🟢Tam      102      80%  20 minute chicken   rice with broccoli        condensed cream of chicken soup
+      3   🟢Tam       98      83%  basil chicken with broccoli                   fresh basil
+      4   🟡Kısmi    128      50%  20 minute skillet salmon                      skim milk, cucumber, dill
+      5   🟡Kısmi    127      43%  greek stuffed chicken breasts                 lemon juice, fresh basil, fresh oregano, salt
+
+   📌 Ara Öğün 2 — Seçilen: 20 minute chicken   rice with broccoli     k
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      102      80%  20 minute chicken   rice with broccoli        condensed cream of chicken soup ⭐
+      2   🟢Tam       98      83%  basil chicken with broccoli                   fresh basil
+      3   🟢Tam       84      83%  fried rice for 2                              soy sauce
+      4   🟡Kısmi    128      50%  20 minute skillet salmon                      skim milk, cucumber, dill
+      5   🟡Kısmi    128      42%  baked mediterranean chicken and rice          red pepper, dry white wine, tomatoes, pitted black olives
+
+   📌 Akşam Yemeği — Seçilen: basil chicken with broccoli
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      102      83%  basil chicken with broccoli                   fresh basil ⭐
+      2   🟢Tam       84      80%  baked eggs w spinach and tomatoes             diced tomatoes
+      3   🟢Tam       84      83%  fried rice for 2                              soy sauce
+      4   🟡Kısmi    130      43%  ann s italian chicken                         spaghetti sauce, cheese, italian seasoned breadcrumbs, milk
+      5   🟡Kısmi    128      40%  greek egg lemon chicken rice soup             chicken wings, water, lemons, juice of
+
+   Gün Sonu: Cal:48% Fat:58% Sugar:24% Prot:100% Na:53%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Aylin | general_adult (Dengeli beslenme odaklı) | 1700kcal | 3 öğün
+   Alerji: egg,peanut
+   Puanlama: Prot ceza ×0.8 | Prot bonus ×0.8 | Şeker ceza ×1.2 | Na ceza ×1.0
+   Buzdolabı: chicken breast, rice, onion, garlic, olive oil, tomatoes, carrot, broccoli, lemon juice, ginger, soy sauce, sesame oil, tofu, green beans, corn
+
+   📌 Kahvaltı (simüle): [Simüle] low_cal
+      Cal:150 | Prot:8%DV | Sugar:5%DV
+
+   📌 Öğle Yemeği — Seçilen: ginger marinated tuna steaks
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      104      86%  ginger marinated tuna steaks                  tuna steaks ⭐
+      2   🟢Tam      101      80%  chicken breast with sauteed tomatoes and gr   chili powder
+      3   🟢Tam      101      80%  bea s grilled pork chops                      pork chops
+      4   🟡Kısmi    116      33%  barbecue glazed salmon                        salmon fillets, fish, chili sauce, brown sugar
+      5   🟡Kısmi    114      57%  halibut ragu                                  bell pepper, dried basil, halibut fillets
+
+   📌 Akşam Yemeği — Seçilen: asian style chicken   broccoli
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      102      88%  asian style chicken   broccoli                brown sugar ⭐
+      2   🟢Tam      102      83%  basil chicken with broccoli                   fresh basil
+      3   🟢Tam      102      83%  chicken hogan                                 potatoes
+      4   🟡Kısmi    106      40%  baked cod with vegetables  prosciutto and p   bell pepper, mushrooms, salt & freshly ground black pepper, cod fish fillets
+      5   🟡Kısmi    104      50%  chinese chicken lettuce cups                  lean ground chicken, sweet chili sauce, fish sauce, coriander leaves
+
+   Gün Sonu: Cal:48% Fat:62% Sugar:67% Prot:131% Na:85%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Ozan | athlete_bodybuilder (Yüksek protein, kas gelişimi odaklı) | 3200kcal | 6 öğün
+   Kaçın: bread,pasta,flour
+   🏋️ Sporcu/Bodybuilder
+   Puanlama: Prot ceza ×2.0 | Prot bonus ×2.0 | Şeker ceza ×1.5 | Na ceza ×0.7
+   Buzdolabı: chicken breast, salmon fillet, eggs, rice, oats, broccoli, spinach, olive oil, garlic, onion, sweet potato, avocado, banana, lemon juice, pepper
+
+   📌 Kahvaltı (simüle): [Simüle] low_protein
+      Cal:200 | Prot:5%DV | Sugar:10%DV
+
+   📌 Ara Öğün 1 — Seçilen: cracked black pepper salmon
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      122     100%  cracked black pepper salmon                   - ⭐
+      2   🟢Tam      116      83%  garlic chicken kabobs on rosemary skewers     rosemary sprigs
+      3   🟢Tam      109      80%  grilled salmon or halibut                     kosher salt
+      4   🟡Kısmi    130      57%  halibut ragu                                  dried basil, plum tomatoes, halibut fillets
+      5   🟡Kısmi    130      50%  easy pesto halibut                            pesto sauce mix, halibut fillets
+
+   📌 Öğle Yemeği — Seçilen: crunchy onion chicken
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      109     100%  crunchy onion chicken                         - ⭐
+      2   🟢Tam      105      83%  garlic chicken kabobs on rosemary skewers     rosemary sprigs
+      3   🟢Tam      105      80%  easy bake salmon                              mayonnaise
+      4   🟡Kısmi    113      36%  asian spiced salmon kedgeree  nigella lawso   cold water, limes, unsalted butter, ground coriander
+      5   🟡Kısmi    110      71%  crispy rice chicken                           water, salt
+
+   📌 Ara Öğün 2 — Seçilen: 20 minute chicken   rice with broccoli     k
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      106      80%  20 minute chicken   rice with broccoli        condensed cream of chicken soup ⭐
+      2   🟢Tam      105      83%  garlic chicken kabobs on rosemary skewers     rosemary sprigs
+      3   🟢Tam      105      80%  easy bake salmon                              mayonnaise
+      4   🟡Kısmi    113      36%  asian spiced salmon kedgeree  nigella lawso   cold water, limes, unsalted butter, ground coriander
+      5   🟡Kısmi    111      71%  crispy rice chicken                           water, salt
+
+   📌 Akşam Yemeği — Seçilen: garlic chicken kabobs on rosemary skewers
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      105      83%  garlic chicken kabobs on rosemary skewers     rosemary sprigs ⭐
+      2   🟢Tam      105      80%  chicken and peppers in garlic wine sauce      dry white wine
+      3   🟢Tam      105      80%  easy bake salmon                              mayonnaise
+      4   🟡Kısmi    113      36%  asian spiced salmon kedgeree  nigella lawso   cold water, limes, unsalted butter, ground coriander
+      5   🟡Kısmi    111      71%  crispy rice chicken                           water, salt
+
+   📌 Gece Atıştırması — Seçilen: broccoli   chicken with hoisin sauce
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      110      86%  broccoli   chicken with hoisin sauce          hoisin sauce ⭐
+      2   🟢Tam      109     100%  frenchs crunchy onion chicken                 -
+      3   🟢Tam      109      80%  delightfully different chicken spitzad  spe   fresh rosemary
+      4   🟡Kısmi    117      45%  california chicken pockets                    tomatoes, mozzarella cheese, mayonnaise, dijon mustard
+      5   🟡Kısmi    116      54%  arroz caldo                                   vegetable oil, fresh ginger, salt, boneless skinless chicken thighs
+
+   Gün Sonu: Cal:57% Fat:59% Sugar:18% Prot:108% Na:62%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Ceren | general_adult (Dengeli beslenme odaklı) | 1900kcal | 3 öğün
+   Diyet: vegetarian
+   Alerji: milk
+   Puanlama: Prot ceza ×0.8 | Prot bonus ×0.8 | Şeker ceza ×1.2 | Na ceza ×1.0
+   Buzdolabı: rice, onion, garlic, olive oil, tomatoes, bell pepper, pasta, lemon juice, eggplant, zucchini, mushroom, parsley, cumin, paprika, vegetable broth
+
+   📌 Kahvaltı (simüle): [Simüle] high_sugar
+      Cal:350 | Prot:10%DV | Sugar:60%DV
+
+   📌 Öğle Yemeği — Seçilen: black beans for a lazy day
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam       97      80%  black beans for a lazy day                    black beans ⭐
+      2   🟢Tam       95     100%  baked portobello mushrooms                    -
+      3   🟢Tam       95     100%  basic confit of garlic                        -
+      4   🟡Kısmi    119      50%  easy pesto halibut                            pesto sauce mix, halibut fillets
+      5   🟡Kısmi    119      33%  cracked black pepper salmon                   fresh ground black pepper, salmon fillets
+
+   📌 Akşam Yemeği — Seçilen: baked portobello mushrooms
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam       95     100%  baked portobello mushrooms                    - ⭐
+      2   🟢Tam       95     100%  basic confit of garlic                        -
+      3   🟢Tam       95     100%  caramelized garlic and garlic oil             -
+      4   🟡Kısmi    117      43%  halibut with garlic                           halibut fillets, salt, white pepper, water
+      5   🟡Kısmi    116      50%  easy pesto halibut                            pesto sauce mix, halibut fillets
+
+   Gün Sonu: Cal:40% Fat:37% Sugar:74% Prot:36% Na:9%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Tarik | general_adult (Dengeli beslenme odaklı) | 2100kcal | 3 öğün
+   Kaçın: salt,butter,cream
+   Puanlama: Prot ceza ×0.8 | Prot bonus ×0.8 | Şeker ceza ×1.2 | Na ceza ×1.0
+   Buzdolabı: chicken breast, rice, onion, garlic, olive oil, tomatoes, bell pepper, pasta, soy sauce, ginger, carrot, potato, lemon juice, black pepper
+
+   📌 Kahvaltı (simüle): [Simüle] balanced
+      Cal:400 | Prot:25%DV | Sugar:10%DV
+
+   📌 Öğle Yemeği — Seçilen: bea s grilled pork chops
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      102      80%  bea s grilled pork chops                      pork chops ⭐
+      2   🟢Tam      100      80%  garlic and pepper marinated flank steak       flank steaks
+      3   🟢Tam       99      80%  chicken and peppers in garlic wine sauce      dry white wine
+      4   🟡Kısmi    116      44%  barbecue glazed salmon                        salmon fillets, fish, chili sauce, brown sugar
+      5   🟡Kısmi    114      71%  halibut ragu                                  dried basil, halibut fillets
+
+   📌 Akşam Yemeği — Seçilen: easy mix and match stir fry
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      102      88%  easy mix and match stir fry                   italian dressing ⭐
+      2   🟢Tam      100     100%  gingered chicken breast                       -
+      3   🟢Tam      100      80%  applesauce chicken                            applesauce
+      4   🟡Kısmi    104      62%  cod with winter vegetables                    celery, cod fish fillets, white wine
+      5   🟡Kısmi    104      50%  chinese chicken lettuce cups                  lean ground chicken, sweet chili sauce, fish sauce, coriander leaves
+
+   Gün Sonu: Cal:55% Fat:97% Sugar:27% Prot:102% Na:70%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Gizem | athlete_bodybuilder (Yüksek protein, kas gelişimi odaklı) | 2600kcal | 5 öğün
+   🏋️ Sporcu/Bodybuilder
+   Puanlama: Prot ceza ×2.0 | Prot bonus ×2.0 | Şeker ceza ×1.5 | Na ceza ×0.7
+   Buzdolabı: chicken breast, salmon fillet, eggs, rice, oats, broccoli, spinach, olive oil, garlic, onion, sweet potato, greek yogurt, banana, almonds, protein powder
+
+   📌 Kahvaltı (simüle): [Simüle] low_protein
+      Cal:200 | Prot:5%DV | Sugar:10%DV
+
+   📌 Ara Öğün 1 — Seçilen: crunchy onion chicken
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      100     100%  crunchy onion chicken                         - ⭐
+      2   🟢Tam       96      80%  20 minute chicken   rice with broccoli        condensed cream of chicken soup
+      3   🟢Tam       91      83%  frenchs crunchy onion chicken                 salt & pepper
+      4   🟡Kısmi    130      50%  frozen chicken breasts in microwave           water
+      5   🟡Kısmi    130      43%  halibut ragu                                  bell pepper, dried basil, plum tomatoes, halibut fillets
+
+   📌 Öğle Yemeği — Seçilen: 20 minute chicken   rice with broccoli     k
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam       94      80%  20 minute chicken   rice with broccoli        condensed cream of chicken soup ⭐
+      2   🟢Tam       89      83%  frenchs crunchy onion chicken                 salt & pepper
+      3   🟢Tam       83      83%  basil chicken with broccoli                   fresh basil
+      4   🟡Kısmi    130      50%  frozen chicken breasts in microwave           water
+      5   🟡Kısmi    130      43%  halibut ragu                                  bell pepper, dried basil, plum tomatoes, halibut fillets
+
+   📌 Ara Öğün 2 — Seçilen: frenchs crunchy onion chicken
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam       85      83%  frenchs crunchy onion chicken                 salt & pepper ⭐
+      2   🟢Tam       84      83%  basil chicken with broccoli                   fresh basil
+      3   🟢Tam       81      83%  fried rice for 2                              soy sauce
+      4   🟡Kısmi    130      50%  frozen chicken breasts in microwave           water
+      5   🟡Kısmi    130      50%  greek grilled chicken breasts                 lemon juice, fresh parsley, dried oregano
+
+   📌 Akşam Yemeği — Seçilen: fried rice for 2
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam       81      83%  fried rice for 2                              soy sauce ⭐
+      2   🟢Tam       78      83%  basil chicken with broccoli                   fresh basil
+      3   🟢Tam       77      80%  baked eggs w spinach and tomatoes             diced tomatoes
+      4   🟡Kısmi    130      50%  greek grilled chicken breasts                 lemon juice, fresh parsley, dried oregano
+      5   🟡Kısmi    124      33%  contemporary duck                             ducklings, rose wine
+
+   Gün Sonu: Cal:46% Fat:41% Sugar:12% Prot:64% Na:55%
+   Tekrar: Yok ✅ | Sonuç: FAIL ❌
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Pelin | pregnant_lactating (Anne-bebek sağlığı, folat/demir/kalsiyum odaklı) | 2200kcal | 4 öğün
+   Kaçın: alcohol,caffeine,coffee
+   🤰 Hamile/Emziren
+   Puanlama: Prot ceza ×1.3 | Prot bonus ×1.3 | Şeker ceza ×1.3 | Na ceza ×1.5
+   Buzdolabı: chicken breast, eggs, rice, spinach, tomatoes, onion, garlic, olive oil, lemon juice, carrot, potato, pasta, bell pepper, parsley, cumin
+
+   📌 Kahvaltı (simüle): [Simüle] balanced
+      Cal:400 | Prot:25%DV | Sugar:10%DV
+
+   📌 Öğle Yemeği — Seçilen: crunchy onion chicken
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      105     100%  crunchy onion chicken                         - ⭐
+      2   🟢Tam      100      80%  garlic chicken melt                           mozzarella cheese
+      3   🟢Tam       99     100%  berry s chicken                               -
+      4   🟡Kısmi    128      33%  20 minute skillet salmon                      salmon fillets, skim milk, cucumber, dill
+      5   🟡Kısmi    128      33%  barbecue glazed salmon                        salmon fillets, fish, chili sauce, brown sugar
+
+   📌 Ara Öğün — Seçilen: greek grilled chicken breasts
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      113      83%  greek grilled chicken breasts                 dried oregano ⭐
+      2   🟢Tam      104      83%  economical and healthy chicken                salt
+      3   🟢Tam      103      80%  easy shrimp florentine and penne pasta        large shrimp
+      4   🟡Kısmi    128      33%  20 minute skillet salmon                      salmon fillets, skim milk, cucumber, dill
+      5   🟡Kısmi    128      33%  barbecue glazed salmon                        salmon fillets, fish, chili sauce, brown sugar
+
+   📌 Akşam Yemeği — Seçilen: baked eggs w spinach and tomatoes
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      109     100%  baked eggs w spinach and tomatoes             - ⭐
+      2   🟢Tam      109      83%  frittata with cherry tomatoes and baby spin   fresh basil
+      3   🟢Tam      108      83%  cannellini bean saut                          cannellini beans
+      4   🟡Kısmi    114      62%  breakfast empanadas  light version   3 pt     egg beaters egg substitute, lean bacon, refrigerated reduced-fat buttermilk biscuits
+      5   🟡Kısmi    114      56%  crustless stir fry quiche  or scrambled ome   ham, milk, salt & pepper, cheddar cheese
+
+   Gün Sonu: Cal:76% Fat:86% Sugar:27% Prot:189% Na:87%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Ali | adolescent (Büyüme dönemi, dengeli besin ve yüksek protein) | 2500kcal | 4 öğün
+   Alerji: tree nuts,soy
+   Puanlama: Prot ceza ×1.5 | Prot bonus ×1.5 | Şeker ceza ×1.5 | Na ceza ×1.2
+   Buzdolabı: ground beef, pasta, rice, onion, garlic, tomatoes, bell pepper, cheese, eggs, milk, bread, potato, ketchup, mustard, lettuce
+
+   📌 Kahvaltı (simüle): [Simüle] high_calorie
+      Cal:800 | Prot:30%DV | Sugar:20%DV
+
+   📌 Öğle Yemeği — Seçilen: chicken rarebits
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      113      80%  chicken rarebits                              boneless skinless chicken breasts ⭐
+      2   🟢Tam      110      80%  cheese   chicken rissoles                     lean ground chicken
+      3   🟢Tam      108      80%  crispy dijon chicken                          boneless skinless chicken breast halves
+      4   🟡Kısmi    130      33%  20 minute skillet salmon                      oil, salmon fillets, cucumber, dill
+      5   🟡Kısmi    128      33%  easy garlic pepper chicken                    chicken tenders, seasoning salt
+
+   📌 Ara Öğün — Seçilen: cheese   chicken rissoles
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      108      80%  cheese   chicken rissoles                     lean ground chicken ⭐
+      2   🟢Tam      106      80%  crispy dijon chicken                          boneless skinless chicken breast halves
+      3   🟢Tam      100     100%  crock pot meatloaf                            -
+      4   🟡Kısmi    128      45%  cheddar chicken and peas casserole            boneless skinless chicken breasts, mushrooms, olive oil, green peas
+      5   🟡Kısmi    128      33%  20 minute skillet salmon                      oil, salmon fillets, cucumber, dill
+
+   📌 Akşam Yemeği — Seçilen: always perfect meatloaf
+      #   Tip      Puan  Eşleşme Tarif                                         Eksik Malzeme
+      ────────────────────────────────────────────────────────────────────────────────────────────────────
+      1   🟢Tam      110     100%  always perfect meatloaf                       - ⭐
+      2   🟢Tam      109     100%  crock pot meatloaf                            -
+      3   🟢Tam      107     100%  beefy cheesy pasta                            -
+      4   🟡Kısmi    130      50%  crispy chicken fingers with spicy honey mus   chicken breast tenders, salt and pepper, vegetable oil, honey
+      5   🟡Kısmi    130      45%  cheddar chicken and peas casserole            boneless skinless chicken breasts, mushrooms, olive oil, green peas
+
+   Gün Sonu: Cal:68% Fat:100% Sugar:31% Prot:104% Na:75%
+   Tekrar: Yok ✅ | Sonuç: PASS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GENEL SONUÇ ÖZETİ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Kullanıcı  Profil                 Senaryo          Cal%   Prot%   Sug%    Na%  Tekrar   Sonuç
+──────────────────────────────────────────────────────────────────────────────────────────
+Berk       general_adult          high_sugar        41%    117%    53%    71%    Yok   PASS
+Seda       pregnant_lactating     balanced          63%    108%    28%    37%    Yok   PASS
+Mert       adolescent             low_protein       48%    100%    24%    53%    Yok   PASS
+Aylin      general_adult          low_cal           48%    131%    67%    85%    Yok   PASS
+Ozan       athlete_bodybuilder    low_protein       57%    108%    18%    62%    Yok   PASS
+Ceren      general_adult          high_sugar        40%     36%    74%     9%    Yok   PASS
+Tarik      general_adult          balanced          55%    102%    27%    70%    Yok   PASS
+Gizem      athlete_bodybuilder    low_protein       46%     64%    12%    55%    Yok   FAIL
+Pelin      pregnant_lactating     balanced          76%    189%    27%    87%    Yok   PASS
+Ali        adolescent             high_calorie      68%    104%    31%    75%    Yok   PASS
+
+SONUÇ: 9/10 PASS
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KAYNAKÇA VE PUANLAMA MANTIĞI DAYANAKLARI (BIBLIOGRAPHY)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Sistemdeki kısıtlamalar, cezalar ve bonuslar aşağıdaki bilimsel otoritelerin beslenme kılavuzlarına dayanmaktadır:
+
+1. Dünya Sağlık Örgütü (WHO) Makrobesin Kılavuzları:
+   - Yetişkinler için serbest şeker alımının toplam enerjinin %10'unun (ideali %5) altında tutulması.
+   - Toplam yağ alımının %30'u, doymuş yağın %10'u geçmemesi.
+   - Günlük sodyum alımının 2000mg (2g sodyum / 5g tuz) altında tutulması.
+   - Kaynak: 'Healthy diet Fact sheet N°394' (WHO, 2020).
+
+2. Sporcu Beslenmesi (Athlete / Bodybuilder):
+   - Vücut geliştiriciler ve sporcular için artırılmış protein ihtiyacı (1.6 - 2.2 g/kg/gün).
+   - Bu nedenle 'athlete_bodybuilder' profilinde protein eksikliği cezası (×2.0) ve protein telafi bonusu (×2.0) iki katına çıkarılmıştır.
+   - Kaynak: International Society of Sports Nutrition (ISSN) Position Stand: protein and exercise (2017).
+
+3. Hamile ve Emziren Kadınlar (Pregnant / Lactating):
+   - Preeklampsi riskini yönetmek için sodyum takibine daha fazla ağırlık verilmiştir (Sodyum cezası ×1.5).
+   - Fetal nöral gelişim ve anne sağlığı için folat (ıspanak vb.), demir ve kalsiyum kaynaklarına ekstra bonus verilmiştir.
+   - Alkol ve çiğ balık (sushi vb.) kesinlikle yasaklanmış / ağır cezalandırılmıştır (-50/-10 puan).
+   - Kaynak: 'WHO recommendations on antenatal care for a positive pregnancy experience' (WHO, 2016).
+
+4. Ergenlik Dönemi (Adolescent):
+   - Büyüme dönemi nedeniyle artan kalsiyum ve protein ihtiyacı (Süt, yumurta, peynir için artırılmış bonuslar).
+   - Çocukluk çağı obezitesini önlemek amacıyla şekerli içecekler ve atıştırmalıklara ağır cezalar (soda, candy -8 puan).
+   - Kaynak: 'Guideline: Sugars intake for adults and children' (WHO, 2015).
+
+5. Telafi ve Dengeleme Mantığı (Adaptive Meal Tracking):
+   - Günlük besin hedeflerine ulaşmak için öğün bazlı telafi (örneğin sabah eksik alınan proteinin öğlen tamamlanması).
+   - Bu mantık, toplam günlük alımın (Total Daily Energy Expenditure - TDEE ve Daily Value - DV) esnek bir şekilde gün içine yayılması prensibine dayanır.

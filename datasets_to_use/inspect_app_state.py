@@ -57,9 +57,6 @@ def print_user_profile(con: sqlite3.Connection) -> dict[str, Any] | None:
     print("USER PROFILE")
     print(f"  profile_key       : {u['profile_key']}")
     print(f"  age / sex         : {u['age']} / {u['sex']}")
-    print(f"  weight / height   : {u['weight_kg']} kg / {u['height_cm']} cm")
-    print(f"  activity / meals  : {u['activity_level']} / {u['meals_per_day']}")
-    print(f"  daily_calories    : {u['daily_calories']} kcal")
     print(f"  restrictions      : {u['dietary_restrictions']}")
     print(f"  avoid_ingredients : {u['avoid_ingredients']}")
     print(f"  created_at        : {_ms_to_str(u['created_at'])}\n")
@@ -135,9 +132,32 @@ NUTR_KEYS = [
 ]
 
 
+# Per-profile defaults (mirror UserProfile.dailyCalories / mealsPerDay in
+# lib/models/user_profile.dart so the Python KB ranks against the same numbers
+# the app uses).
+_DEFAULT_KCAL = {
+    ("athlete_bodybuilder", "M"): 3000, ("athlete_bodybuilder", "F"): 2500,
+    ("adolescent", "M"): 2800,         ("adolescent", "F"): 2200,
+    ("pregnant_lactating", "M"): 2300, ("pregnant_lactating", "F"): 2300,
+    ("general_adult", "M"): 2400,      ("general_adult", "F"): 2000,
+}
+_DEFAULT_MEALS = {
+    "athlete_bodybuilder": 5, "pregnant_lactating": 5,
+    "adolescent": 4,          "general_adult": 3,
+}
+
+
+def _daily_calories(user: dict[str, Any]) -> int:
+    return _DEFAULT_KCAL.get((user["profile_key"], user["sex"]), 2200)
+
+
+def _meals_per_day(user: dict[str, Any]) -> int:
+    return _DEFAULT_MEALS.get(user["profile_key"], 3)
+
+
 def _daily_limits(user: dict[str, Any]) -> dict[str, float]:
     rules = PROFILES[user["profile_key"]]["macronutrient_rules"]
-    e = float(user["daily_calories"])
+    e = float(_daily_calories(user))
     return {
         "calories": e,
         "total_fat_pdv": (e * rules["fat_pct_max"] / 100 / 9) / DV_REF["total_fat_g"] * 100,
@@ -189,10 +209,10 @@ def print_kb_top(con: sqlite3.Connection, user: dict[str, Any], fridge: list[str
             ("calories", 0, 25), ("total_fat_pdv", 1, 20), ("sugar_pdv", 2, 20),
             ("sodium_pdv", 3, 15), ("saturated_fat_pdv", 5, 15), ("carbs_pdv", 6, 10),
         ]:
-            lim = limits[key] / max(1, user["meals_per_day"])
+            lim = limits[key] / max(1, _meals_per_day(user))
             if lim > 0 and nutr[idx] > lim:
                 score -= min(base, (nutr[idx] - lim) / lim * base * 2)
-        pl = limits["protein_pdv"] / max(1, user["meals_per_day"])
+        pl = limits["protein_pdv"] / max(1, _meals_per_day(user))
         if nutr[4] < pl and pl > 0:
             score -= min(15, (pl - nutr[4]) / pl * 30)
         score = max(0.0, min(130.0, score))

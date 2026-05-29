@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fridge_app/routes.dart';
+import 'package:fridge_app/widgets/user_picker_bottom_sheet.dart';
 import 'package:fridge_app/widgets/user_preferences_bottom_sheet.dart';
 
 class WelcomeLoginScreen extends StatelessWidget {
@@ -156,9 +157,16 @@ class WelcomeLoginScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                // I have an account Button
+                                // I have an account Button — opens the user picker
                                 OutlinedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (_) => const UserPickerBottomSheet(),
+                                    );
+                                  },
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: Colors.white,
                                     foregroundColor: Colors.grey[800],

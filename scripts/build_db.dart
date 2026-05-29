@@ -119,11 +119,6 @@ void main() async {
             profile_key TEXT NOT NULL,
             age INTEGER NOT NULL,
             sex TEXT NOT NULL,
-            weight_kg REAL NOT NULL,
-            height_cm REAL NOT NULL,
-            activity_level TEXT NOT NULL,
-            meals_per_day INTEGER NOT NULL,
-            daily_calories INTEGER NOT NULL,
             dietary_restrictions TEXT,
             avoid_ingredients TEXT,
             created_at INTEGER NOT NULL

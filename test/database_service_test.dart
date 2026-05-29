@@ -6,6 +6,7 @@
 // fromDbMap and other DB helpers works as expected.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fridge_app/models/meal_type.dart';
 import 'package:fridge_app/models/user_profile.dart';
 import 'package:fridge_app/services/kb_recommender_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -90,11 +91,6 @@ const _schema = [
     profile_key TEXT NOT NULL,
     age INTEGER NOT NULL,
     sex TEXT NOT NULL,
-    weight_kg REAL NOT NULL,
-    height_cm REAL NOT NULL,
-    activity_level TEXT NOT NULL,
-    meals_per_day INTEGER NOT NULL,
-    daily_calories INTEGER NOT NULL,
     dietary_restrictions TEXT,
     avoid_ingredients TEXT,
     created_at INTEGER NOT NULL
@@ -158,11 +154,6 @@ void main() {
         profileKey: ProfileKey.athleteBodybuilder,
         age: 28,
         sex: Sex.female,
-        weightKg: 62.5,
-        heightCm: 168,
-        activityLevel: ActivityLevel.veryActive,
-        mealsPerDay: 5,
-        dailyCalories: 2600,
         dietaryRestrictions: const [
           DietaryRestriction.peanut,
           DietaryRestriction.gluten,
@@ -180,14 +171,13 @@ void main() {
       expect(loaded.profileKey, profile.profileKey);
       expect(loaded.age, profile.age);
       expect(loaded.sex, profile.sex);
-      expect(loaded.weightKg, profile.weightKg);
-      expect(loaded.heightCm, profile.heightCm);
-      expect(loaded.activityLevel, profile.activityLevel);
-      expect(loaded.mealsPerDay, profile.mealsPerDay);
-      expect(loaded.dailyCalories, profile.dailyCalories);
       expect(loaded.dietaryRestrictions.toSet(), profile.dietaryRestrictions.toSet());
       expect(loaded.avoidIngredients, profile.avoidIngredients);
       expect(loaded.createdAt, profile.createdAt);
+      // dailyCalories / mealsPerDay are now computed at runtime — verify they
+      // resolve to the per-profile defaults rather than being stored.
+      expect(loaded.dailyCalories, 2500); // athlete + female
+      expect(loaded.mealsPerDay, 5);
     });
 
     test('NOT NULL constraints reject incomplete rows', () async {
@@ -199,11 +189,6 @@ void main() {
           'profile_key': 'general_adult',
           // age missing
           'sex': 'M',
-          'weight_kg': 70.0,
-          'height_cm': 175.0,
-          'activity_level': 'moderate',
-          'meals_per_day': 3,
-          'daily_calories': 2400,
           'created_at': DateTime.now().millisecondsSinceEpoch,
         }),
         throwsA(isA<DatabaseException>()),
@@ -219,11 +204,6 @@ void main() {
           'profile_key': 'general_adult',
           'age': 30,
           'sex': 'M',
-          'weight_kg': 70.0,
-          'height_cm': 175.0,
-          'activity_level': 'moderate',
-          'meals_per_day': 3,
-          'daily_calories': 2400,
           'created_at': DateTime.now().millisecondsSinceEpoch,
         });
       }
@@ -430,6 +410,35 @@ void main() {
       expect(r.matched, containsAll(['broccoli', 'yogurt']));
       expect(r.missing, containsAll(['chicken breast', 'paprika']));
       expect(r.ratio, closeTo(2 / 4, 0.001));
+    });
+
+    test('MealType.matches routes recipes to the right tab', () {
+      // Sample of real tags pulled from RAW_recipes_filtered.csv.
+      final breakfastPizza = ['breakfast', 'main-dish', 'pizza'];
+      final juiceSmoothie = ['beverages', 'smoothies', 'low-calorie'];
+      final mainDishOnly = ['main-dish', '30-minutes-or-less'];
+      final dessert = ['desserts', 'chocolate'];
+      final lunchSalad = ['lunch', 'salads'];
+
+      // `All` lets everything through.
+      expect(MealType.all.matches(breakfastPizza), isTrue);
+      expect(MealType.all.matches(dessert), isTrue);
+
+      // Each tab grabs its own tag bucket.
+      expect(MealType.breakfast.matches(breakfastPizza), isTrue);
+      expect(MealType.beverages.matches(juiceSmoothie), isTrue);
+      expect(MealType.dinner.matches(mainDishOnly), isTrue);
+      expect(MealType.snacks.matches(dessert), isTrue);
+      expect(MealType.lunch.matches(lunchSalad), isTrue);
+
+      // And rejects recipes from other buckets.
+      expect(MealType.breakfast.matches(dessert), isFalse);
+      expect(MealType.beverages.matches(lunchSalad), isFalse);
+      expect(MealType.dinner.matches(juiceSmoothie), isFalse);
+
+      // Lunch and dinner are deliberately disjoint (lunch != main-dish).
+      expect(MealType.dinner.matches(lunchSalad), isFalse);
+      expect(MealType.lunch.matches(mainDishOnly), isFalse);
     });
 
     test('"broccoli 1 cup" matches "broccoli" but not "broccoli soup"', () {

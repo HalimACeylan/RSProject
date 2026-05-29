@@ -1,0 +1,4710 @@
+{
+  "test_metadata": {
+    "test_name": "KB Adaptive Meal Rec Test v3 — Profile-Weighted",
+    "timestamp": "2026-05-19 17:33:15",
+    "features": [
+      "fridge_matching",
+      "5_recommendations_per_meal",
+      "no_duplicate_recipes",
+      "adaptive_nutrition",
+      "profile_specific_scoring"
+    ],
+    "total_users": 10,
+    "passed": 9,
+    "overall_result": "FAIL"
+  },
+  "profile_scoring_weights": {
+    "general_adult": {
+      "description": "Dengeli beslenme odaklı",
+      "penalty_weights": {
+        "calories": 1.0,
+        "total_fat_pdv": 1.0,
+        "sugar_pdv": 1.2,
+        "sodium_pdv": 1.0,
+        "protein_low": 0.8,
+        "saturated_fat_pdv": 1.0,
+        "carbs_pdv": 0.8
+      },
+      "bonus_weights": {
+        "protein_recovery": 0.8,
+        "calorie_balance": 1.0,
+        "sugar_balance": 1.0
+      },
+      "ingredient_penalties": {
+        "fatty meat": -5,
+        "butter": -3,
+        "cream": -3,
+        "lard": -5,
+        "palm oil": -4,
+        "coconut oil": -3,
+        "ghee": -4
+      },
+      "ingredient_bonuses": {
+        "vegetables": 3,
+        "fruits": 2,
+        "whole grains": 3,
+        "fish": 2,
+        "olive oil": 2,
+        "nuts": 2
+      }
+    },
+    "athlete_bodybuilder": {
+      "description": "Yüksek protein, kas gelişimi odaklı",
+      "penalty_weights": {
+        "calories": 0.6,
+        "total_fat_pdv": 0.8,
+        "sugar_pdv": 1.5,
+        "sodium_pdv": 0.7,
+        "protein_low": 2.0,
+        "saturated_fat_pdv": 1.0,
+        "carbs_pdv": 0.5
+      },
+      "bonus_weights": {
+        "protein_recovery": 2.0,
+        "calorie_balance": 0.5,
+        "sugar_balance": 1.2
+      },
+      "ingredient_penalties": {
+        "fatty meat": -2,
+        "butter": -3,
+        "cream": -4,
+        "lard": -5,
+        "sugar": -5,
+        "candy": -8,
+        "soda": -8,
+        "syrup": -4
+      },
+      "ingredient_bonuses": {
+        "chicken": 5,
+        "salmon": 5,
+        "egg": 4,
+        "fish": 5,
+        "broccoli": 3,
+        "spinach": 3,
+        "oats": 3,
+        "rice": 2,
+        "sweet potato": 3,
+        "avocado": 3,
+        "nuts": 2
+      }
+    },
+    "adolescent": {
+      "description": "Büyüme dönemi, dengeli besin ve yüksek protein",
+      "penalty_weights": {
+        "calories": 0.8,
+        "total_fat_pdv": 1.0,
+        "sugar_pdv": 1.5,
+        "sodium_pdv": 1.2,
+        "protein_low": 1.5,
+        "saturated_fat_pdv": 1.2,
+        "carbs_pdv": 0.7
+      },
+      "bonus_weights": {
+        "protein_recovery": 1.5,
+        "calorie_balance": 0.8,
+        "sugar_balance": 1.5
+      },
+      "ingredient_penalties": {
+        "candy": -8,
+        "soda": -8,
+        "sugar": -4,
+        "syrup": -5,
+        "fatty meat": -3,
+        "lard": -5,
+        "cream": -3
+      },
+      "ingredient_bonuses": {
+        "milk": 3,
+        "egg": 3,
+        "chicken": 3,
+        "fish": 3,
+        "vegetables": 3,
+        "fruits": 3,
+        "whole grains": 3,
+        "cheese": 2,
+        "yogurt": 3
+      }
+    },
+    "pregnant_lactating": {
+      "description": "Anne-bebek sağlığı, folat/demir/kalsiyum odaklı",
+      "penalty_weights": {
+        "calories": 0.8,
+        "total_fat_pdv": 1.0,
+        "sugar_pdv": 1.3,
+        "sodium_pdv": 1.5,
+        "protein_low": 1.3,
+        "saturated_fat_pdv": 1.2,
+        "carbs_pdv": 0.7
+      },
+      "bonus_weights": {
+        "protein_recovery": 1.3,
+        "calorie_balance": 0.7,
+        "sugar_balance": 1.2
+      },
+      "ingredient_penalties": {
+        "alcohol": -50,
+        "wine": -50,
+        "beer": -50,
+        "rum": -50,
+        "raw fish": -10,
+        "sushi": -10,
+        "fatty meat": -4,
+        "lard": -5,
+        "cream": -3,
+        "caffeine": -3,
+        "coffee": -2
+      },
+      "ingredient_bonuses": {
+        "spinach": 5,
+        "egg": 4,
+        "fish": 4,
+        "salmon": 4,
+        "milk": 3,
+        "yogurt": 3,
+        "cheese": 2,
+        "vegetables": 3,
+        "fruits": 3,
+        "whole grains": 3,
+        "lentil": 4,
+        "beans": 3,
+        "iron": 5
+      }
+    }
+  },
+  "user_results": [
+    {
+      "user": "Berk",
+      "profile": "general_adult",
+      "age": 26,
+      "daily_calories": 2400,
+      "meals_per_day": 3,
+      "diet": "vegan",
+      "allergies": null,
+      "avoid": null,
+      "fridge": [
+        "rice",
+        "onion",
+        "garlic",
+        "olive oil",
+        "tomatoes",
+        "bell pepper",
+        "avocado",
+        "lemon juice",
+        "tofu",
+        "coconut milk",
+        "soy sauce",
+        "ginger",
+        "sesame oil",
+        "cilantro",
+        "lime juice"
+      ],
+      "is_athlete": false,
+      "is_pregnant": false,
+      "scoring_profile": {
+        "description": "Dengeli beslenme odaklı",
+        "penalty_weights": {
+          "calories": 1.0,
+          "total_fat_pdv": 1.0,
+          "sugar_pdv": 1.2,
+          "sodium_pdv": 1.0,
+          "protein_low": 0.8,
+          "saturated_fat_pdv": 1.0,
+          "carbs_pdv": 0.8
+        },
+        "bonus_weights": {
+          "protein_recovery": 0.8,
+          "calorie_balance": 1.0,
+          "sugar_balance": 1.0
+        }
+      },
+      "breakfast_scenario": "high_sugar",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 40.7,
+        "total_fat_pdv": 42.9,
+        "sugar_pdv": 53.3,
+        "sodium_pdv": 71.3,
+        "protein_pdv": 117.2,
+        "saturated_fat_pdv": 18.8,
+        "carbs_pdv": 20.6
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] high_sugar",
+          "nutrition": [
+            350,
+            12,
+            60,
+            8,
+            10,
+            8,
+            25
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] high_sugar",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                350,
+                12,
+                60,
+                8,
+                10,
+                8,
+                25
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "baked salmon and ginger",
+          "nutrition": [
+            380.6,
+            17.0,
+            0.0,
+            9.0,
+            128.0,
+            8.0,
+            1.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8,
+          "missing": [
+            "salmon fillets"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "baked salmon and ginger",
+              "score": 111.1,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                380.6,
+                17.0,
+                0.0,
+                9.0,
+                128.0,
+                8.0,
+                1.0
+              ],
+              "missing": [
+                "salmon fillets"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "asian tilapia in foil",
+              "score": 97.4,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                245.0,
+                15.0,
+                4.0,
+                45.0,
+                73.0,
+                9.0,
+                1.0
+              ],
+              "missing": [
+                "tilapia fillets"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "basic confit of garlic",
+              "score": 95.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                44.7,
+                0.0,
+                1.0,
+                0.0,
+                3.0,
+                0.0,
+                3.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "easy pesto halibut",
+              "score": 118.9,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                485.6,
+                21.0,
+                0.0,
+                9.0,
+                169.0,
+                9.0,
+                0.0
+              ],
+              "missing": [
+                "pesto sauce mix",
+                "halibut fillets"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "ahi poke",
+              "score": 115.0,
+              "match_ratio": 0.44,
+              "type": "partial",
+              "nutrition": [
+                450.1,
+                22.0,
+                5.0,
+                5.0,
+                142.0,
+                19.0,
+                1.0
+              ],
+              "missing": [
+                "fresh ahi tuna",
+                "hawaiian sea salt",
+                "macadamia nut oil",
+                "macadamia nuts",
+                "crushed red pepper flakes"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "asian tilapia in foil",
+          "nutrition": [
+            245.0,
+            15.0,
+            4.0,
+            45.0,
+            73.0,
+            9.0,
+            1.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "tilapia fillets"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "asian tilapia in foil",
+              "score": 100.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                245.0,
+                15.0,
+                4.0,
+                45.0,
+                73.0,
+                9.0,
+                1.0
+              ],
+              "missing": [
+                "tilapia fillets"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "grilled asian salmon",
+              "score": 100.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                175.9,
+                12.0,
+                0.0,
+                9.0,
+                46.0,
+                6.0,
+                0.0
+              ],
+              "missing": [
+                "salmon fillets"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "basic marinated and baked tofu",
+              "score": 91.1,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                280.2,
+                33.0,
+                8.0,
+                84.0,
+                37.0,
+                15.0,
+                2.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "baked cod with vegetables  prosciutto and pine nuts",
+              "score": 106.0,
+              "match_ratio": 0.4,
+              "type": "partial",
+              "nutrition": [
+                287.1,
+                11.0,
+                18.0,
+                5.0,
+                89.0,
+                3.0,
+                3.0
+              ],
+              "missing": [
+                "fresh green beans",
+                "mushrooms",
+                "salt & freshly ground black pepper",
+                "cod fish fillets",
+                "prosciutto",
+                "pine nuts"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "cod baked in foil   bittman",
+              "score": 104.0,
+              "match_ratio": 0.57,
+              "type": "partial",
+              "nutrition": [
+                261.6,
+                22.0,
+                0.0,
+                3.0,
+                61.0,
+                10.0,
+                0.0
+              ],
+              "missing": [
+                "cod fish fillets",
+                "salt",
+                "fresh parsley"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Seda",
+      "profile": "pregnant_lactating",
+      "age": 34,
+      "daily_calories": 2400,
+      "meals_per_day": 4,
+      "diet": null,
+      "allergies": [
+        "fish",
+        "shellfish"
+      ],
+      "avoid": null,
+      "fridge": [
+        "chicken breast",
+        "eggs",
+        "rice",
+        "spinach",
+        "tomatoes",
+        "onion",
+        "garlic",
+        "olive oil",
+        "lemon juice",
+        "carrot",
+        "potato",
+        "yogurt",
+        "whole wheat bread",
+        "apple",
+        "orange"
+      ],
+      "is_athlete": false,
+      "is_pregnant": true,
+      "scoring_profile": {
+        "description": "Anne-bebek sağlığı, folat/demir/kalsiyum odaklı",
+        "penalty_weights": {
+          "calories": 0.8,
+          "total_fat_pdv": 1.0,
+          "sugar_pdv": 1.3,
+          "sodium_pdv": 1.5,
+          "protein_low": 1.3,
+          "saturated_fat_pdv": 1.2,
+          "carbs_pdv": 0.7
+        },
+        "bonus_weights": {
+          "protein_recovery": 1.3,
+          "calorie_balance": 0.7,
+          "sugar_balance": 1.2
+        }
+      },
+      "breakfast_scenario": "balanced",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 63.4,
+        "total_fat_pdv": 93.6,
+        "sugar_pdv": 28.3,
+        "sodium_pdv": 37.1,
+        "protein_pdv": 107.9,
+        "saturated_fat_pdv": 62.2,
+        "carbs_pdv": 22.9
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] balanced",
+          "nutrition": [
+            400,
+            15,
+            10,
+            10,
+            25,
+            8,
+            18
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] balanced",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                400,
+                15,
+                10,
+                10,
+                25,
+                8,
+                18
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "crunchy onion chicken",
+          "nutrition": [
+            196.3,
+            8.0,
+            0.0,
+            8.0,
+            68.0,
+            6.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "crunchy onion chicken",
+              "score": 102.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                196.3,
+                8.0,
+                0.0,
+                8.0,
+                68.0,
+                6.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "garlic chicken melt",
+              "score": 96.7,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                218.7,
+                12.0,
+                10.0,
+                12.0,
+                62.0,
+                13.0,
+                1.0
+              ],
+              "missing": [
+                "mozzarella cheese"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "berry s chicken",
+              "score": 96.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                148.2,
+                4.0,
+                0.0,
+                3.0,
+                57.0,
+                3.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "frozen chicken breasts in microwave",
+              "score": 119.5,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                517.6,
+                18.0,
+                0.0,
+                21.0,
+                192.0,
+                12.0,
+                0.0
+              ],
+              "missing": [
+                "water"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "beef roast with veggies",
+              "score": 119.4,
+              "match_ratio": 0.4,
+              "type": "partial",
+              "nutrition": [
+                492.5,
+                14.0,
+                18.0,
+                12.0,
+                143.0,
+                15.0,
+                8.0
+              ],
+              "missing": [
+                "beef eye round",
+                "bacon",
+                "dijon mustard",
+                "mushrooms",
+                "salt",
+                "pepper"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün",
+          "chosen": "bbq hash",
+          "nutrition": [
+            867.4,
+            64.0,
+            23.0,
+            10.0,
+            165.0,
+            63.0,
+            12.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "pork"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "bbq hash",
+              "score": 97.5,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                867.4,
+                64.0,
+                23.0,
+                10.0,
+                165.0,
+                63.0,
+                12.0
+              ],
+              "missing": [
+                "pork"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "garlic chicken melt",
+              "score": 95.9,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                218.7,
+                12.0,
+                10.0,
+                12.0,
+                62.0,
+                13.0,
+                1.0
+              ],
+              "missing": [
+                "mozzarella cheese"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "berry s chicken",
+              "score": 95.2,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                148.2,
+                4.0,
+                0.0,
+                3.0,
+                57.0,
+                3.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "frozen chicken breasts in microwave",
+              "score": 119.5,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                517.6,
+                18.0,
+                0.0,
+                21.0,
+                192.0,
+                12.0,
+                0.0
+              ],
+              "missing": [
+                "water"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "beef roast with golden mushroom gravy",
+              "score": 119.5,
+              "match_ratio": 0.43,
+              "type": "partial",
+              "nutrition": [
+                436.5,
+                15.0,
+                0.0,
+                23.0,
+                154.0,
+                17.0,
+                1.0
+              ],
+              "missing": [
+                "beef eye round",
+                "campbell's golden mushroom soup",
+                "salt",
+                "pepper"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "green greek goddess dressing",
+          "nutrition": [
+            57.3,
+            9.0,
+            1.0,
+            1.0,
+            1.0,
+            6.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "feta cheese"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "green greek goddess dressing",
+              "score": 110.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                57.3,
+                9.0,
+                1.0,
+                1.0,
+                1.0,
+                6.0,
+                0.0
+              ],
+              "missing": [
+                "feta cheese"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "berry s chicken",
+              "score": 104.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                148.2,
+                4.0,
+                0.0,
+                3.0,
+                57.0,
+                3.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 3,
+              "recipe": "bird s nest breakfast",
+              "score": 104.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                237.5,
+                7.0,
+                8.0,
+                3.0,
+                21.0,
+                8.0,
+                12.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "breakfast empanadas  light version   3 pt",
+              "score": 114.0,
+              "match_ratio": 0.62,
+              "type": "partial",
+              "nutrition": [
+                67.4,
+                4.0,
+                4.0,
+                5.0,
+                3.0,
+                4.0,
+                3.0
+              ],
+              "missing": [
+                "egg beaters egg substitute",
+                "lean bacon",
+                "refrigerated reduced-fat buttermilk biscuits"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "crustless stir fry quiche  or scrambled omelette",
+              "score": 114.0,
+              "match_ratio": 0.44,
+              "type": "partial",
+              "nutrition": [
+                143.7,
+                14.0,
+                3.0,
+                16.0,
+                22.0,
+                17.0,
+                1.0
+              ],
+              "missing": [
+                "ham",
+                "fresh parsley",
+                "milk",
+                "salt & pepper",
+                "cheddar cheese"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Mert",
+      "profile": "adolescent",
+      "age": 17,
+      "daily_calories": 2800,
+      "meals_per_day": 5,
+      "diet": null,
+      "allergies": null,
+      "avoid": [
+        "sugar",
+        "candy",
+        "chocolate"
+      ],
+      "fridge": [
+        "chicken breast",
+        "salmon fillet",
+        "eggs",
+        "rice",
+        "oats",
+        "broccoli",
+        "spinach",
+        "olive oil",
+        "garlic",
+        "onion",
+        "sweet potato",
+        "greek yogurt",
+        "banana",
+        "almonds",
+        "protein powder"
+      ],
+      "is_athlete": true,
+      "is_pregnant": false,
+      "scoring_profile": {
+        "description": "Büyüme dönemi, dengeli besin ve yüksek protein",
+        "penalty_weights": {
+          "calories": 0.8,
+          "total_fat_pdv": 1.0,
+          "sugar_pdv": 1.5,
+          "sodium_pdv": 1.2,
+          "protein_low": 1.5,
+          "saturated_fat_pdv": 1.2,
+          "carbs_pdv": 0.7
+        },
+        "bonus_weights": {
+          "protein_recovery": 1.5,
+          "calorie_balance": 0.8,
+          "sugar_balance": 1.5
+        }
+      },
+      "breakfast_scenario": "low_protein",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 48.5,
+        "total_fat_pdv": 57.7,
+        "sugar_pdv": 24.3,
+        "sodium_pdv": 53.3,
+        "protein_pdv": 99.6,
+        "saturated_fat_pdv": 29.6,
+        "carbs_pdv": 22.9
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] low_protein",
+          "nutrition": [
+            200,
+            5,
+            10,
+            5,
+            5,
+            3,
+            15
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] low_protein",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                200,
+                5,
+                10,
+                5,
+                5,
+                3,
+                15
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün 1",
+          "chosen": "crunchy onion chicken",
+          "nutrition": [
+            196.3,
+            8.0,
+            0.0,
+            8.0,
+            68.0,
+            6.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "crunchy onion chicken",
+              "score": 108.3,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                196.3,
+                8.0,
+                0.0,
+                8.0,
+                68.0,
+                6.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "frenchs crunchy onion chicken",
+              "score": 101.8,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                153.9,
+                4.0,
+                3.0,
+                3.0,
+                56.0,
+                3.0,
+                0.0
+              ],
+              "missing": [
+                "salt & pepper"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "20 minute chicken   rice with broccoli     k",
+              "score": 93.4,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                418.1,
+                15.0,
+                1.0,
+                24.0,
+                67.0,
+                10.0,
+                15.0
+              ],
+              "missing": [
+                "condensed cream of chicken soup"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "20 minute skillet salmon",
+              "score": 127.5,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                409.8,
+                20.0,
+                0.0,
+                10.0,
+                130.0,
+                10.0,
+                1.0
+              ],
+              "missing": [
+                "skim milk",
+                "cucumber",
+                "dill"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "easy garlic pepper chicken",
+              "score": 125.5,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                299.6,
+                5.0,
+                0.0,
+                7.0,
+                125.0,
+                4.0,
+                0.0
+              ],
+              "missing": [
+                "chicken tenders",
+                "seasoning salt"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "frenchs crunchy onion chicken",
+          "nutrition": [
+            153.9,
+            4.0,
+            3.0,
+            3.0,
+            56.0,
+            3.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "salt & pepper"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "frenchs crunchy onion chicken",
+              "score": 103.2,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                153.9,
+                4.0,
+                3.0,
+                3.0,
+                56.0,
+                3.0,
+                0.0
+              ],
+              "missing": [
+                "salt & pepper"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "20 minute chicken   rice with broccoli     k",
+              "score": 101.5,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                418.1,
+                15.0,
+                1.0,
+                24.0,
+                67.0,
+                10.0,
+                15.0
+              ],
+              "missing": [
+                "condensed cream of chicken soup"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "basil chicken with broccoli",
+              "score": 97.9,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                389.1,
+                37.0,
+                20.0,
+                4.0,
+                55.0,
+                24.0,
+                5.0
+              ],
+              "missing": [
+                "fresh basil"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "20 minute skillet salmon",
+              "score": 127.5,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                409.8,
+                20.0,
+                0.0,
+                10.0,
+                130.0,
+                10.0,
+                1.0
+              ],
+              "missing": [
+                "skim milk",
+                "cucumber",
+                "dill"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "greek stuffed chicken breasts",
+              "score": 127.4,
+              "match_ratio": 0.43,
+              "type": "partial",
+              "nutrition": [
+                357.9,
+                14.0,
+                7.0,
+                23.0,
+                119.0,
+                17.0,
+                1.0
+              ],
+              "missing": [
+                "lemon juice",
+                "fresh basil",
+                "fresh oregano",
+                "salt",
+                "black pepper",
+                "crushed red pepper flakes",
+                "feta cheese",
+                "parmesan cheese"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün 2",
+          "chosen": "20 minute chicken   rice with broccoli     k",
+          "nutrition": [
+            418.1,
+            15.0,
+            1.0,
+            24.0,
+            67.0,
+            10.0,
+            15.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8,
+          "missing": [
+            "condensed cream of chicken soup"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "20 minute chicken   rice with broccoli     k",
+              "score": 102.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                418.1,
+                15.0,
+                1.0,
+                24.0,
+                67.0,
+                10.0,
+                15.0
+              ],
+              "missing": [
+                "condensed cream of chicken soup"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "basil chicken with broccoli",
+              "score": 98.2,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                389.1,
+                37.0,
+                20.0,
+                4.0,
+                55.0,
+                24.0,
+                5.0
+              ],
+              "missing": [
+                "fresh basil"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "fried rice for 2",
+              "score": 83.5,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                222.8,
+                14.0,
+                1.0,
+                15.0,
+                12.0,
+                8.0,
+                9.0
+              ],
+              "missing": [
+                "soy sauce"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "20 minute skillet salmon",
+              "score": 127.5,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                409.8,
+                20.0,
+                0.0,
+                10.0,
+                130.0,
+                10.0,
+                1.0
+              ],
+              "missing": [
+                "skim milk",
+                "cucumber",
+                "dill"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "baked mediterranean chicken and rice",
+              "score": 127.5,
+              "match_ratio": 0.42,
+              "type": "partial",
+              "nutrition": [
+                808.7,
+                22.0,
+                41.0,
+                22.0,
+                127.0,
+                12.0,
+                28.0
+              ],
+              "missing": [
+                "red pepper",
+                "dry white wine",
+                "tomatoes",
+                "pitted black olives",
+                "sun-dried tomatoes",
+                "basil leaves",
+                "parmesan cheese"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "basil chicken with broccoli",
+          "nutrition": [
+            389.1,
+            37.0,
+            20.0,
+            4.0,
+            55.0,
+            24.0,
+            5.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "fresh basil"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "basil chicken with broccoli",
+              "score": 102.2,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                389.1,
+                37.0,
+                20.0,
+                4.0,
+                55.0,
+                24.0,
+                5.0
+              ],
+              "missing": [
+                "fresh basil"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "baked eggs w spinach and tomatoes",
+              "score": 84.5,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                230.8,
+                21.0,
+                20.0,
+                18.0,
+                33.0,
+                18.0,
+                3.0
+              ],
+              "missing": [
+                "diced tomatoes"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "fried rice for 2",
+              "score": 83.5,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                222.8,
+                14.0,
+                1.0,
+                15.0,
+                12.0,
+                8.0,
+                9.0
+              ],
+              "missing": [
+                "soy sauce"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "ann s italian chicken",
+              "score": 130,
+              "match_ratio": 0.43,
+              "type": "partial",
+              "nutrition": [
+                616.8,
+                51.0,
+                43.0,
+                43.0,
+                117.0,
+                59.0,
+                5.0
+              ],
+              "missing": [
+                "spaghetti sauce",
+                "cheese",
+                "italian seasoned breadcrumbs",
+                "milk"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "greek egg lemon chicken rice soup",
+              "score": 128.5,
+              "match_ratio": 0.4,
+              "type": "partial",
+              "nutrition": [
+                817.3,
+                77.0,
+                2.0,
+                10.0,
+                119.0,
+                70.0,
+                9.0
+              ],
+              "missing": [
+                "chicken wings",
+                "water",
+                "lemons, juice of"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Aylin",
+      "profile": "general_adult",
+      "age": 29,
+      "daily_calories": 1700,
+      "meals_per_day": 3,
+      "diet": null,
+      "allergies": [
+        "egg",
+        "peanut"
+      ],
+      "avoid": null,
+      "fridge": [
+        "chicken breast",
+        "rice",
+        "onion",
+        "garlic",
+        "olive oil",
+        "tomatoes",
+        "carrot",
+        "broccoli",
+        "lemon juice",
+        "ginger",
+        "soy sauce",
+        "sesame oil",
+        "tofu",
+        "green beans",
+        "corn"
+      ],
+      "is_athlete": false,
+      "is_pregnant": false,
+      "scoring_profile": {
+        "description": "Dengeli beslenme odaklı",
+        "penalty_weights": {
+          "calories": 1.0,
+          "total_fat_pdv": 1.0,
+          "sugar_pdv": 1.2,
+          "sodium_pdv": 1.0,
+          "protein_low": 0.8,
+          "saturated_fat_pdv": 1.0,
+          "carbs_pdv": 0.8
+        },
+        "bonus_weights": {
+          "protein_recovery": 0.8,
+          "calorie_balance": 1.0,
+          "sugar_balance": 1.0
+        }
+      },
+      "breakfast_scenario": "low_cal",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 48.1,
+        "total_fat_pdv": 61.9,
+        "sugar_pdv": 67.1,
+        "sodium_pdv": 85.1,
+        "protein_pdv": 131.0,
+        "saturated_fat_pdv": 28.6,
+        "carbs_pdv": 16.2
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] low_cal",
+          "nutrition": [
+            150,
+            3,
+            5,
+            2,
+            8,
+            2,
+            8
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] low_cal",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                150,
+                3,
+                5,
+                2,
+                8,
+                2,
+                8
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "ginger marinated tuna steaks",
+          "nutrition": [
+            286.2,
+            18.0,
+            1.0,
+            24.0,
+            81.0,
+            13.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8571428571428571,
+          "missing": [
+            "tuna steaks"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "ginger marinated tuna steaks",
+              "score": 104.3,
+              "match_ratio": 0.86,
+              "type": "full",
+              "nutrition": [
+                286.2,
+                18.0,
+                1.0,
+                24.0,
+                81.0,
+                13.0,
+                0.0
+              ],
+              "missing": [
+                "tuna steaks"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "chicken breast with sauteed tomatoes and green beans",
+              "score": 101.3,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                192.2,
+                7.0,
+                3.0,
+                15.0,
+                58.0,
+                4.0,
+                2.0
+              ],
+              "missing": [
+                "chili powder"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "bea s grilled pork chops",
+              "score": 101.2,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                410.7,
+                38.0,
+                0.0,
+                25.0,
+                84.0,
+                34.0,
+                0.0
+              ],
+              "missing": [
+                "pork chops"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "barbecue glazed salmon",
+              "score": 116.0,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                473.2,
+                26.0,
+                27.0,
+                19.0,
+                131.0,
+                15.0,
+                2.0
+              ],
+              "missing": [
+                "salmon fillets",
+                "fish",
+                "chili sauce",
+                "brown sugar",
+                "ground cumin",
+                "fresh ground black pepper"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "halibut ragu",
+              "score": 114.0,
+              "match_ratio": 0.57,
+              "type": "partial",
+              "nutrition": [
+                531.2,
+                20.0,
+                28.0,
+                9.0,
+                174.0,
+                9.0,
+                4.0
+              ],
+              "missing": [
+                "bell pepper",
+                "dried basil",
+                "halibut fillets"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "asian style chicken   broccoli",
+          "nutrition": [
+            381.2,
+            24.0,
+            51.0,
+            48.0,
+            78.0,
+            12.0,
+            7.0
+          ],
+          "type": "full",
+          "match_ratio": 0.875,
+          "missing": [
+            "brown sugar"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "asian style chicken   broccoli",
+              "score": 102.0,
+              "match_ratio": 0.88,
+              "type": "full",
+              "nutrition": [
+                381.2,
+                24.0,
+                51.0,
+                48.0,
+                78.0,
+                12.0,
+                7.0
+              ],
+              "missing": [
+                "brown sugar"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "basil chicken with broccoli",
+              "score": 102.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                389.1,
+                37.0,
+                20.0,
+                4.0,
+                55.0,
+                24.0,
+                5.0
+              ],
+              "missing": [
+                "fresh basil"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "chicken hogan",
+              "score": 102.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                338.6,
+                15.0,
+                14.0,
+                2.0,
+                39.0,
+                12.0,
+                13.0
+              ],
+              "missing": [
+                "potatoes"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "baked cod with vegetables  prosciutto and pine nuts",
+              "score": 106.0,
+              "match_ratio": 0.4,
+              "type": "partial",
+              "nutrition": [
+                287.1,
+                11.0,
+                18.0,
+                5.0,
+                89.0,
+                3.0,
+                3.0
+              ],
+              "missing": [
+                "bell pepper",
+                "mushrooms",
+                "salt & freshly ground black pepper",
+                "cod fish fillets",
+                "prosciutto",
+                "pine nuts"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "chinese chicken lettuce cups",
+              "score": 104.0,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                327.5,
+                15.0,
+                2.0,
+                46.0,
+                64.0,
+                9.0,
+                8.0
+              ],
+              "missing": [
+                "lean ground chicken",
+                "sweet chili sauce",
+                "fish sauce",
+                "coriander leaves",
+                "lettuce cups"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Ozan",
+      "profile": "athlete_bodybuilder",
+      "age": 40,
+      "daily_calories": 3200,
+      "meals_per_day": 6,
+      "diet": null,
+      "allergies": null,
+      "avoid": [
+        "bread",
+        "pasta",
+        "flour"
+      ],
+      "fridge": [
+        "chicken breast",
+        "salmon fillet",
+        "eggs",
+        "rice",
+        "oats",
+        "broccoli",
+        "spinach",
+        "olive oil",
+        "garlic",
+        "onion",
+        "sweet potato",
+        "avocado",
+        "banana",
+        "lemon juice",
+        "pepper"
+      ],
+      "is_athlete": true,
+      "is_pregnant": false,
+      "scoring_profile": {
+        "description": "Yüksek protein, kas gelişimi odaklı",
+        "penalty_weights": {
+          "calories": 0.6,
+          "total_fat_pdv": 0.8,
+          "sugar_pdv": 1.5,
+          "sodium_pdv": 0.7,
+          "protein_low": 2.0,
+          "saturated_fat_pdv": 1.0,
+          "carbs_pdv": 0.5
+        },
+        "bonus_weights": {
+          "protein_recovery": 2.0,
+          "calorie_balance": 0.5,
+          "sugar_balance": 1.2
+        }
+      },
+      "breakfast_scenario": "low_protein",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 57.3,
+        "total_fat_pdv": 59.2,
+        "sugar_pdv": 17.5,
+        "sodium_pdv": 62.0,
+        "protein_pdv": 107.5,
+        "saturated_fat_pdv": 30.4,
+        "carbs_pdv": 23.8
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] low_protein",
+          "nutrition": [
+            200,
+            5,
+            10,
+            5,
+            5,
+            3,
+            15
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] low_protein",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                200,
+                5,
+                10,
+                5,
+                5,
+                3,
+                15
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün 1",
+          "chosen": "cracked black pepper salmon",
+          "nutrition": [
+            478.3,
+            29.0,
+            0.0,
+            10.0,
+            133.0,
+            16.0,
+            2.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "cracked black pepper salmon",
+              "score": 122.3,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                478.3,
+                29.0,
+                0.0,
+                10.0,
+                133.0,
+                16.0,
+                2.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "garlic chicken kabobs on rosemary skewers",
+              "score": 116.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                283.5,
+                4.0,
+                0.0,
+                6.0,
+                108.0,
+                3.0,
+                3.0
+              ],
+              "missing": [
+                "rosemary sprigs"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "grilled salmon or halibut",
+              "score": 109.2,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                325.4,
+                22.0,
+                1.0,
+                6.0,
+                90.0,
+                11.0,
+                0.0
+              ],
+              "missing": [
+                "kosher salt"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "halibut ragu",
+              "score": 130,
+              "match_ratio": 0.57,
+              "type": "partial",
+              "nutrition": [
+                531.2,
+                20.0,
+                28.0,
+                9.0,
+                174.0,
+                9.0,
+                4.0
+              ],
+              "missing": [
+                "dried basil",
+                "plum tomatoes",
+                "halibut fillets"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "easy pesto halibut",
+              "score": 130,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                485.6,
+                21.0,
+                0.0,
+                9.0,
+                169.0,
+                9.0,
+                0.0
+              ],
+              "missing": [
+                "pesto sauce mix",
+                "halibut fillets"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "crunchy onion chicken",
+          "nutrition": [
+            196.3,
+            8.0,
+            0.0,
+            8.0,
+            68.0,
+            6.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "crunchy onion chicken",
+              "score": 109.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                196.3,
+                8.0,
+                0.0,
+                8.0,
+                68.0,
+                6.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "garlic chicken kabobs on rosemary skewers",
+              "score": 105.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                283.5,
+                4.0,
+                0.0,
+                6.0,
+                108.0,
+                3.0,
+                3.0
+              ],
+              "missing": [
+                "rosemary sprigs"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "easy bake salmon",
+              "score": 105.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                232.3,
+                10.0,
+                12.0,
+                5.0,
+                67.0,
+                6.0,
+                2.0
+              ],
+              "missing": [
+                "mayonnaise"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "asian spiced salmon kedgeree  nigella lawson",
+              "score": 112.6,
+              "match_ratio": 0.36,
+              "type": "partial",
+              "nutrition": [
+                460.1,
+                26.0,
+                6.0,
+                6.0,
+                92.0,
+                28.0,
+                9.0
+              ],
+              "missing": [
+                "cold water",
+                "limes",
+                "unsalted butter",
+                "ground coriander",
+                "ground cumin",
+                "turmeric",
+                "cilantro leaves",
+                "lime",
+                "fish sauce"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "crispy rice chicken",
+              "score": 110.5,
+              "match_ratio": 0.71,
+              "type": "partial",
+              "nutrition": [
+                307.2,
+                22.0,
+                3.0,
+                20.0,
+                65.0,
+                21.0,
+                3.0
+              ],
+              "missing": [
+                "water",
+                "salt"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün 2",
+          "chosen": "20 minute chicken   rice with broccoli     k",
+          "nutrition": [
+            418.1,
+            15.0,
+            1.0,
+            24.0,
+            67.0,
+            10.0,
+            15.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8,
+          "missing": [
+            "condensed cream of chicken soup"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "20 minute chicken   rice with broccoli     k",
+              "score": 106.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                418.1,
+                15.0,
+                1.0,
+                24.0,
+                67.0,
+                10.0,
+                15.0
+              ],
+              "missing": [
+                "condensed cream of chicken soup"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "garlic chicken kabobs on rosemary skewers",
+              "score": 105.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                283.5,
+                4.0,
+                0.0,
+                6.0,
+                108.0,
+                3.0,
+                3.0
+              ],
+              "missing": [
+                "rosemary sprigs"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "easy bake salmon",
+              "score": 105.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                232.3,
+                10.0,
+                12.0,
+                5.0,
+                67.0,
+                6.0,
+                2.0
+              ],
+              "missing": [
+                "mayonnaise"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "asian spiced salmon kedgeree  nigella lawson",
+              "score": 113.0,
+              "match_ratio": 0.36,
+              "type": "partial",
+              "nutrition": [
+                460.1,
+                26.0,
+                6.0,
+                6.0,
+                92.0,
+                28.0,
+                9.0
+              ],
+              "missing": [
+                "cold water",
+                "limes",
+                "unsalted butter",
+                "ground coriander",
+                "ground cumin",
+                "turmeric",
+                "cilantro leaves",
+                "lime",
+                "fish sauce"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "crispy rice chicken",
+              "score": 111.0,
+              "match_ratio": 0.71,
+              "type": "partial",
+              "nutrition": [
+                307.2,
+                22.0,
+                3.0,
+                20.0,
+                65.0,
+                21.0,
+                3.0
+              ],
+              "missing": [
+                "water",
+                "salt"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "garlic chicken kabobs on rosemary skewers",
+          "nutrition": [
+            283.5,
+            4.0,
+            0.0,
+            6.0,
+            108.0,
+            3.0,
+            3.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "rosemary sprigs"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "garlic chicken kabobs on rosemary skewers",
+              "score": 105.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                283.5,
+                4.0,
+                0.0,
+                6.0,
+                108.0,
+                3.0,
+                3.0
+              ],
+              "missing": [
+                "rosemary sprigs"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "chicken and peppers in garlic wine sauce",
+              "score": 105.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                420.3,
+                39.0,
+                8.0,
+                4.0,
+                64.0,
+                27.0,
+                1.0
+              ],
+              "missing": [
+                "dry white wine"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "easy bake salmon",
+              "score": 105.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                232.3,
+                10.0,
+                12.0,
+                5.0,
+                67.0,
+                6.0,
+                2.0
+              ],
+              "missing": [
+                "mayonnaise"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "asian spiced salmon kedgeree  nigella lawson",
+              "score": 113.0,
+              "match_ratio": 0.36,
+              "type": "partial",
+              "nutrition": [
+                460.1,
+                26.0,
+                6.0,
+                6.0,
+                92.0,
+                28.0,
+                9.0
+              ],
+              "missing": [
+                "cold water",
+                "limes",
+                "unsalted butter",
+                "ground coriander",
+                "ground cumin",
+                "turmeric",
+                "cilantro leaves",
+                "lime",
+                "fish sauce"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "crispy rice chicken",
+              "score": 111.0,
+              "match_ratio": 0.71,
+              "type": "partial",
+              "nutrition": [
+                307.2,
+                22.0,
+                3.0,
+                20.0,
+                65.0,
+                21.0,
+                3.0
+              ],
+              "missing": [
+                "water",
+                "salt"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Gece Atıştırması",
+          "chosen": "broccoli   chicken with hoisin sauce",
+          "nutrition": [
+            258.9,
+            20.0,
+            17.0,
+            9.0,
+            49.0,
+            16.0,
+            3.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8571428571428571,
+          "missing": [
+            "hoisin sauce"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "broccoli   chicken with hoisin sauce",
+              "score": 110.0,
+              "match_ratio": 0.86,
+              "type": "full",
+              "nutrition": [
+                258.9,
+                20.0,
+                17.0,
+                9.0,
+                49.0,
+                16.0,
+                3.0
+              ],
+              "missing": [
+                "hoisin sauce"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "frenchs crunchy onion chicken",
+              "score": 109.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                153.9,
+                4.0,
+                3.0,
+                3.0,
+                56.0,
+                3.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 3,
+              "recipe": "delightfully different chicken spitzad  spezzatino",
+              "score": 109.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                505.2,
+                53.0,
+                3.0,
+                8.0,
+                86.0,
+                50.0,
+                0.0
+              ],
+              "missing": [
+                "fresh rosemary"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "california chicken pockets",
+              "score": 117.0,
+              "match_ratio": 0.45,
+              "type": "partial",
+              "nutrition": [
+                544.7,
+                38.0,
+                16.0,
+                25.0,
+                46.0,
+                28.0,
+                19.0
+              ],
+              "missing": [
+                "tomatoes",
+                "mozzarella cheese",
+                "mayonnaise",
+                "dijon mustard",
+                "celery seed",
+                "pita pockets"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "arroz caldo",
+              "score": 116.0,
+              "match_ratio": 0.54,
+              "type": "partial",
+              "nutrition": [
+                243.6,
+                12.0,
+                4.0,
+                29.0,
+                44.0,
+                8.0,
+                6.0
+              ],
+              "missing": [
+                "vegetable oil",
+                "fresh ginger",
+                "salt",
+                "boneless skinless chicken thighs",
+                "chicken broth",
+                "fish sauce"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Ceren",
+      "profile": "general_adult",
+      "age": 21,
+      "daily_calories": 1900,
+      "meals_per_day": 3,
+      "diet": "vegetarian",
+      "allergies": [
+        "milk"
+      ],
+      "avoid": null,
+      "fridge": [
+        "rice",
+        "onion",
+        "garlic",
+        "olive oil",
+        "tomatoes",
+        "bell pepper",
+        "pasta",
+        "lemon juice",
+        "eggplant",
+        "zucchini",
+        "mushroom",
+        "parsley",
+        "cumin",
+        "paprika",
+        "vegetable broth"
+      ],
+      "is_athlete": false,
+      "is_pregnant": false,
+      "scoring_profile": {
+        "description": "Dengeli beslenme odaklı",
+        "penalty_weights": {
+          "calories": 1.0,
+          "total_fat_pdv": 1.0,
+          "sugar_pdv": 1.2,
+          "sodium_pdv": 1.0,
+          "protein_low": 0.8,
+          "saturated_fat_pdv": 1.0,
+          "carbs_pdv": 0.8
+        },
+        "bonus_weights": {
+          "protein_recovery": 0.8,
+          "calorie_balance": 1.0,
+          "sugar_balance": 1.0
+        }
+      },
+      "breakfast_scenario": "high_sugar",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 40.4,
+        "total_fat_pdv": 36.9,
+        "sugar_pdv": 73.7,
+        "sodium_pdv": 9.2,
+        "protein_pdv": 36.5,
+        "saturated_fat_pdv": 15.2,
+        "carbs_pdv": 41.5
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] high_sugar",
+          "nutrition": [
+            350,
+            12,
+            60,
+            8,
+            10,
+            8,
+            25
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] high_sugar",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                350,
+                12,
+                60,
+                8,
+                10,
+                8,
+                25
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "black beans for a lazy day",
+          "nutrition": [
+            335.9,
+            8.0,
+            4.0,
+            0.0,
+            38.0,
+            4.0,
+            17.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8,
+          "missing": [
+            "black beans"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "black beans for a lazy day",
+              "score": 96.8,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                335.9,
+                8.0,
+                4.0,
+                0.0,
+                38.0,
+                4.0,
+                17.0
+              ],
+              "missing": [
+                "black beans"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "baked portobello mushrooms",
+              "score": 95.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                81.5,
+                10.0,
+                6.0,
+                0.0,
+                4.0,
+                4.0,
+                1.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 3,
+              "recipe": "basic confit of garlic",
+              "score": 95.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                44.7,
+                0.0,
+                1.0,
+                0.0,
+                3.0,
+                0.0,
+                3.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "easy pesto halibut",
+              "score": 119.0,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                485.6,
+                21.0,
+                0.0,
+                9.0,
+                169.0,
+                9.0,
+                0.0
+              ],
+              "missing": [
+                "pesto sauce mix",
+                "halibut fillets"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "cracked black pepper salmon",
+              "score": 119.0,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                478.3,
+                29.0,
+                0.0,
+                10.0,
+                133.0,
+                16.0,
+                2.0
+              ],
+              "missing": [
+                "fresh ground black pepper",
+                "salmon fillets"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "baked portobello mushrooms",
+          "nutrition": [
+            81.5,
+            10.0,
+            6.0,
+            0.0,
+            4.0,
+            4.0,
+            1.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "baked portobello mushrooms",
+              "score": 95.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                81.5,
+                10.0,
+                6.0,
+                0.0,
+                4.0,
+                4.0,
+                1.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "basic confit of garlic",
+              "score": 95.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                44.7,
+                0.0,
+                1.0,
+                0.0,
+                3.0,
+                0.0,
+                3.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 3,
+              "recipe": "caramelized garlic and garlic oil",
+              "score": 95.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                25.1,
+                3.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "halibut with garlic",
+              "score": 116.6,
+              "match_ratio": 0.43,
+              "type": "partial",
+              "nutrition": [
+                694.4,
+                55.0,
+                1.0,
+                9.0,
+                170.0,
+                25.0,
+                0.0
+              ],
+              "missing": [
+                "halibut fillets",
+                "salt",
+                "white pepper",
+                "water"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "easy pesto halibut",
+              "score": 116.5,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                485.6,
+                21.0,
+                0.0,
+                9.0,
+                169.0,
+                9.0,
+                0.0
+              ],
+              "missing": [
+                "pesto sauce mix",
+                "halibut fillets"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Tarik",
+      "profile": "general_adult",
+      "age": 50,
+      "daily_calories": 2100,
+      "meals_per_day": 3,
+      "diet": null,
+      "allergies": null,
+      "avoid": [
+        "salt",
+        "butter",
+        "cream"
+      ],
+      "fridge": [
+        "chicken breast",
+        "rice",
+        "onion",
+        "garlic",
+        "olive oil",
+        "tomatoes",
+        "bell pepper",
+        "pasta",
+        "soy sauce",
+        "ginger",
+        "carrot",
+        "potato",
+        "lemon juice",
+        "black pepper"
+      ],
+      "is_athlete": false,
+      "is_pregnant": false,
+      "scoring_profile": {
+        "description": "Dengeli beslenme odaklı",
+        "penalty_weights": {
+          "calories": 1.0,
+          "total_fat_pdv": 1.0,
+          "sugar_pdv": 1.2,
+          "sodium_pdv": 1.0,
+          "protein_low": 0.8,
+          "saturated_fat_pdv": 1.0,
+          "carbs_pdv": 0.8
+        },
+        "bonus_weights": {
+          "protein_recovery": 0.8,
+          "calorie_balance": 1.0,
+          "sugar_balance": 1.0
+        }
+      },
+      "breakfast_scenario": "balanced",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 55.3,
+        "total_fat_pdv": 96.9,
+        "sugar_pdv": 26.7,
+        "sodium_pdv": 70.2,
+        "protein_pdv": 101.6,
+        "saturated_fat_pdv": 56.6,
+        "carbs_pdv": 18.3
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] balanced",
+          "nutrition": [
+            400,
+            15,
+            10,
+            10,
+            25,
+            8,
+            18
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] balanced",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                400,
+                15,
+                10,
+                10,
+                25,
+                8,
+                18
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "bea s grilled pork chops",
+          "nutrition": [
+            410.7,
+            38.0,
+            0.0,
+            25.0,
+            84.0,
+            34.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8,
+          "missing": [
+            "pork chops"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "bea s grilled pork chops",
+              "score": 102.5,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                410.7,
+                38.0,
+                0.0,
+                25.0,
+                84.0,
+                34.0,
+                0.0
+              ],
+              "missing": [
+                "pork chops"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "garlic and pepper marinated flank steak",
+              "score": 99.7,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                452.8,
+                39.0,
+                1.0,
+                47.0,
+                100.0,
+                43.0,
+                0.0
+              ],
+              "missing": [
+                "flank steaks"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "chicken and peppers in garlic wine sauce",
+              "score": 99.4,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                420.3,
+                39.0,
+                8.0,
+                4.0,
+                64.0,
+                27.0,
+                1.0
+              ],
+              "missing": [
+                "dry white wine"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "barbecue glazed salmon",
+              "score": 115.7,
+              "match_ratio": 0.44,
+              "type": "partial",
+              "nutrition": [
+                473.2,
+                26.0,
+                27.0,
+                19.0,
+                131.0,
+                15.0,
+                2.0
+              ],
+              "missing": [
+                "salmon fillets",
+                "fish",
+                "chili sauce",
+                "brown sugar",
+                "ground cumin"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "halibut ragu",
+              "score": 114.0,
+              "match_ratio": 0.71,
+              "type": "partial",
+              "nutrition": [
+                531.2,
+                20.0,
+                28.0,
+                9.0,
+                174.0,
+                9.0,
+                4.0
+              ],
+              "missing": [
+                "dried basil",
+                "halibut fillets"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "easy mix and match stir fry",
+          "nutrition": [
+            350.8,
+            34.0,
+            18.0,
+            26.0,
+            51.0,
+            24.0,
+            3.0
+          ],
+          "type": "full",
+          "match_ratio": 0.875,
+          "missing": [
+            "italian dressing"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "easy mix and match stir fry",
+              "score": 102.0,
+              "match_ratio": 0.88,
+              "type": "full",
+              "nutrition": [
+                350.8,
+                34.0,
+                18.0,
+                26.0,
+                51.0,
+                24.0,
+                3.0
+              ],
+              "missing": [
+                "italian dressing"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "gingered chicken breast",
+              "score": 100.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                134.2,
+                2.0,
+                0.0,
+                3.0,
+                54.0,
+                1.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 3,
+              "recipe": "applesauce chicken",
+              "score": 100.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                358.1,
+                21.0,
+                1.0,
+                30.0,
+                62.0,
+                19.0,
+                9.0
+              ],
+              "missing": [
+                "applesauce"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "cod with winter vegetables",
+              "score": 104.0,
+              "match_ratio": 0.62,
+              "type": "partial",
+              "nutrition": [
+                386.7,
+                12.0,
+                25.0,
+                7.0,
+                65.0,
+                6.0,
+                7.0
+              ],
+              "missing": [
+                "celery",
+                "cod fish fillets",
+                "white wine"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "chinese chicken lettuce cups",
+              "score": 104.0,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                327.5,
+                15.0,
+                2.0,
+                46.0,
+                64.0,
+                9.0,
+                8.0
+              ],
+              "missing": [
+                "lean ground chicken",
+                "sweet chili sauce",
+                "fish sauce",
+                "coriander leaves",
+                "lettuce cups"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Gizem",
+      "profile": "athlete_bodybuilder",
+      "age": 27,
+      "daily_calories": 2600,
+      "meals_per_day": 5,
+      "diet": null,
+      "allergies": null,
+      "avoid": null,
+      "fridge": [
+        "chicken breast",
+        "salmon fillet",
+        "eggs",
+        "rice",
+        "oats",
+        "broccoli",
+        "spinach",
+        "olive oil",
+        "garlic",
+        "onion",
+        "sweet potato",
+        "greek yogurt",
+        "banana",
+        "almonds",
+        "protein powder"
+      ],
+      "is_athlete": true,
+      "is_pregnant": false,
+      "scoring_profile": {
+        "description": "Yüksek protein, kas gelişimi odaklı",
+        "penalty_weights": {
+          "calories": 0.6,
+          "total_fat_pdv": 0.8,
+          "sugar_pdv": 1.5,
+          "sodium_pdv": 0.7,
+          "protein_low": 2.0,
+          "saturated_fat_pdv": 1.0,
+          "carbs_pdv": 0.5
+        },
+        "bonus_weights": {
+          "protein_recovery": 2.0,
+          "calorie_balance": 0.5,
+          "sugar_balance": 1.2
+        }
+      },
+      "breakfast_scenario": "low_protein",
+      "test_passed": false,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 45.8,
+        "total_fat_pdv": 41.4,
+        "sugar_pdv": 11.5,
+        "sodium_pdv": 55.0,
+        "protein_pdv": 64.0,
+        "saturated_fat_pdv": 20.8,
+        "carbs_pdv": 30.0
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] low_protein",
+          "nutrition": [
+            200,
+            5,
+            10,
+            5,
+            5,
+            3,
+            15
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] low_protein",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                200,
+                5,
+                10,
+                5,
+                5,
+                3,
+                15
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün 1",
+          "chosen": "crunchy onion chicken",
+          "nutrition": [
+            196.3,
+            8.0,
+            0.0,
+            8.0,
+            68.0,
+            6.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "crunchy onion chicken",
+              "score": 100.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                196.3,
+                8.0,
+                0.0,
+                8.0,
+                68.0,
+                6.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "20 minute chicken   rice with broccoli     k",
+              "score": 96.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                418.1,
+                15.0,
+                1.0,
+                24.0,
+                67.0,
+                10.0,
+                15.0
+              ],
+              "missing": [
+                "condensed cream of chicken soup"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "frenchs crunchy onion chicken",
+              "score": 91.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                153.9,
+                4.0,
+                3.0,
+                3.0,
+                56.0,
+                3.0,
+                0.0
+              ],
+              "missing": [
+                "salt & pepper"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "frozen chicken breasts in microwave",
+              "score": 130,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                517.6,
+                18.0,
+                0.0,
+                21.0,
+                192.0,
+                12.0,
+                0.0
+              ],
+              "missing": [
+                "water"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "halibut ragu",
+              "score": 130,
+              "match_ratio": 0.43,
+              "type": "partial",
+              "nutrition": [
+                531.2,
+                20.0,
+                28.0,
+                9.0,
+                174.0,
+                9.0,
+                4.0
+              ],
+              "missing": [
+                "bell pepper",
+                "dried basil",
+                "plum tomatoes",
+                "halibut fillets"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "20 minute chicken   rice with broccoli     k",
+          "nutrition": [
+            418.1,
+            15.0,
+            1.0,
+            24.0,
+            67.0,
+            10.0,
+            15.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8,
+          "missing": [
+            "condensed cream of chicken soup"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "20 minute chicken   rice with broccoli     k",
+              "score": 93.9,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                418.1,
+                15.0,
+                1.0,
+                24.0,
+                67.0,
+                10.0,
+                15.0
+              ],
+              "missing": [
+                "condensed cream of chicken soup"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "frenchs crunchy onion chicken",
+              "score": 89.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                153.9,
+                4.0,
+                3.0,
+                3.0,
+                56.0,
+                3.0,
+                0.0
+              ],
+              "missing": [
+                "salt & pepper"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "basil chicken with broccoli",
+              "score": 83.1,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                389.1,
+                37.0,
+                20.0,
+                4.0,
+                55.0,
+                24.0,
+                5.0
+              ],
+              "missing": [
+                "fresh basil"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "frozen chicken breasts in microwave",
+              "score": 130,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                517.6,
+                18.0,
+                0.0,
+                21.0,
+                192.0,
+                12.0,
+                0.0
+              ],
+              "missing": [
+                "water"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "halibut ragu",
+              "score": 130,
+              "match_ratio": 0.43,
+              "type": "partial",
+              "nutrition": [
+                531.2,
+                20.0,
+                28.0,
+                9.0,
+                174.0,
+                9.0,
+                4.0
+              ],
+              "missing": [
+                "bell pepper",
+                "dried basil",
+                "plum tomatoes",
+                "halibut fillets"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün 2",
+          "chosen": "frenchs crunchy onion chicken",
+          "nutrition": [
+            153.9,
+            4.0,
+            3.0,
+            3.0,
+            56.0,
+            3.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "salt & pepper"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "frenchs crunchy onion chicken",
+              "score": 85.3,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                153.9,
+                4.0,
+                3.0,
+                3.0,
+                56.0,
+                3.0,
+                0.0
+              ],
+              "missing": [
+                "salt & pepper"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "basil chicken with broccoli",
+              "score": 83.7,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                389.1,
+                37.0,
+                20.0,
+                4.0,
+                55.0,
+                24.0,
+                5.0
+              ],
+              "missing": [
+                "fresh basil"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "fried rice for 2",
+              "score": 81.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                222.8,
+                14.0,
+                1.0,
+                15.0,
+                12.0,
+                8.0,
+                9.0
+              ],
+              "missing": [
+                "soy sauce"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "frozen chicken breasts in microwave",
+              "score": 130,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                517.6,
+                18.0,
+                0.0,
+                21.0,
+                192.0,
+                12.0,
+                0.0
+              ],
+              "missing": [
+                "water"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "greek grilled chicken breasts",
+              "score": 130,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                840.2,
+                37.0,
+                0.0,
+                32.0,
+                289.0,
+                24.0,
+                0.0
+              ],
+              "missing": [
+                "lemon juice",
+                "fresh parsley",
+                "dried oregano"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "fried rice for 2",
+          "nutrition": [
+            222.8,
+            14.0,
+            1.0,
+            15.0,
+            12.0,
+            8.0,
+            9.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "soy sauce"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "fried rice for 2",
+              "score": 81.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                222.8,
+                14.0,
+                1.0,
+                15.0,
+                12.0,
+                8.0,
+                9.0
+              ],
+              "missing": [
+                "soy sauce"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "basil chicken with broccoli",
+              "score": 78.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                389.1,
+                37.0,
+                20.0,
+                4.0,
+                55.0,
+                24.0,
+                5.0
+              ],
+              "missing": [
+                "fresh basil"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "baked eggs w spinach and tomatoes",
+              "score": 77.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                230.8,
+                21.0,
+                20.0,
+                18.0,
+                33.0,
+                18.0,
+                3.0
+              ],
+              "missing": [
+                "diced tomatoes"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "greek grilled chicken breasts",
+              "score": 130,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                840.2,
+                37.0,
+                0.0,
+                32.0,
+                289.0,
+                24.0,
+                0.0
+              ],
+              "missing": [
+                "lemon juice",
+                "fresh parsley",
+                "dried oregano"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "contemporary duck",
+              "score": 123.6,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                1171.6,
+                95.0,
+                3.0,
+                36.0,
+                278.0,
+                83.0,
+                1.0
+              ],
+              "missing": [
+                "ducklings",
+                "rose wine"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Pelin",
+      "profile": "pregnant_lactating",
+      "age": 31,
+      "daily_calories": 2200,
+      "meals_per_day": 4,
+      "diet": null,
+      "allergies": null,
+      "avoid": [
+        "alcohol",
+        "caffeine",
+        "coffee"
+      ],
+      "fridge": [
+        "chicken breast",
+        "eggs",
+        "rice",
+        "spinach",
+        "tomatoes",
+        "onion",
+        "garlic",
+        "olive oil",
+        "lemon juice",
+        "carrot",
+        "potato",
+        "pasta",
+        "bell pepper",
+        "parsley",
+        "cumin"
+      ],
+      "is_athlete": false,
+      "is_pregnant": true,
+      "scoring_profile": {
+        "description": "Anne-bebek sağlığı, folat/demir/kalsiyum odaklı",
+        "penalty_weights": {
+          "calories": 0.8,
+          "total_fat_pdv": 1.0,
+          "sugar_pdv": 1.3,
+          "sodium_pdv": 1.5,
+          "protein_low": 1.3,
+          "saturated_fat_pdv": 1.2,
+          "carbs_pdv": 0.7
+        },
+        "bonus_weights": {
+          "protein_recovery": 1.3,
+          "calorie_balance": 0.7,
+          "sugar_balance": 1.2
+        }
+      },
+      "breakfast_scenario": "balanced",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 75.8,
+        "total_fat_pdv": 86.2,
+        "sugar_pdv": 27.3,
+        "sodium_pdv": 86.9,
+        "protein_pdv": 188.6,
+        "saturated_fat_pdv": 45.8,
+        "carbs_pdv": 17.5
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] balanced",
+          "nutrition": [
+            400,
+            15,
+            10,
+            10,
+            25,
+            8,
+            18
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] balanced",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                400,
+                15,
+                10,
+                10,
+                25,
+                8,
+                18
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "crunchy onion chicken",
+          "nutrition": [
+            196.3,
+            8.0,
+            0.0,
+            8.0,
+            68.0,
+            6.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "crunchy onion chicken",
+              "score": 104.9,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                196.3,
+                8.0,
+                0.0,
+                8.0,
+                68.0,
+                6.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "garlic chicken melt",
+              "score": 100.2,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                218.7,
+                12.0,
+                10.0,
+                12.0,
+                62.0,
+                13.0,
+                1.0
+              ],
+              "missing": [
+                "mozzarella cheese"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "berry s chicken",
+              "score": 99.2,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                148.2,
+                4.0,
+                0.0,
+                3.0,
+                57.0,
+                3.0,
+                0.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "20 minute skillet salmon",
+              "score": 128.5,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                409.8,
+                20.0,
+                0.0,
+                10.0,
+                130.0,
+                10.0,
+                1.0
+              ],
+              "missing": [
+                "salmon fillets",
+                "skim milk",
+                "cucumber",
+                "dill"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "barbecue glazed salmon",
+              "score": 127.5,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                473.2,
+                26.0,
+                27.0,
+                19.0,
+                131.0,
+                15.0,
+                2.0
+              ],
+              "missing": [
+                "salmon fillets",
+                "fish",
+                "chili sauce",
+                "brown sugar",
+                "fresh ginger",
+                "fresh ground black pepper"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün",
+          "chosen": "greek grilled chicken breasts",
+          "nutrition": [
+            840.2,
+            37.0,
+            0.0,
+            32.0,
+            289.0,
+            24.0,
+            0.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8333333333333334,
+          "missing": [
+            "dried oregano"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "greek grilled chicken breasts",
+              "score": 113.1,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                840.2,
+                37.0,
+                0.0,
+                32.0,
+                289.0,
+                24.0,
+                0.0
+              ],
+              "missing": [
+                "dried oregano"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "economical and healthy chicken",
+              "score": 104.1,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                622.8,
+                31.0,
+                17.0,
+                29.0,
+                77.0,
+                24.0,
+                23.0
+              ],
+              "missing": [
+                "salt"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "easy shrimp florentine and penne pasta",
+              "score": 102.8,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                630.9,
+                31.0,
+                0.0,
+                21.0,
+                66.0,
+                24.0,
+                26.0
+              ],
+              "missing": [
+                "large shrimp"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "20 minute skillet salmon",
+              "score": 128.5,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                409.8,
+                20.0,
+                0.0,
+                10.0,
+                130.0,
+                10.0,
+                1.0
+              ],
+              "missing": [
+                "salmon fillets",
+                "skim milk",
+                "cucumber",
+                "dill"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "barbecue glazed salmon",
+              "score": 127.5,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                473.2,
+                26.0,
+                27.0,
+                19.0,
+                131.0,
+                15.0,
+                2.0
+              ],
+              "missing": [
+                "salmon fillets",
+                "fish",
+                "chili sauce",
+                "brown sugar",
+                "fresh ginger",
+                "fresh ground black pepper"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "baked eggs w spinach and tomatoes",
+          "nutrition": [
+            230.8,
+            21.0,
+            20.0,
+            18.0,
+            33.0,
+            18.0,
+            3.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "baked eggs w spinach and tomatoes",
+              "score": 109.0,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                230.8,
+                21.0,
+                20.0,
+                18.0,
+                33.0,
+                18.0,
+                3.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "frittata with cherry tomatoes and baby spinach",
+              "score": 109.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                307.5,
+                27.0,
+                23.0,
+                14.0,
+                50.0,
+                25.0,
+                4.0
+              ],
+              "missing": [
+                "fresh basil"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "cannellini bean saut",
+              "score": 108.0,
+              "match_ratio": 0.83,
+              "type": "full",
+              "nutrition": [
+                472.8,
+                22.0,
+                9.0,
+                1.0,
+                48.0,
+                11.0,
+                21.0
+              ],
+              "missing": [
+                "cannellini beans"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "breakfast empanadas  light version   3 pt",
+              "score": 114.0,
+              "match_ratio": 0.62,
+              "type": "partial",
+              "nutrition": [
+                67.4,
+                4.0,
+                4.0,
+                5.0,
+                3.0,
+                4.0,
+                3.0
+              ],
+              "missing": [
+                "egg beaters egg substitute",
+                "lean bacon",
+                "refrigerated reduced-fat buttermilk biscuits"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "crustless stir fry quiche  or scrambled omelette",
+              "score": 114.0,
+              "match_ratio": 0.56,
+              "type": "partial",
+              "nutrition": [
+                143.7,
+                14.0,
+                3.0,
+                16.0,
+                22.0,
+                17.0,
+                1.0
+              ],
+              "missing": [
+                "ham",
+                "milk",
+                "salt & pepper",
+                "cheddar cheese"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "Ali",
+      "profile": "adolescent",
+      "age": 15,
+      "daily_calories": 2500,
+      "meals_per_day": 4,
+      "diet": null,
+      "allergies": [
+        "tree nuts",
+        "soy"
+      ],
+      "avoid": null,
+      "fridge": [
+        "ground beef",
+        "pasta",
+        "rice",
+        "onion",
+        "garlic",
+        "tomatoes",
+        "bell pepper",
+        "cheese",
+        "eggs",
+        "milk",
+        "bread",
+        "potato",
+        "ketchup",
+        "mustard",
+        "lettuce"
+      ],
+      "is_athlete": false,
+      "is_pregnant": false,
+      "scoring_profile": {
+        "description": "Büyüme dönemi, dengeli besin ve yüksek protein",
+        "penalty_weights": {
+          "calories": 0.8,
+          "total_fat_pdv": 1.0,
+          "sugar_pdv": 1.5,
+          "sodium_pdv": 1.2,
+          "protein_low": 1.5,
+          "saturated_fat_pdv": 1.2,
+          "carbs_pdv": 0.7
+        },
+        "bonus_weights": {
+          "protein_recovery": 1.5,
+          "calorie_balance": 0.8,
+          "sugar_balance": 1.5
+        }
+      },
+      "breakfast_scenario": "high_calorie",
+      "test_passed": true,
+      "no_duplicates": true,
+      "daily_pct": {
+        "calories": 68.1,
+        "total_fat_pdv": 100.2,
+        "sugar_pdv": 31.2,
+        "sodium_pdv": 75.1,
+        "protein_pdv": 104.4,
+        "saturated_fat_pdv": 97.2,
+        "carbs_pdv": 25.7
+      },
+      "meals": [
+        {
+          "meal": "Kahvaltı",
+          "chosen": "[Simüle] high_calorie",
+          "nutrition": [
+            800,
+            40,
+            20,
+            15,
+            30,
+            25,
+            30
+          ],
+          "type": "simulated",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "[Simüle] high_calorie",
+              "score": 0,
+              "match_ratio": 1.0,
+              "type": "simulated",
+              "nutrition": [
+                800,
+                40,
+                20,
+                15,
+                30,
+                25,
+                30
+              ],
+              "missing": []
+            }
+          ]
+        },
+        {
+          "meal": "Öğle Yemeği",
+          "chosen": "chicken rarebits",
+          "nutrition": [
+            290.0,
+            21.0,
+            6.0,
+            12.0,
+            73.0,
+            40.0,
+            1.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8,
+          "missing": [
+            "boneless skinless chicken breasts"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "chicken rarebits",
+              "score": 112.7,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                290.0,
+                21.0,
+                6.0,
+                12.0,
+                73.0,
+                40.0,
+                1.0
+              ],
+              "missing": [
+                "boneless skinless chicken breasts"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "cheese   chicken rissoles",
+              "score": 109.8,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                240.1,
+                15.0,
+                5.0,
+                10.0,
+                61.0,
+                25.0,
+                1.0
+              ],
+              "missing": [
+                "lean ground chicken"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "crispy dijon chicken",
+              "score": 108.4,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                198.6,
+                8.0,
+                2.0,
+                19.0,
+                58.0,
+                9.0,
+                1.0
+              ],
+              "missing": [
+                "boneless skinless chicken breast halves"
+              ]
+            },
+            {
+              "rank": 4,
+              "recipe": "20 minute skillet salmon",
+              "score": 129.7,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                409.8,
+                20.0,
+                0.0,
+                10.0,
+                130.0,
+                10.0,
+                1.0
+              ],
+              "missing": [
+                "oil",
+                "salmon fillets",
+                "cucumber",
+                "dill"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "easy garlic pepper chicken",
+              "score": 127.5,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                299.6,
+                5.0,
+                0.0,
+                7.0,
+                125.0,
+                4.0,
+                0.0
+              ],
+              "missing": [
+                "chicken tenders",
+                "seasoning salt"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Ara Öğün",
+          "chosen": "cheese   chicken rissoles",
+          "nutrition": [
+            240.1,
+            15.0,
+            5.0,
+            10.0,
+            61.0,
+            25.0,
+            1.0
+          ],
+          "type": "full",
+          "match_ratio": 0.8,
+          "missing": [
+            "lean ground chicken"
+          ],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "cheese   chicken rissoles",
+              "score": 108.0,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                240.1,
+                15.0,
+                5.0,
+                10.0,
+                61.0,
+                25.0,
+                1.0
+              ],
+              "missing": [
+                "lean ground chicken"
+              ]
+            },
+            {
+              "rank": 2,
+              "recipe": "crispy dijon chicken",
+              "score": 105.8,
+              "match_ratio": 0.8,
+              "type": "full",
+              "nutrition": [
+                198.6,
+                8.0,
+                2.0,
+                19.0,
+                58.0,
+                9.0,
+                1.0
+              ],
+              "missing": [
+                "boneless skinless chicken breast halves"
+              ]
+            },
+            {
+              "rank": 3,
+              "recipe": "crock pot meatloaf",
+              "score": 100.4,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                376.6,
+                28.0,
+                4.0,
+                25.0,
+                70.0,
+                37.0,
+                4.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "cheddar chicken and peas casserole",
+              "score": 128.2,
+              "match_ratio": 0.45,
+              "type": "partial",
+              "nutrition": [
+                644.7,
+                18.0,
+                23.0,
+                29.0,
+                120.0,
+                26.0,
+                23.0
+              ],
+              "missing": [
+                "boneless skinless chicken breasts",
+                "mushrooms",
+                "olive oil",
+                "green peas",
+                "salt",
+                "black pepper"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "20 minute skillet salmon",
+              "score": 127.5,
+              "match_ratio": 0.33,
+              "type": "partial",
+              "nutrition": [
+                409.8,
+                20.0,
+                0.0,
+                10.0,
+                130.0,
+                10.0,
+                1.0
+              ],
+              "missing": [
+                "oil",
+                "salmon fillets",
+                "cucumber",
+                "dill"
+              ]
+            }
+          ]
+        },
+        {
+          "meal": "Akşam Yemeği",
+          "chosen": "always perfect meatloaf",
+          "nutrition": [
+            373.5,
+            31.0,
+            8.0,
+            25.0,
+            71.0,
+            45.0,
+            3.0
+          ],
+          "type": "full",
+          "match_ratio": 1.0,
+          "missing": [],
+          "all_5": [
+            {
+              "rank": 1,
+              "recipe": "always perfect meatloaf",
+              "score": 109.5,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                373.5,
+                31.0,
+                8.0,
+                25.0,
+                71.0,
+                45.0,
+                3.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 2,
+              "recipe": "crock pot meatloaf",
+              "score": 109.3,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                376.6,
+                28.0,
+                4.0,
+                25.0,
+                70.0,
+                37.0,
+                4.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 3,
+              "recipe": "beefy cheesy pasta",
+              "score": 107.2,
+              "match_ratio": 1.0,
+              "type": "full",
+              "nutrition": [
+                620.0,
+                32.0,
+                21.0,
+                31.0,
+                71.0,
+                40.0,
+                23.0
+              ],
+              "missing": []
+            },
+            {
+              "rank": 4,
+              "recipe": "crispy chicken fingers with spicy honey mustard",
+              "score": 130,
+              "match_ratio": 0.5,
+              "type": "partial",
+              "nutrition": [
+                541.2,
+                13.0,
+                83.0,
+                34.0,
+                125.0,
+                12.0,
+                16.0
+              ],
+              "missing": [
+                "chicken breast tenders",
+                "salt and pepper",
+                "vegetable oil",
+                "honey"
+              ]
+            },
+            {
+              "rank": 5,
+              "recipe": "cheddar chicken and peas casserole",
+              "score": 129.8,
+              "match_ratio": 0.45,
+              "type": "partial",
+              "nutrition": [
+                644.7,
+                18.0,
+                23.0,
+                29.0,
+                120.0,
+                26.0,
+                23.0
+              ],
+              "missing": [
+                "boneless skinless chicken breasts",
+                "mushrooms",
+                "olive oil",
+                "green peas",
+                "salt",
+                "black pepper"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

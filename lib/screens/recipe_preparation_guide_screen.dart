@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fridge_app/models/fridge_item.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/routes.dart';
-import 'package:fridge_app/services/database_service.dart';
+import 'package:fridge_app/services/cooking_service.dart';
 import 'package:fridge_app/services/fridge_service.dart';
 import 'package:fridge_app/widgets/ingredient_thumbnail.dart';
 
@@ -138,53 +138,9 @@ class _RecipePreparationGuideScreenState
     if (confirmed != true || !context.mounted) return;
 
     setState(() => _isConsumingIngredients = true);
-    int removedFromFridge = 0;
-    int loggedOnly = 0;
+    CookOutcome? outcome;
     try {
-      final db = DatabaseService.instance;
-      final cookedAt = DateTime.now().millisecondsSinceEpoch;
-
-      final dbId = _recipeDbId(recipe.id);
-      if (dbId != null) {
-        await db.insert('cooked_recipes', {
-          'recipe_id': dbId,
-          'recipe_name': recipe.title,
-          'cooked_at': cookedAt,
-        });
-      }
-
-      // Walk each recipe ingredient once. Each fridge item can only be
-      // consumed by a single ingredient — without this guard two recipe
-      // ingredients that both match "chicken" would try to delete the same
-      // fridge row twice.
-      final claimed = <String>{};
-      for (final ing in recipe.ingredients) {
-        FridgeItem? match;
-        for (final item in _fridgeItems) {
-          if (claimed.contains(item.id)) continue;
-          if (_ingredientMatchesFridgeItem(ing.name, item.name)) {
-            match = item;
-            break;
-          }
-        }
-        final fromFridge = match != null;
-        if (fromFridge) {
-          claimed.add(match.id);
-          await FridgeService.instance.deleteItemById(match.id);
-          removedFromFridge++;
-        } else {
-          loggedOnly++;
-        }
-        await db.logConsumption(
-          itemName: ing.name,
-          category: 'recipe:${recipe.title}',
-          amount: 1.0,
-          unit: 'serving',
-          isFromFridge: fromFridge,
-        );
-      }
-
-      await FridgeService.instance.refreshFromDb();
+      outcome = await CookingService.instance.markCooked(recipe);
       if (mounted) _fridgeItems = FridgeService.instance.getAllItems();
     } finally {
       if (mounted) setState(() => _isConsumingIngredients = false);
@@ -192,16 +148,9 @@ class _RecipePreparationGuideScreenState
 
     if (!context.mounted) return;
     _showStatusSnackBar(
-      'Cooked! $removedFromFridge from fridge, $loggedOnly logged as consumed.',
+      'Cooked! ${outcome.removedFromFridge} from fridge, '
+      '${outcome.loggedOnly} logged as consumed.',
     );
-  }
-
-  /// Recipe IDs from the DB are prefixed `db_` (`db_31490`). Sample/hand-crafted
-  /// recipes use string IDs like `recipe_001`; those don't correspond to a row
-  /// in `cooked_recipes` so we skip recording them.
-  int? _recipeDbId(String id) {
-    if (!id.startsWith('db_')) return null;
-    return int.tryParse(id.substring(3));
   }
 
   @override

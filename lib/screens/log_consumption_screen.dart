@@ -2,23 +2,37 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fridge_app/models/food_item.dart';
 import 'package:fridge_app/models/fridge_item.dart';
+import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/models/units.dart';
+import 'package:fridge_app/services/cooking_service.dart';
 import 'package:fridge_app/services/database_service.dart';
 import 'package:fridge_app/services/fridge_service.dart';
+import 'package:fridge_app/services/recipe_service.dart';
 import 'package:fridge_app/widgets/fridge_bottom_navigation.dart';
 
-class PendingLog {
+enum _LogMode { ingredient, recipe }
+
+/// Sealed hierarchy for the pending list — an ingredient entry needs its
+/// quantity/unit, a recipe entry just needs the Recipe and runs through
+/// CookingService.markCooked when committed.
+sealed class PendingEntry {}
+
+class PendingIngredient extends PendingEntry {
   final FoodItem item;
   final double quantity;
   final FridgeUnit unit;
   final bool usedFromFridge;
-
-  PendingLog({
+  PendingIngredient({
     required this.item,
     required this.quantity,
     required this.unit,
     required this.usedFromFridge,
   });
+}
+
+class PendingRecipe extends PendingEntry {
+  final Recipe recipe;
+  PendingRecipe(this.recipe);
 }
 
 class LogConsumptionScreen extends StatefulWidget {
@@ -32,9 +46,11 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
   List<FoodItem> _searchResults = [];
+  List<Recipe> _recipeResults = const [];
   bool _isSearching = false;
+  _LogMode _mode = _LogMode.ingredient;
 
-  final List<PendingLog> _pendingLogs = [];
+  final List<PendingEntry> _pendingLogs = [];
 
   @override
   void initState() {
@@ -57,6 +73,7 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
         if (mounted) {
           setState(() {
             _searchResults = [];
+            _recipeResults = const [];
             _isSearching = false;
           });
         }
@@ -64,15 +81,41 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
       }
 
       setState(() => _isSearching = true);
-      final resultsMap = await DatabaseService.instance.searchFoodItems(query);
-      final results = resultsMap.map((map) => FoodItem.fromMap(map)).toList();
-
-      if (mounted) {
-        setState(() {
-          _searchResults = results;
-          _isSearching = false;
-        });
+      switch (_mode) {
+        case _LogMode.ingredient:
+          final resultsMap = await DatabaseService.instance.searchFoodItems(query);
+          final results = resultsMap.map((map) => FoodItem.fromMap(map)).toList();
+          if (!mounted) return;
+          setState(() {
+            _searchResults = results;
+            _recipeResults = const [];
+            _isSearching = false;
+          });
+        case _LogMode.recipe:
+          // Recipe cache may still be hydrating in the background.
+          await RecipeService.instance.ready;
+          if (!mounted) return;
+          final q = query.toLowerCase();
+          final matches = RecipeService.instance.allRecipes
+              .where((r) => r.title.toLowerCase().contains(q))
+              .take(20)
+              .toList();
+          setState(() {
+            _recipeResults = matches;
+            _searchResults = const [];
+            _isSearching = false;
+          });
       }
+    });
+  }
+
+  void _selectMode(_LogMode mode) {
+    if (mode == _mode) return;
+    setState(() {
+      _mode = mode;
+      _searchController.clear();
+      _searchResults = const [];
+      _recipeResults = const [];
     });
   }
 
@@ -84,44 +127,50 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
       return;
     }
 
-    int successCount = 0;
+    int ingredientCount = 0;
+    int recipeCount = 0;
     bool showedWarning = false;
 
-    for (final log in _pendingLogs) {
-      if (log.usedFromFridge) {
-        final consumed = await FridgeService.instance.consumeItem(
-          log.item.name,
-          log.quantity,
-        );
-        if (!consumed && mounted && !showedWarning) {
-          showedWarning = true;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Warning: Only existing ingredients can be removed from your fridge.',
-              ),
-              backgroundColor: Colors.amber,
-              duration: Duration(seconds: 3),
-            ),
+    for (final entry in _pendingLogs) {
+      switch (entry) {
+        case PendingIngredient(:final item, :final quantity, :final unit, :final usedFromFridge):
+          if (usedFromFridge) {
+            final consumed = await FridgeService.instance.consumeItem(item.name, quantity);
+            if (!consumed && mounted && !showedWarning) {
+              showedWarning = true;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Warning: Only existing ingredients can be removed from your fridge.',
+                  ),
+                  backgroundColor: Colors.amber,
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            }
+          }
+          await DatabaseService.instance.logConsumption(
+            itemName: item.name,
+            category: item.category,
+            amount: quantity,
+            unit: unit.name,
+            isFromFridge: usedFromFridge,
           );
-        }
+          ingredientCount++;
+        case PendingRecipe(:final recipe):
+          await CookingService.instance.markCooked(recipe);
+          recipeCount++;
       }
-
-      await DatabaseService.instance.logConsumption(
-        itemName: log.item.name,
-        category: log.item.category,
-        amount: log.quantity,
-        unit: log.unit.name,
-        isFromFridge: log.usedFromFridge,
-      );
-      successCount++;
     }
 
     if (!mounted) return;
 
+    final parts = <String>[];
+    if (ingredientCount > 0) parts.add('$ingredientCount ingredient${ingredientCount == 1 ? '' : 's'}');
+    if (recipeCount > 0) parts.add('$recipeCount recipe${recipeCount == 1 ? '' : 's'}');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Successfully logged $successCount items.'),
+        content: Text('Logged ${parts.join(' and ')}.'),
         backgroundColor: const Color(0xFF13EC13),
         duration: const Duration(seconds: 2),
       ),
@@ -130,7 +179,8 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
     setState(() {
       _pendingLogs.clear();
       _searchController.clear();
-      _searchResults.clear();
+      _searchResults = const [];
+      _recipeResults = const [];
     });
   }
 
@@ -144,7 +194,7 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
         onAdd: (quantity, unit, usedFromFridge) {
           setState(() {
             _pendingLogs.add(
-              PendingLog(
+              PendingIngredient(
                 item: food,
                 quantity: quantity,
                 unit: unit,
@@ -152,7 +202,7 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
               ),
             );
             _searchController.clear();
-            _searchResults.clear();
+            _searchResults = const [];
           });
           FocusScope.of(context).unfocus();
         },
@@ -217,6 +267,8 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildModeToggle(),
+                    const SizedBox(height: 12),
                     _buildSearchSection(),
                     const SizedBox(height: 24),
                     if (_pendingLogs.isNotEmpty) _buildPendingList(),
@@ -229,6 +281,25 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildModeToggle() {
+    return SegmentedButton<_LogMode>(
+      segments: const [
+        ButtonSegment(
+          value: _LogMode.ingredient,
+          icon: Icon(Icons.local_grocery_store_outlined),
+          label: Text('Ingredient'),
+        ),
+        ButtonSegment(
+          value: _LogMode.recipe,
+          icon: Icon(Icons.restaurant_menu),
+          label: Text('Recipe'),
+        ),
+      ],
+      selected: {_mode},
+      onSelectionChanged: (s) => _selectMode(s.first),
     );
   }
 
@@ -258,7 +329,9 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Search all ingredients...',
+                      hintText: _mode == _LogMode.ingredient
+                          ? 'Search ingredients...'
+                          : 'Search recipes by name...',
                       hintStyle: const TextStyle(color: Colors.grey),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -288,28 +361,70 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
       );
     }
 
-    if (_searchResults.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
+    final results = _mode == _LogMode.ingredient
+        ? _searchResults.length
+        : _recipeResults.length;
+    if (results == 0) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Text(
-          'No ingredients found.',
-          style: TextStyle(color: Colors.grey),
+          _mode == _LogMode.ingredient
+              ? 'No ingredients found.'
+              : 'No recipes found.',
+          style: const TextStyle(color: Colors.grey),
         ),
       );
     }
 
+    if (_mode == _LogMode.ingredient) {
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: _searchResults.length > 5 ? 5 : _searchResults.length,
+        itemBuilder: (context, index) {
+          final food = _searchResults[index];
+          final cat = FridgeCategory.fromString(food.category);
+          return InkWell(
+            onTap: () {
+              _showConfigSheet(food);
+              FocusScope.of(context).unfocus();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: Colors.grey.shade100)),
+              ),
+              child: Row(
+                children: [
+                  Text(cat.emoji, style: const TextStyle(fontSize: 20)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      food.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.add_circle_outline, color: Color(0xFF13EC13)),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    // Recipe mode results
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _searchResults.length > 5 ? 5 : _searchResults.length,
+      itemCount: _recipeResults.length > 5 ? 5 : _recipeResults.length,
       itemBuilder: (context, index) {
-        final food = _searchResults[index];
-        final cat = FridgeCategory.fromString(food.category);
+        final recipe = _recipeResults[index];
         return InkWell(
-          onTap: () {
-            _showConfigSheet(food);
-            FocusScope.of(context).unfocus();
-          },
+          onTap: () => _addRecipeToPending(recipe),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -317,15 +432,24 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
             ),
             child: Row(
               children: [
-                Text(cat.emoji, style: const TextStyle(fontSize: 20)),
+                const Text('🍳', style: TextStyle(fontSize: 20)),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    food.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        recipe.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        '${recipe.ingredients.length} ingredient${recipe.ingredients.length == 1 ? '' : 's'} • ${recipe.prepTime}',
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
                   ),
                 ),
                 const Icon(Icons.add_circle_outline, color: Color(0xFF13EC13)),
@@ -335,6 +459,19 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
         );
       },
     );
+  }
+
+  void _addRecipeToPending(Recipe recipe) {
+    setState(() {
+      // Don't queue the same recipe twice.
+      final alreadyQueued = _pendingLogs.any(
+        (e) => e is PendingRecipe && e.recipe.id == recipe.id,
+      );
+      if (!alreadyQueued) _pendingLogs.add(PendingRecipe(recipe));
+      _searchController.clear();
+      _recipeResults = const [];
+    });
+    FocusScope.of(context).unfocus();
   }
 
   Widget _buildPendingList() {
@@ -362,72 +499,73 @@ class _LogConsumptionScreenState extends State<LogConsumptionScreen> {
         ..._pendingLogs.asMap().entries.map((entry) {
           final index = entry.key;
           final log = entry.value;
-          final cat = FridgeCategory.fromString(log.item.category);
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: cat.color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(cat.emoji, style: const TextStyle(fontSize: 20)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        log.item.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '${log.quantity} ${log.unit.displayName} • ${log.usedFromFridge ? "From Fridge" : "External"}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.remove_circle_outline,
-                    color: Colors.red,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _pendingLogs.removeAt(index);
-                    });
-                  },
-                ),
-              ],
-            ),
-          );
+          return _buildPendingRow(log, index);
         }),
       ],
+    );
+  }
+
+  Widget _buildPendingRow(PendingEntry log, int index) {
+    final String emoji;
+    final Color tileColor;
+    final String title;
+    final String subtitle;
+    switch (log) {
+      case PendingIngredient(:final item, :final quantity, :final unit, :final usedFromFridge):
+        final cat = FridgeCategory.fromString(item.category);
+        emoji = cat.emoji;
+        tileColor = cat.color.withValues(alpha: 0.1);
+        title = item.name;
+        subtitle = '$quantity ${unit.displayName} • ${usedFromFridge ? 'From Fridge' : 'External'}';
+      case PendingRecipe(:final recipe):
+        emoji = '🍳';
+        tileColor = const Color(0xFF13EC13).withValues(alpha: 0.12);
+        title = recipe.title;
+        subtitle = 'Recipe • ${recipe.ingredients.length} ingredient'
+            '${recipe.ingredients.length == 1 ? '' : 's'} will be logged';
+    }
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: tileColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: Text(emoji, style: const TextStyle(fontSize: 20)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+            onPressed: () => setState(() => _pendingLogs.removeAt(index)),
+          ),
+        ],
+      ),
     );
   }
 

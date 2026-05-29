@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:fridge_app/models/fridge_item.dart';
+import 'package:fridge_app/models/meal_type.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/routes.dart';
 import 'package:fridge_app/services/fridge_service.dart';
@@ -35,6 +36,7 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
   List<Recipe> _recommended = const [];
   bool _cfAvailable = false;
   bool _loadingRecs = false;
+  MealType _mealType = MealType.all;
 
   @override
   void initState() {
@@ -90,10 +92,18 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
 
   Future<void> _loadRecommendations() async {
     try {
-      final bundle = await RecommendationService.instance.getRecommendations(limit: 5);
+      final bundle = await RecommendationService.instance.getRecommendations(
+        limit: 5,
+        mealType: _mealType,
+      );
       if (!mounted) return;
       setState(() {
-        _recommended = bundle.recipes.map((s) => s.recipe).toList();
+        // Carry KB/CF's missing-ingredient list onto the Recipe — the card
+        // UI uses `recipe.missingIngredients.isEmpty` to pick between the
+        // green "all ingredients" and orange "missing N items" badge.
+        _recommended = bundle.recipes
+            .map((s) => s.recipe.copyWith(missingIngredients: s.missingIngredients))
+            .toList();
         _cfAvailable = bundle.cfAvailable;
       });
     } catch (e, st) {
@@ -101,6 +111,15 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
     } finally {
       if (mounted) setState(() => _loadingRecs = false);
     }
+  }
+
+  Future<void> _selectMealType(MealType type) async {
+    if (type == _mealType) return;
+    setState(() {
+      _mealType = type;
+      _loadingRecs = true;
+    });
+    await _loadRecommendations();
   }
 
   Future<void> _refreshFromDb() async {
@@ -267,6 +286,7 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
             Column(
               children: [
                 _buildHeader(context),
+                _buildMealTypeTabs(),
                 Expanded(child: _buildRecipeList(context, recipes)),
               ],
             ),
@@ -540,6 +560,42 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
         final recipe = recipes[index];
         return _buildRecipeCard(context, recipe);
       },
+    );
+  }
+
+  Widget _buildMealTypeTabs() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+      child: SizedBox(
+        height: 40,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: MealType.values.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
+          itemBuilder: (context, i) {
+            final type = MealType.values[i];
+            final selected = type == _mealType;
+            return ChoiceChip(
+              key: ValueKey('meal_type_${type.name}'),
+              avatar: Text(type.emoji, style: const TextStyle(fontSize: 16)),
+              label: Text(type.label),
+              selected: selected,
+              onSelected: (_) => _selectMealType(type),
+              selectedColor: const Color(0xFF13EC13).withValues(alpha: 0.2),
+              labelStyle: TextStyle(
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? Colors.black : Colors.grey[700],
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: selected ? const Color(0xFF13EC13) : Colors.grey[300]!,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 

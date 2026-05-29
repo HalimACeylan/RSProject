@@ -1,5 +1,7 @@
+import 'package:fridge_app/models/meal_type.dart';
 import 'package:fridge_app/services/cf_recommender_client.dart';
 import 'package:fridge_app/services/database_service.dart';
+import 'package:fridge_app/services/fridge_service.dart';
 import 'package:fridge_app/services/kb_recommender_service.dart';
 import 'package:fridge_app/services/recipe_service.dart';
 
@@ -23,8 +25,14 @@ class RecommendationService {
   /// "+15 serendipity bonus" magnitude in test_boundary_cf_recommendations.py.
   static const double _cfBoost = 15.0;
 
-  Future<RecommendationBundle> getRecommendations({int limit = 5}) async {
-    final kbResults = await KbRecommenderService.instance.recommend(limit: limit * 2);
+  Future<RecommendationBundle> getRecommendations({
+    int limit = 5,
+    MealType mealType = MealType.all,
+  }) async {
+    final kbResults = await KbRecommenderService.instance.recommend(
+      limit: limit * 2,
+      mealType: mealType,
+    );
     if (kbResults.isEmpty) {
       return const RecommendationBundle(recipes: [], cfAvailable: false);
     }
@@ -47,6 +55,14 @@ class RecommendationService {
       );
     }
 
+    // CF doesn't know about the fridge. Run the same KB ingredient matcher
+    // over its picks so the card UI shows an accurate "missing N items" badge
+    // instead of falsely claiming the user has everything.
+    final fridge = FridgeService.instance
+        .getAllItems()
+        .map((i) => i.name.toLowerCase())
+        .toList();
+
     final blended = <ScoredRecipe>[];
     final seen = <String>{};
     for (final s in kbResults.take(3)) {
@@ -56,14 +72,17 @@ class RecommendationService {
     for (final c in cfResults) {
       final recipe = RecipeService.instance.getRecipeByDbId(c.recipeId);
       if (recipe == null || seen.contains(recipe.id)) continue;
+      final ingNames =
+          recipe.ingredients.map((i) => i.name.toLowerCase()).toList();
+      final match = KbRecommenderService.ingredientMatch(fridge, ingNames);
       final boosted = ScoredRecipe(
         recipe: recipe,
         score: c.combinedScore + _cfBoost,
-        matchRatio: 0,
-        matchedIngredients: const [],
-        missingIngredients: const [],
+        matchRatio: match.ratio,
+        matchedIngredients: match.matched,
+        missingIngredients: match.missing,
         reasons: ['CF +${c.combinedScore.toStringAsFixed(1)}'],
-        isFullMatch: false,
+        isFullMatch: match.ratio >= 0.8,
       );
       blended.add(boosted);
       seen.add(recipe.id);

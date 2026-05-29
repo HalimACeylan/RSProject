@@ -75,17 +75,13 @@ class _UserPreferencesBottomSheetState
     );
   }
 
-  /// Translate the 4-step answers into a [UserProfile] matching the KB
-  /// recommender's shape. Falls back to sensible defaults for fields the sheet
-  /// doesn't ask about (weight/height/meals-per-day).
+  /// Translate the 4-step answers into a [UserProfile] containing only what
+  /// the sheet actually collected. Daily calorie target and meals/day are
+  /// derived at runtime by [UserProfile] from the profile_key + sex — they
+  /// are not persisted as synthesised defaults.
   UserProfile _buildProfile() {
     final sex = _selectedGender == 'Female' ? Sex.female : Sex.male;
     final age = _ageFromRange(_selectedAgeRange);
-
-    // Activity level mirrors the sheet's exercise question.
-    final activity = _exercisesRegularly == true
-        ? (_primaryFocus != null ? ActivityLevel.veryActive : ActivityLevel.moderate)
-        : ActivityLevel.sedentary;
 
     // KB profile: pregnancy overrides everything else; otherwise athlete
     // focus → athlete_bodybuilder; otherwise general_adult. Adolescent isn't
@@ -98,15 +94,6 @@ class _UserPreferencesBottomSheetState
     } else {
       profileKey = ProfileKey.generalAdult;
     }
-
-    // Default biometrics by sex — gives Mifflin-St Jeor something to chew on
-    // without an extra screen.
-    final defaultWeight = sex == Sex.male ? 75.0 : 65.0;
-    final defaultHeight = sex == Sex.male ? 175.0 : 165.0;
-    final dailyCals = UserProfile.computeDailyCalories(
-      sex: sex, age: age, weightKg: defaultWeight,
-      heightCm: defaultHeight, activity: activity,
-    );
 
     // Diet + allergies → DietaryRestriction enum.
     final restrictions = <DietaryRestriction>{};
@@ -144,11 +131,6 @@ class _UserPreferencesBottomSheetState
       profileKey: profileKey,
       age: age,
       sex: sex,
-      weightKg: defaultWeight,
-      heightCm: defaultHeight,
-      activityLevel: activity,
-      mealsPerDay: 3,
-      dailyCalories: dailyCals,
       dietaryRestrictions: restrictions.toList(),
       avoidIngredients: avoidItems,
       createdAt: DateTime.now(),

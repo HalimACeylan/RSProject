@@ -27,22 +27,6 @@ enum Sex {
       Sex.values.firstWhere((s) => s.dbValue == v, orElse: () => Sex.male);
 }
 
-enum ActivityLevel {
-  sedentary('sedentary', 'Sedentary (little/no exercise)', 1.2),
-  light('light', 'Lightly active (1-3 days/wk)', 1.375),
-  moderate('moderate', 'Moderately active (3-5 days/wk)', 1.55),
-  veryActive('very_active', 'Very active (6-7 days/wk)', 1.725),
-  extraActive('extra_active', 'Extra active (athlete / physical job)', 1.9);
-
-  final String dbValue;
-  final String label;
-  final double multiplier;
-  const ActivityLevel(this.dbValue, this.label, this.multiplier);
-
-  static ActivityLevel fromDbValue(String v) => ActivityLevel.values
-      .firstWhere((a) => a.dbValue == v, orElse: () => ActivityLevel.moderate);
-}
-
 /// Common allergen / dietary restriction groups (match Python KB ALLERGY_GROUPS).
 enum DietaryRestriction {
   fish('fish', 'Fish'),
@@ -69,16 +53,16 @@ enum DietaryRestriction {
   }
 }
 
+/// Stored profile fields are the ones the welcome bottom sheet actually
+/// collects (or directly derives from collected answers). Biometric defaults
+/// like weight/height aren't asked, so they aren't persisted; daily caloric
+/// target and meals-per-day are derived from [profileKey] + [sex] at runtime
+/// instead of being stored as synthesised defaults.
 class UserProfile {
   final int? id;
   final ProfileKey profileKey;
   final int age;
   final Sex sex;
-  final double weightKg;
-  final double heightCm;
-  final ActivityLevel activityLevel;
-  final int mealsPerDay;
-  final int dailyCalories;
   final List<DietaryRestriction> dietaryRestrictions;
   final List<String> avoidIngredients;
   final DateTime createdAt;
@@ -88,27 +72,40 @@ class UserProfile {
     required this.profileKey,
     required this.age,
     required this.sex,
-    required this.weightKg,
-    required this.heightCm,
-    required this.activityLevel,
-    required this.mealsPerDay,
-    required this.dailyCalories,
     required this.dietaryRestrictions,
     required this.avoidIngredients,
     required this.createdAt,
   });
 
-  /// Mifflin–St Jeor BMR × activity multiplier.
-  static int computeDailyCalories({
-    required Sex sex,
-    required int age,
-    required double weightKg,
-    required double heightCm,
-    required ActivityLevel activity,
-  }) {
-    final s = sex == Sex.male ? 5.0 : -161.0;
-    final bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + s;
-    return (bmr * activity.multiplier).round();
+  /// Reasonable kcal/day for the KB recommender to scale macro limits.
+  /// Values are WHO/ISSN-ish defaults per (profile, sex) — not personalised
+  /// because the welcome sheet doesn't ask for weight/height/activity.
+  int get dailyCalories {
+    switch (profileKey) {
+      case ProfileKey.athleteBodybuilder:
+        return sex == Sex.male ? 3000 : 2500;
+      case ProfileKey.adolescent:
+        return sex == Sex.male ? 2800 : 2200;
+      case ProfileKey.pregnantLactating:
+        return 2300;
+      case ProfileKey.generalAdult:
+        return sex == Sex.male ? 2400 : 2000;
+    }
+  }
+
+  /// Meals/day used by KB's adaptive tracker. Athletes/bodybuilders typically
+  /// split into more frequent meals; pregnant/lactating profiles do too.
+  int get mealsPerDay {
+    switch (profileKey) {
+      case ProfileKey.athleteBodybuilder:
+        return 5;
+      case ProfileKey.pregnantLactating:
+        return 5;
+      case ProfileKey.adolescent:
+        return 4;
+      case ProfileKey.generalAdult:
+        return 3;
+    }
   }
 
   Map<String, dynamic> toDbMap() => {
@@ -116,11 +113,6 @@ class UserProfile {
         'profile_key': profileKey.dbValue,
         'age': age,
         'sex': sex.dbValue,
-        'weight_kg': weightKg,
-        'height_cm': heightCm,
-        'activity_level': activityLevel.dbValue,
-        'meals_per_day': mealsPerDay,
-        'daily_calories': dailyCalories,
         'dietary_restrictions':
             jsonEncode(dietaryRestrictions.map((r) => r.dbValue).toList()),
         'avoid_ingredients': jsonEncode(avoidIngredients),
@@ -135,11 +127,6 @@ class UserProfile {
       profileKey: ProfileKey.fromDbValue(m['profile_key'] as String),
       age: m['age'] as int,
       sex: Sex.fromDbValue(m['sex'] as String),
-      weightKg: (m['weight_kg'] as num).toDouble(),
-      heightCm: (m['height_cm'] as num).toDouble(),
-      activityLevel: ActivityLevel.fromDbValue(m['activity_level'] as String),
-      mealsPerDay: m['meals_per_day'] as int,
-      dailyCalories: m['daily_calories'] as int,
       dietaryRestrictions: (jsonDecode(restRaw) as List)
           .map((e) => DietaryRestriction.fromDbValue(e as String))
           .whereType<DietaryRestriction>()
