@@ -292,10 +292,45 @@ class _InsideFridgeScreenState extends State<InsideFridgeScreen> {
     );
   }
 
+  Future<void> _confirmSwitchUser() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Switch user?'),
+        content: const Text(
+          "You'll go back to the welcome screen and set up a new profile. "
+          'Your fridge and consumption logs stay shared. Existing user '
+          'profiles remain in the database.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Switch'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.welcomeLogin,
+      (route) => false,
+    );
+  }
+
   Widget _buildHeader(BuildContext context) {
     return FridgeHeader(
       title: 'Inside My Fridge',
       subtitle: 'Inventory Management',
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Color(0xFF102210)),
+        onPressed: _confirmSwitchUser,
+        tooltip: 'Switch user',
+      ),
       trailing: GestureDetector(
         onTap: () {
           Navigator.pushNamed(context, AppRoutes.fridgeGrid);

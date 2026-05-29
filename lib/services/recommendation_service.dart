@@ -79,30 +79,20 @@ class RecommendationService {
     return RecommendationBundle(recipes: blended, cfAvailable: true);
   }
 
-  /// Pulls DB recipe ids the user has interacted with via consumption logs +
-  /// (future) recipe ratings. Right now we extract from consumption_logs by
-  /// best-effort matching item_name to recipe ingredients, but a richer signal
-  /// will come from when we record "I cooked this recipe" events.
+  /// Recipe ids the user has actually cooked, newest first. Comes from
+  /// `cooked_recipes` (populated by the "Mark cooked" button on the prep
+  /// screen) so the CF service gets a clean per-recipe taste signal instead
+  /// of a heuristic over consumption log item names.
   Future<List<int>> _likedRecipeIdsFromHistory() async {
-    final logs = await DatabaseService.instance.queryAll('consumption_logs');
-    if (logs.isEmpty) return const [];
-    // Heuristic: any recipe whose title contains a consumed item name is
-    // considered "interacted with". Cheap, no schema additions.
-    final names = logs
-        .map((r) => (r['item_name'] as String? ?? '').toLowerCase())
-        .where((s) => s.isNotEmpty)
-        .toSet();
-    if (names.isEmpty) return const [];
-    final ids = <int>[];
-    for (final recipe in RecipeService.instance.allRecipes) {
-      final t = recipe.title.toLowerCase();
-      if (names.any((n) => t.contains(n))) {
-        final dbId = _extractDbId(recipe.id);
-        if (dbId != null) ids.add(dbId);
-        if (ids.length >= 30) break;
-      }
-    }
-    return ids;
+    final rows = await DatabaseService.instance.queryWhere(
+      'cooked_recipes',
+      orderBy: 'cooked_at DESC',
+      limit: 50,
+    );
+    return rows
+        .map((r) => (r['recipe_id'] as num?)?.toInt())
+        .whereType<int>()
+        .toList();
   }
 
   int? _extractDbId(String recipeId) {

@@ -174,13 +174,15 @@ class KbRecommenderService {
     return result.take(limit).toList();
   }
 
-  /// Ingredient match: fraction of recipe ingredients present in fridge.
+  /// Ingredient match: fraction of recipe ingredients "covered" by fridge.
   ///
-  /// Tokenizes both sides so verbose food-table names like
-  /// `"Steamed Broccoli (1 cup)"` can match a recipe's bare `"broccoli"`. A
-  /// hit requires *any* meaningful token (≥3 chars, not a stop-word) to
-  /// substring-match in either direction — so `"tomatoes"` still pairs with
-  /// `"tomato"` and `"chicken breast"` with `"grilled chicken"`.
+  /// A recipe ingredient is **covered** by a fridge entry when *every* token
+  /// in the recipe ingredient appears in that fridge entry's tokens. Tokens
+  /// are matched with exact equality plus simple plural tolerance (`+s`,
+  /// `+es`) — `tomato` still pairs with `tomatoes`, but `broccoli soup` no
+  /// longer pairs with `broccoli` because the fridge entry doesn't contribute
+  /// a `soup` token. Tokenization strips parens, units (`cup`, `tbsp`, …),
+  /// prep verbs (`grilled`, `steamed`, …), and tokens under 3 chars.
   static ({double ratio, List<String> matched, List<String> missing})
       ingredientMatch(List<String> fridge, List<String> ingredients) {
     if (ingredients.isEmpty) return (ratio: 0, matched: const [], missing: const []);
@@ -189,13 +191,13 @@ class KbRecommenderService {
     final missing = <String>[];
     for (final ing in ingredients) {
       final ingTokens = _tokenize(ing);
-      bool hit = false;
-      for (final ft in fridgeTokens) {
-        if (_tokensOverlap(ft, ingTokens)) {
-          hit = true;
-          break;
-        }
+      // An ingredient that tokenizes to nothing (e.g. "1 cup") can't be
+      // matched meaningfully — count it missing rather than a free hit.
+      if (ingTokens.isEmpty) {
+        missing.add(ing);
+        continue;
       }
+      final hit = fridgeTokens.any((ft) => _coversAll(ft, ingTokens));
       (hit ? matched : missing).add(ing);
     }
     return (
@@ -205,10 +207,7 @@ class KbRecommenderService {
     );
   }
 
-  /// Tokens worth comparing — at least 3 letters and not a stop-word. The
-  /// stop-word list filters out units, prep verbs, and other noise the
-  /// food/recipe datasets sprinkle in. Order doesn't matter; using a Set
-  /// keeps the `_tokensOverlap` loop cheap.
+  /// Tokens worth comparing — at least 3 letters and not a stop-word.
   static Set<String> _tokenize(String raw) {
     final clean = raw.toLowerCase().replaceAll(RegExp(r'\([^)]*\)'), ' ');
     return clean
@@ -217,11 +216,33 @@ class KbRecommenderService {
         .toSet();
   }
 
-  static bool _tokensOverlap(Set<String> a, Set<String> b) {
-    for (final x in a) {
-      for (final y in b) {
-        if (x == y || x.contains(y) || y.contains(x)) return true;
+  /// True when every token in `needle` is covered by some token in `haystack`
+  /// (exact match or `+s` / `+es` plural).
+  static bool _coversAll(Set<String> haystack, Set<String> needle) {
+    for (final n in needle) {
+      var found = false;
+      for (final h in haystack) {
+        if (_tokenCovers(h, n)) {
+          found = true;
+          break;
+        }
       }
+      if (!found) return false;
+    }
+    return true;
+  }
+
+  static bool _tokenCovers(String haystackToken, String needleToken) {
+    if (haystackToken == needleToken) return true;
+    // Plural tolerance only — avoids accidentally pairing things like
+    // "saltwater" with "salt".
+    if (haystackToken == '${needleToken}s' ||
+        haystackToken == '${needleToken}es') {
+      return true;
+    }
+    if (needleToken == '${haystackToken}s' ||
+        needleToken == '${haystackToken}es') {
+      return true;
     }
     return false;
   }
@@ -244,18 +265,30 @@ class KbRecommenderService {
   Future<_DailyTracker> _buildTrackerFromToday(UserProfile user) async {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
-    final logs = await DatabaseService.instance.queryWhere(
-      'consumption_logs',
-      where: 'date >= ?',
-      whereArgs: [startOfDay],
-    );
+    final results = await Future.wait([
+      DatabaseService.instance.queryWhere(
+        'consumption_logs',
+        where: 'date >= ?',
+        whereArgs: [startOfDay],
+      ),
+      DatabaseService.instance.queryWhere(
+        'cooked_recipes',
+        where: 'cooked_at >= ?',
+        whereArgs: [startOfDay],
+      ),
+    ]);
+    final logs = results[0];
+    final cookedToday = results[1];
 
     final limits = _dailyLimits(user);
     // Without per-food nutrition lookup we treat each log as one meal of
     // average size. Refining this (joining to food_items nutrition) is a
     // future improvement.
     final consumed = {for (final k in nutrKeys) k: 0.0};
-    final eaten = <String>{};
+    final eatenRecipeNames = cookedToday
+        .map((r) => (r['recipe_name'] as String? ?? '').toLowerCase())
+        .where((s) => s.isNotEmpty)
+        .toSet();
     final mealsEaten = logs.length;
 
     return _DailyTracker(
@@ -263,7 +296,7 @@ class KbRecommenderService {
       dailyLimits: limits,
       consumed: consumed,
       mealsEatenCount: mealsEaten,
-      eatenRecipeNames: eaten,
+      eatenRecipeNames: eatenRecipeNames,
     );
   }
 

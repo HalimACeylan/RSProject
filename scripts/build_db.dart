@@ -129,6 +129,16 @@ void main() async {
             created_at INTEGER NOT NULL
           )
         ''');
+
+        await db.execute('''
+          CREATE TABLE cooked_recipes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recipe_id INTEGER NOT NULL,
+            recipe_name TEXT NOT NULL,
+            cooked_at INTEGER NOT NULL
+          )
+        ''');
+        await db.execute('CREATE INDEX idx_cooked_recipes_cooked_at ON cooked_recipes(cooked_at)');
       },
     ),
   );

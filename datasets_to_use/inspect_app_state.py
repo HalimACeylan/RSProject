@@ -87,6 +87,25 @@ def print_fridge(con: sqlite3.Connection) -> list[str]:
     return [r["name"].lower() for r in rows]
 
 
+def print_cooked(con: sqlite3.Connection, days: int = 14) -> None:
+    try:
+        cutoff_ms = int((datetime.now().timestamp() - days * 86400) * 1000)
+        rows = list(con.execute(
+            "SELECT recipe_id, recipe_name, cooked_at FROM cooked_recipes "
+            "WHERE cooked_at >= ? ORDER BY cooked_at DESC", (cutoff_ms,),
+        ))
+    except sqlite3.OperationalError:
+        # Table may not exist on an older DB; silently skip.
+        return
+    print(f"COOKED RECIPES (last {days} days, {len(rows)} entries)")
+    if not rows:
+        print("  (none)\n")
+        return
+    for r in rows:
+        print(f"  {_ms_to_str(r['cooked_at'])}  #{r['recipe_id']:<8} {r['recipe_name']}")
+    print()
+
+
 def print_consumption(con: sqlite3.Connection, days: int = 7) -> None:
     cutoff_ms = int((datetime.now().timestamp() - days * 86400) * 1000)
     rows = list(con.execute(
@@ -211,6 +230,7 @@ def main() -> None:
     print(f"DB: {DB_PATH}\n")
     user = print_user_profile(con)
     fridge = print_fridge(con)
+    print_cooked(con, days=args.days)
     print_consumption(con, days=args.days)
     if args.recs:
         if user is None:

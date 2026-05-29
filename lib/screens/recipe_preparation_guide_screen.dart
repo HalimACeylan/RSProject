@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fridge_app/models/fridge_item.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/routes.dart';
+import 'package:fridge_app/services/database_service.dart';
 import 'package:fridge_app/services/fridge_service.dart';
 import 'package:fridge_app/widgets/ingredient_thumbnail.dart';
 
@@ -97,28 +98,28 @@ class _RecipePreparationGuideScreenState
     );
   }
 
-  Future<void> _consumeUsedIngredients(
-    BuildContext context,
-    Recipe recipe,
-  ) async {
+  /// Mark this recipe as cooked. Always runs to completion (no early bail
+  /// when the fridge is empty) so the user can record meals they ate without
+  /// having tracked the inputs. For every recipe ingredient we either pull
+  /// it from the fridge (if matched) or pretend-consume it (log only); the
+  /// recipe itself is recorded once in `cooked_recipes` so KB can avoid
+  /// re-suggesting it today and CF can use it as a "liked" signal.
+  Future<void> _markCooked(BuildContext context, Recipe recipe) async {
     if (_isConsumingIngredients) return;
 
-    final usedItemIds = _findUsedItemIds(recipe, _fridgeItems);
-
-    if (usedItemIds.isEmpty) {
-      _showStatusSnackBar(
-        'No matching fridge ingredients were found to remove.',
-      );
-      return;
-    }
+    final fridgeCount = _findUsedItemIds(recipe, _fridgeItems).length;
+    final logOnlyCount = recipe.ingredients.length - fridgeCount;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Use Ingredients?'),
+          title: const Text('Mark as cooked?'),
           content: Text(
-            'This will remove ${usedItemIds.length} ingredient item${usedItemIds.length == 1 ? '' : 's'} from your fridge.',
+            fridgeCount > 0
+                ? 'Will remove $fridgeCount ingredient${fridgeCount == 1 ? '' : 's'} from your fridge'
+                    '${logOnlyCount > 0 ? ' and log $logOnlyCount more as consumed.' : '.'}'
+                : 'Will log ${recipe.ingredients.length} ingredient${recipe.ingredients.length == 1 ? '' : 's'} as consumed (none are in your fridge).',
           ),
           actions: [
             TextButton(
@@ -127,7 +128,7 @@ class _RecipePreparationGuideScreenState
             ),
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Remove'),
+              child: const Text('Mark cooked'),
             ),
           ],
         );
@@ -136,33 +137,71 @@ class _RecipePreparationGuideScreenState
 
     if (confirmed != true || !context.mounted) return;
 
-    setState(() {
-      _isConsumingIngredients = true;
-    });
-
-    int removedCount = 0;
+    setState(() => _isConsumingIngredients = true);
+    int removedFromFridge = 0;
+    int loggedOnly = 0;
     try {
-      for (final id in usedItemIds) {
-        final deleted = await FridgeService.instance.deleteItemById(id);
-        if (deleted) removedCount++;
-      }
-      await FridgeService.instance.refreshFromDb();
-      _fridgeItems = FridgeService.instance.getAllItems();
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isConsumingIngredients = false;
+      final db = DatabaseService.instance;
+      final cookedAt = DateTime.now().millisecondsSinceEpoch;
+
+      final dbId = _recipeDbId(recipe.id);
+      if (dbId != null) {
+        await db.insert('cooked_recipes', {
+          'recipe_id': dbId,
+          'recipe_name': recipe.title,
+          'cooked_at': cookedAt,
         });
       }
+
+      // Walk each recipe ingredient once. Each fridge item can only be
+      // consumed by a single ingredient — without this guard two recipe
+      // ingredients that both match "chicken" would try to delete the same
+      // fridge row twice.
+      final claimed = <String>{};
+      for (final ing in recipe.ingredients) {
+        FridgeItem? match;
+        for (final item in _fridgeItems) {
+          if (claimed.contains(item.id)) continue;
+          if (_ingredientMatchesFridgeItem(ing.name, item.name)) {
+            match = item;
+            break;
+          }
+        }
+        final fromFridge = match != null;
+        if (fromFridge) {
+          claimed.add(match.id);
+          await FridgeService.instance.deleteItemById(match.id);
+          removedFromFridge++;
+        } else {
+          loggedOnly++;
+        }
+        await db.logConsumption(
+          itemName: ing.name,
+          category: 'recipe:${recipe.title}',
+          amount: 1.0,
+          unit: 'serving',
+          isFromFridge: fromFridge,
+        );
+      }
+
+      await FridgeService.instance.refreshFromDb();
+      if (mounted) _fridgeItems = FridgeService.instance.getAllItems();
+    } finally {
+      if (mounted) setState(() => _isConsumingIngredients = false);
     }
 
     if (!context.mounted) return;
+    _showStatusSnackBar(
+      'Cooked! $removedFromFridge from fridge, $loggedOnly logged as consumed.',
+    );
+  }
 
-    final text = removedCount == 0
-        ? 'No ingredients were removed.'
-        : 'Removed $removedCount ingredient item${removedCount == 1 ? '' : 's'} from fridge.';
-
-    _showStatusSnackBar(text);
+  /// Recipe IDs from the DB are prefixed `db_` (`db_31490`). Sample/hand-crafted
+  /// recipes use string IDs like `recipe_001`; those don't correspond to a row
+  /// in `cooked_recipes` so we skip recording them.
+  int? _recipeDbId(String id) {
+    if (!id.startsWith('db_')) return null;
+    return int.tryParse(id.substring(3));
   }
 
   @override
@@ -488,7 +527,7 @@ class _RecipePreparationGuideScreenState
                 key: const ValueKey('recipe_cooked_button'),
                 onPressed: _isConsumingIngredients
                     ? null
-                    : () => _consumeUsedIngredients(context, recipe),
+                    : () => _markCooked(context, recipe),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF13EC13),
                   foregroundColor: const Color(0xFF102210),

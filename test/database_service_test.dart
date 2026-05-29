@@ -99,6 +99,13 @@ const _schema = [
     avoid_ingredients TEXT,
     created_at INTEGER NOT NULL
   )''',
+  '''
+  CREATE TABLE cooked_recipes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    recipe_id INTEGER NOT NULL,
+    recipe_name TEXT NOT NULL,
+    cooked_at INTEGER NOT NULL
+  )''',
 ];
 
 Future<Database> _freshDb() async {
@@ -137,6 +144,7 @@ void main() {
         'fridge_items',
         'consumption_logs',
         'users',
+        'cooked_recipes',
       }));
     });
   });
@@ -304,6 +312,34 @@ void main() {
     });
   });
 
+  group('cooked_recipes table', () {
+    test('insert + date-range query returns recent cooks', () async {
+      final db = await _freshDb();
+      addTearDown(db.close);
+
+      final now = DateTime(2026, 5, 19, 18).millisecondsSinceEpoch;
+      await db.insert('cooked_recipes', {
+        'recipe_id': 31490,
+        'recipe_name': 'a bit different  breakfast pizza',
+        'cooked_at': now - const Duration(days: 2).inMilliseconds,
+      });
+      await db.insert('cooked_recipes', {
+        'recipe_id': 44061,
+        'recipe_name': "amish  tomato ketchup  for canning",
+        'cooked_at': now,
+      });
+
+      final today = DateTime(2026, 5, 19).millisecondsSinceEpoch;
+      final recent = await db.query(
+        'cooked_recipes',
+        where: 'cooked_at >= ?',
+        whereArgs: [today],
+      );
+      expect(recent, hasLength(1));
+      expect(recent.single['recipe_id'], 44061);
+    });
+  });
+
   group('consumption_logs table', () {
     test('insert + date-range query returns matching rows', () async {
       final db = await _freshDb();
@@ -345,7 +381,7 @@ void main() {
 
   group('KB ingredient match', () {
     test('full / partial / zero match are classified correctly', () {
-      // Full match: every recipe ingredient is in the fridge.
+      // Full match: every recipe ingredient is covered by some fridge entry.
       var r = KbRecommenderService.ingredientMatch(
         ['fresh basil', 'olive oil', 'pasta', 'parmesan cheese'],
         ['fresh basil', 'olive oil', 'pasta'],
@@ -353,8 +389,8 @@ void main() {
       expect(r.ratio, 1.0);
       expect(r.missing, isEmpty);
 
-      // Partial — 1 of 3 missing (substring match finds 'tomato' inside
-      // 'cherry tomatoes').
+      // Plural tolerance: "tomato" is covered by "tomatoes" in
+      // "cherry tomatoes". Basil isn't in the fridge.
       r = KbRecommenderService.ingredientMatch(
         ['cherry tomatoes', 'mozzarella'],
         ['tomato', 'mozzarella', 'basil'],
@@ -377,22 +413,35 @@ void main() {
       expect(r.missing, isEmpty);
     });
 
-    test('matches verbose food-table names against bare recipe ingredients', () {
-      // Regression: fridge items pulled from food_items look like
-      // "Steamed Broccoli (1 cup)" but recipe ingredients are bare "broccoli".
-      // The old substring matcher missed every pair like this, leaving KB
-      // with no candidates to score.
+    test('verbose fridge names still cover single-word recipe ingredients', () {
+      // "Steamed Broccoli (1 cup)" → tokens {broccoli}. Recipe "broccoli" is
+      // covered. "yogurt" is covered by "greek yogurt". "chicken breast"
+      // needs both `chicken` AND `breast` tokens in one fridge entry — a
+      // bare "Chicken (4oz grilled)" doesn't supply `breast`, so it stays
+      // missing under the stricter rule.
       final r = KbRecommenderService.ingredientMatch(
         [
           'Steamed Broccoli (1 cup)',
-          'Grilled Chicken Salad',
+          'Chicken (4oz grilled)',
           'Greek Yogurt (plain 1 cup)',
         ],
         ['broccoli', 'chicken breast', 'yogurt', 'paprika'],
       );
-      expect(r.matched, containsAll(['broccoli', 'chicken breast', 'yogurt']));
-      expect(r.missing, ['paprika']);
-      expect(r.ratio, closeTo(3 / 4, 0.001));
+      expect(r.matched, containsAll(['broccoli', 'yogurt']));
+      expect(r.missing, containsAll(['chicken breast', 'paprika']));
+      expect(r.ratio, closeTo(2 / 4, 0.001));
+    });
+
+    test('"broccoli 1 cup" matches "broccoli" but not "broccoli soup"', () {
+      // Regression pinning the user-reported rule: extra words on the recipe
+      // side disqualify the match, since the fridge entry doesn't contribute
+      // a `soup` token.
+      final r = KbRecommenderService.ingredientMatch(
+        ['broccoli 1 cup'],
+        ['broccoli', 'broccoli soup', 'creamy broccoli soup'],
+      );
+      expect(r.matched, ['broccoli']);
+      expect(r.missing, containsAll(['broccoli soup', 'creamy broccoli soup']));
     });
   });
 }

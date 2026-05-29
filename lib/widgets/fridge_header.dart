@@ -4,6 +4,7 @@ class FridgeHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
   final String? superTitle;
+  final Widget? leading;
   final Widget? trailing;
   final bool centerTitle;
 
@@ -12,6 +13,7 @@ class FridgeHeader extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.superTitle,
+    this.leading,
     this.trailing,
     this.centerTitle = false,
   });
@@ -23,6 +25,7 @@ class FridgeHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          if (leading != null) ...[leading!, const SizedBox(width: 8)],
           Expanded(
             child: Column(
               crossAxisAlignment: centerTitle

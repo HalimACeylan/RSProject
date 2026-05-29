@@ -12,8 +12,11 @@ class UserProfileService {
   Future<void> initialize() async {
     if (_initialized) return;
     _initialized = true;
+    // Latest row wins. Each completed bottom-sheet flow inserts a new row, so
+    // the user can run the setup again to "switch user" and the most recent
+    // setup is what gets loaded on next launch.
     final rows = await DatabaseService.instance
-        .queryWhere('users', orderBy: 'id ASC', limit: 1);
+        .queryWhere('users', orderBy: 'id DESC', limit: 1);
     if (rows.isNotEmpty) {
       _cached = UserProfile.fromDbMap(rows.first);
     }
