@@ -6,13 +6,14 @@ KB Recommendation System Test — v3
 - Aynı gün tekrar öneri yok
 - Adaptif besin takibi
 """
-import csv, json, ast, os
+import csv, json, ast, os, sqlite3
 from dataclasses import dataclass, field
 from copy import deepcopy
 from datetime import datetime
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-RECIPES_CSV = os.path.join(SCRIPT_DIR, "RAW_recipes_filtered.csv")
+RECIPES_CSV = os.path.join(SCRIPT_DIR, "RAW_recipes_filtered.csv")  # legacy fallback
+RECIPES_DB = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "assets", "fridge_app.db"))
 KB_JSON = os.path.join(SCRIPT_DIR, "who_daily_nutrient_guidelines.json")
 
 with open(KB_JSON, "r", encoding="utf-8") as f:
@@ -332,13 +333,72 @@ def adaptive_score(user, recipe, tracker):
     return max(0, min(130, score)), reasons
 
 def load_recipes(max_rows=20000):
+    """Load recipes from the shipped SQLite asset (the same DB the Flutter app
+    reads). Falls back to the CSV only if the DB file is missing.
+
+    Reading from the DB — ORDER BY id ASC — guarantees the same iteration
+    order the Dart `KbRecommenderService.scoreAll()` uses (SQLite returns
+    rows in rowid order, and recipes.id is the rowid). Stable sort on
+    `(score, match_ratio)` ties then breaks identically on both sides, so
+    the top-N picks line up 1-for-1."""
+    if os.path.exists(RECIPES_DB):
+        return _load_recipes_db(max_rows)
+    return _load_recipes_csv(max_rows)
+
+
+def _load_recipes_db(max_rows):
+    con = sqlite3.connect(f"file:{RECIPES_DB}?mode=ro", uri=True)
+    con.row_factory = sqlite3.Row
+
+    # Bulk-load ingredients once, group by recipe id. Saves the N+1 query
+    # that the Dart loader also avoids.
+    ings_by_recipe = {}
+    for row in con.execute("SELECT recipe_id, name FROM recipe_ingredients"):
+        ings_by_recipe.setdefault(row["recipe_id"], []).append(
+            (row["name"] or "").lower().strip()
+        )
+
     recipes = []
-    with open(RECIPES_CSV,"r",encoding="utf-8") as f:
-        for i,row in enumerate(csv.DictReader(f)):
-            if i>=max_rows: break
+    for row in con.execute(
+        "SELECT id, name, minutes, tags, nutrition FROM recipes ORDER BY id ASC"
+    ):
+        if len(recipes) >= max_rows:
+            break
+        try:
+            recipes.append({
+                "id": row["id"],
+                "name": row["name"],
+                "nutrition": ast.literal_eval(row["nutrition"] or "[]"),
+                "ingredients": ings_by_recipe.get(row["id"], []),
+                "tags": [t.lower().strip()
+                         for t in ast.literal_eval(row["tags"] or "[]")],
+                "minutes": row["minutes"] or 0,
+            })
+        except Exception:
+            continue
+    con.close()
+    return recipes
+
+
+def _load_recipes_csv(max_rows):
+    recipes = []
+    with open(RECIPES_CSV, "r", encoding="utf-8") as f:
+        for i, row in enumerate(csv.DictReader(f)):
+            if i >= max_rows:
+                break
             try:
-                recipes.append({"id":int(row["id"]),"name":row["name"],"nutrition":ast.literal_eval(row["nutrition"]),"ingredients":[x.lower().strip() for x in ast.literal_eval(row["ingredients"])],"tags":[x.lower().strip() for x in ast.literal_eval(row["tags"])],"minutes":int(row.get("minutes",0) or 0)})
-            except: continue
+                recipes.append({
+                    "id": int(row["id"]),
+                    "name": row["name"],
+                    "nutrition": ast.literal_eval(row["nutrition"]),
+                    "ingredients": [x.lower().strip()
+                                    for x in ast.literal_eval(row["ingredients"])],
+                    "tags": [x.lower().strip()
+                             for x in ast.literal_eval(row["tags"])],
+                    "minutes": int(row.get("minutes", 0) or 0),
+                })
+            except Exception:
+                continue
     return recipes
 
 VIRTUAL_USERS = [

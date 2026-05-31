@@ -93,14 +93,15 @@ class UserProfile {
     }
   }
 
-  /// Meals/day used by KB's adaptive tracker. Athletes/bodybuilders typically
-  /// split into more frequent meals; pregnant/lactating profiles do too.
+  /// Meals/day used by KB's adaptive tracker. Values mirror the Python
+  /// reference `test_kb_recommendations.py` — every VirtualUser there with
+  /// the same profile uses the same meal count.
   int get mealsPerDay {
     switch (profileKey) {
       case ProfileKey.athleteBodybuilder:
         return 5;
       case ProfileKey.pregnantLactating:
-        return 5;
+        return 4;
       case ProfileKey.adolescent:
         return 4;
       case ProfileKey.generalAdult:

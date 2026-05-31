@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:fridge_app/models/meal_type.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/models/user_profile.dart';
 import 'package:fridge_app/services/database_service.dart';
@@ -29,16 +28,17 @@ class ScoredRecipe {
   });
 }
 
-/// Aggregate of what the user has eaten today, used to compute adaptive
-/// per-meal limits and deficits.
-class _DailyTracker {
+/// Mutable per-day tracker — accumulates macros and eaten recipe names as
+/// each meal is "consumed". Mirrors Python's `DailyMealTracker` so KB can
+/// re-score recipes per meal slot with shrinking adaptive limits.
+class DailyTracker {
   final UserProfile user;
   final Map<String, double> dailyLimits;
   final Map<String, double> consumed;
-  final int mealsEatenCount;
+  int mealsEatenCount;
   final Set<String> eatenRecipeNames;
 
-  _DailyTracker({
+  DailyTracker({
     required this.user,
     required this.dailyLimits,
     required this.consumed,
@@ -51,8 +51,8 @@ class _DailyTracker {
     return r < 1 ? 1 : r;
   }
 
-  /// (daily_limit - consumed) / remaining_meals — what's left to spend on the
-  /// next meal.
+  /// `(daily_limit - consumed) / remaining_meals` — Python's
+  /// `get_adaptive_meal_limits`.
   Map<String, double> adaptiveMealLimits() {
     final n = mealsRemaining;
     return {
@@ -60,9 +60,8 @@ class _DailyTracker {
     };
   }
 
-  /// Pace deficits per macro: how far off the ideal per-meal trajectory the
-  /// user is. Only returns non-zero entries in directions that matter
-  /// (protein under-pace, everything else over-pace).
+  /// Python's `get_deficits` — pace gaps that drive the three recovery
+  /// bonuses (protein, calorie, sugar).
   Map<String, double> deficits() {
     if (mealsEatenCount == 0) return const {};
     final d = <String, double>{};
@@ -77,139 +76,162 @@ class _DailyTracker {
     }
     return d;
   }
+
+  /// Equivalent of Python's `record_meal(name, recipe)`. Adds nutrition[i]
+  /// to consumed, increments meals_eaten, and remembers the recipe name so
+  /// it won't be re-suggested later today.
+  void recordMeal(ScoredRecipe scored) {
+    final n = scored.recipe.nutrition;
+    if (n.length >= nutrKeys.length) {
+      for (var i = 0; i < nutrKeys.length; i++) {
+        consumed[nutrKeys[i]] = consumed[nutrKeys[i]]! + n[i];
+      }
+    }
+    mealsEatenCount++;
+    eatenRecipeNames.add(scored.recipe.title.toLowerCase());
+  }
+}
+
+/// Recipe + cached static filter results (ingredient match, lowercased ings).
+/// Computed once per `prepareCandidates` call; the tracker-dependent
+/// `_scoreRecipe` runs against this per meal slot.
+class Candidate {
+  final Recipe recipe;
+  final List<String> ingNames;
+  final ({double ratio, List<String> matched, List<String> missing}) match;
+  const Candidate({required this.recipe, required this.ingNames, required this.match});
 }
 
 class KbRecommenderService {
   KbRecommenderService._();
   static final KbRecommenderService instance = KbRecommenderService._();
 
-  /// Returns up to 5 ranked recipe recommendations for the current user given
-  /// the current fridge contents and today's consumption history. Slot
-  /// allocation: 3 full-match (>=80% ingredients) + 2 partial (30-80%).
-  /// Returns empty if no profile is set.
-  Future<List<ScoredRecipe>> recommend({
-    int limit = 5,
-    MealType mealType = MealType.all,
-  }) async {
-    final sw = Stopwatch()..start();
+  /// Build the per-day tracker (seeded from today's cooked_recipes) plus the
+  /// static candidate list — recipes that pass tracker-independent filters
+  /// (nutrition shape + ingredient match ≥0.3 + dietary disqualification).
+  /// [RecommendationService] keeps this list around and calls
+  /// [scoreCandidates] once per meal slot, advancing the tracker in between.
+  Future<({DailyTracker? tracker, List<Candidate> candidates})>
+      prepareCandidates() async {
     final user = UserProfileService.instance.current;
     if (user == null) {
-      debugPrint('[KB] No user profile saved — returning empty.');
-      return [];
+      debugPrint('[KB] No user profile saved.');
+      return (tracker: null, candidates: const <Candidate>[]);
     }
-
+    final sw = Stopwatch()..start();
     final tracker = await _buildTrackerFromToday(user);
     final fridge = FridgeService.instance
         .getAllItems()
         .map((i) => i.name.toLowerCase())
         .toList();
-    final adaptiveLimits = tracker.adaptiveMealLimits();
-    final deficits = tracker.deficits();
-    final scoring = profileScoring[user.profileKey.dbValue] ??
-        profileScoring['general_adult']!;
 
-    final fullMatch = <ScoredRecipe>[];
-    final partialMatch = <ScoredRecipe>[];
-    int considered = 0;
-    int mealMissed = 0;
-    int prefiltered = 0;
-    int disqualified = 0;
-
+    int considered = 0, prefiltered = 0, disqualified = 0;
+    final out = <Candidate>[];
     for (final recipe in RecipeService.instance.allRecipes) {
       if (recipe.nutrition.length < 7) continue;
-      // Meal-of-day filter is the cheapest check (string compare on tags),
-      // so run it before ingredient tokenization.
-      if (!mealType.matches(recipe.tags)) {
-        mealMissed++;
-        continue;
-      }
-      final ingNames = recipe.ingredients.map((i) => i.name.toLowerCase()).toList();
+      final ingNames =
+          recipe.ingredients.map((i) => i.name.toLowerCase()).toList();
       if (ingNames.isEmpty) continue;
       considered++;
-
       final match = ingredientMatch(fridge, ingNames);
       if (match.ratio < 0.3) {
         prefiltered++;
         continue;
       }
-
       if (_isDisqualified(user, ingNames)) {
         disqualified++;
         continue;
       }
-      if (tracker.eatenRecipeNames.contains(recipe.title.toLowerCase())) continue;
+      out.add(Candidate(recipe: recipe, ingNames: ingNames, match: match));
+    }
+    sw.stop();
+    debugPrint(
+      '[KB] candidates: profile=${user.profileKey.dbValue} fridge=${fridge.length} '
+      'recipes=$considered prefiltered=$prefiltered disqualified=$disqualified '
+      'eligible=${out.length} took=${sw.elapsedMilliseconds}ms',
+    );
+    return (tracker: tracker, candidates: out);
+  }
 
-      final scored = _scoreRecipe(
-        recipe: recipe,
-        ingNames: ingNames,
-        match: match,
+  /// Score the static candidate list against the current tracker state.
+  /// Drops recipes already eaten today (per tracker), then sorts by
+  /// `(score desc, matchRatio desc, id asc)` deterministically.
+  List<ScoredRecipe> scoreCandidates(
+    List<Candidate> candidates,
+    DailyTracker tracker,
+  ) {
+    final scoring = profileScoring[tracker.user.profileKey.dbValue] ??
+        profileScoring['general_adult']!;
+    final adaptiveLimits = tracker.adaptiveMealLimits();
+    final deficits = tracker.deficits();
+    final scored = <ScoredRecipe>[];
+    for (final c in candidates) {
+      if (tracker.eatenRecipeNames.contains(c.recipe.title.toLowerCase())) {
+        continue;
+      }
+      final s = _scoreRecipe(
+        recipe: c.recipe,
+        ingNames: c.ingNames,
+        match: c.match,
         adaptiveLimits: adaptiveLimits,
         deficits: deficits,
         scoring: scoring,
       );
-      if (scored == null) continue;
-
-      if (scored.isFullMatch) {
-        fullMatch.add(scored);
-      } else {
-        partialMatch.add(scored);
-      }
+      if (s != null) scored.add(s);
     }
-    sw.stop();
-    debugPrint(
-      '[KB] profile=${user.profileKey.dbValue} meal=${mealType.name} '
-      'fridge=${fridge.length} recipes=$considered '
-      'mealMissed=$mealMissed prefiltered=$prefiltered '
-      'disqualified=$disqualified full=${fullMatch.length} '
-      'partial=${partialMatch.length} took=${sw.elapsedMilliseconds}ms',
-    );
-
-    int cmp(ScoredRecipe a, ScoredRecipe b) {
+    scored.sort((a, b) {
       final s = b.score.compareTo(a.score);
       if (s != 0) return s;
-      return b.matchRatio.compareTo(a.matchRatio);
-    }
+      final m = b.matchRatio.compareTo(a.matchRatio);
+      if (m != 0) return m;
+      return _dbIdOf(a.recipe.id).compareTo(_dbIdOf(b.recipe.id));
+    });
+    return scored;
+  }
 
-    fullMatch.sort(cmp);
-    partialMatch.sort(cmp);
+  /// Parse the integer DB id out of a Recipe.id like `db_31490`. Returns a
+  /// huge sentinel for non-DB ids so sample/hand-crafted recipes (if any
+  /// re-appear) sort to the end deterministically.
+  static int _dbIdOf(String recipeId) {
+    if (!recipeId.startsWith('db_')) return 1 << 31;
+    return int.tryParse(recipeId.substring(3)) ?? (1 << 31);
+  }
+
+  /// 3 full-match + 2 partial slot allocation — same rule as Python's
+  /// `recommend_5`. Caller passes a pre-sorted list (e.g. from [scoreAll]
+  /// optionally filtered by meal-type tag); we cherry-pick up to [limit]
+  /// recipes, preferring full matches first, then filling partials, then
+  /// overflowing back to full matches if we ran out of partials.
+  static List<ScoredRecipe> allocateSlots(
+    List<ScoredRecipe> sortedScored, {
+    int limit = 5,
+  }) {
+    final full = sortedScored.where((s) => s.isFullMatch).toList(growable: false);
+    final partial = sortedScored.where((s) => !s.isFullMatch).toList(growable: false);
 
     final result = <ScoredRecipe>[];
-    result.addAll(fullMatch.take(3));
+    result.addAll(full.take(3));
     final partialNeeded = limit - result.length;
-    if (partialNeeded > 0) {
-      result.addAll(partialMatch.take(partialNeeded));
-    }
+    if (partialNeeded > 0) result.addAll(partial.take(partialNeeded));
     if (result.length < limit) {
-      final overflow = limit - result.length;
-      result.addAll(fullMatch.skip(3).take(overflow));
+      result.addAll(full.skip(3).take(limit - result.length));
     }
     return result.take(limit).toList();
   }
 
-  /// Ingredient match: fraction of recipe ingredients "covered" by fridge.
+  /// Ingredient match: fraction of recipe ingredients present in fridge.
   ///
-  /// A recipe ingredient is **covered** by a fridge entry when *every* token
-  /// in the recipe ingredient appears in that fridge entry's tokens. Tokens
-  /// are matched with exact equality plus simple plural tolerance (`+s`,
-  /// `+es`) — `tomato` still pairs with `tomatoes`, but `broccoli soup` no
-  /// longer pairs with `broccoli` because the fridge entry doesn't contribute
-  /// a `soup` token. Tokenization strips parens, units (`cup`, `tbsp`, …),
-  /// prep verbs (`grilled`, `steamed`, …), and tokens under 3 chars.
+  /// Bidirectional substring on raw lowercased strings — direct port of
+  /// `calc_ingredient_match` in `datasets_to_use/test_kb_recommendations.py`
+  /// (`any(f in ing or ing in f for f in fridge)`). Both sides are already
+  /// lowercased by the caller.
   static ({double ratio, List<String> matched, List<String> missing})
       ingredientMatch(List<String> fridge, List<String> ingredients) {
     if (ingredients.isEmpty) return (ratio: 0, matched: const [], missing: const []);
-    final fridgeTokens = fridge.map(_tokenize).toList(growable: false);
     final matched = <String>[];
     final missing = <String>[];
     for (final ing in ingredients) {
-      final ingTokens = _tokenize(ing);
-      // An ingredient that tokenizes to nothing (e.g. "1 cup") can't be
-      // matched meaningfully — count it missing rather than a free hit.
-      if (ingTokens.isEmpty) {
-        missing.add(ing);
-        continue;
-      }
-      final hit = fridgeTokens.any((ft) => _coversAll(ft, ingTokens));
+      final hit = fridge.any((f) => f.contains(ing) || ing.contains(f));
       (hit ? matched : missing).add(ing);
     }
     return (
@@ -219,62 +241,9 @@ class KbRecommenderService {
     );
   }
 
-  /// Tokens worth comparing — at least 3 letters and not a stop-word.
-  static Set<String> _tokenize(String raw) {
-    final clean = raw.toLowerCase().replaceAll(RegExp(r'\([^)]*\)'), ' ');
-    return clean
-        .split(RegExp(r'[^a-z]+'))
-        .where((t) => t.length >= 3 && !_stopWords.contains(t))
-        .toSet();
-  }
-
-  /// True when every token in `needle` is covered by some token in `haystack`
-  /// (exact match or `+s` / `+es` plural).
-  static bool _coversAll(Set<String> haystack, Set<String> needle) {
-    for (final n in needle) {
-      var found = false;
-      for (final h in haystack) {
-        if (_tokenCovers(h, n)) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) return false;
-    }
-    return true;
-  }
-
-  static bool _tokenCovers(String haystackToken, String needleToken) {
-    if (haystackToken == needleToken) return true;
-    // Plural tolerance only — avoids accidentally pairing things like
-    // "saltwater" with "salt".
-    if (haystackToken == '${needleToken}s' ||
-        haystackToken == '${needleToken}es') {
-      return true;
-    }
-    if (needleToken == '${haystackToken}s' ||
-        needleToken == '${haystackToken}es') {
-      return true;
-    }
-    return false;
-  }
-
-  static const Set<String> _stopWords = {
-    // articles / connectors
-    'and', 'the', 'for', 'with', 'into', 'plus',
-    // common units
-    'cup', 'cups', 'tbsp', 'tsp', 'oz', 'lb', 'lbs',
-    'gram', 'grams', 'ml', 'liter', 'liters', 'slice', 'slices',
-    'piece', 'pieces', 'pack', 'large', 'small', 'medium',
-    // prep verbs / adjectives that aren't the ingredient
-    'cooked', 'raw', 'fresh', 'frozen', 'dried', 'ground',
-    'chopped', 'diced', 'minced', 'sliced', 'grilled', 'steamed',
-    'baked', 'boiled', 'roasted', 'whole', 'plain', 'black',
-  };
-
   // ── internals ────────────────────────────────────────────────────
 
-  Future<_DailyTracker> _buildTrackerFromToday(UserProfile user) async {
+  Future<DailyTracker> _buildTrackerFromToday(UserProfile user) async {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
     final cookedToday = await DatabaseService.instance.queryWhere(
@@ -304,7 +273,7 @@ class KbRecommenderService {
       }
     }
 
-    return _DailyTracker(
+    return DailyTracker(
       user: user,
       dailyLimits: _dailyLimits(user),
       consumed: consumed,

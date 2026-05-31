@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:fridge_app/models/fridge_item.dart';
-import 'package:fridge_app/models/meal_type.dart';
+import 'package:fridge_app/models/meal_slot.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/routes.dart';
 import 'package:fridge_app/services/fridge_service.dart';
@@ -36,7 +36,11 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
   List<Recipe> _recommended = const [];
   bool _cfAvailable = false;
   bool _loadingRecs = false;
-  MealType _mealType = MealType.all;
+  MealSlot? _selectedSlot;
+
+  /// Cached recommendations for every meal slot. Computed once per
+  /// `_loadRecommendations()` so tab switches don't re-run KB.
+  RecommendationBundle? _bundle;
 
   @override
   void initState() {
@@ -92,19 +96,20 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
 
   Future<void> _loadRecommendations() async {
     try {
-      final bundle = await RecommendationService.instance.getRecommendations(
-        limit: 5,
-        mealType: _mealType,
-      );
+      final bundle = await RecommendationService.instance.getRecommendations();
       if (!mounted) return;
       setState(() {
-        // Carry KB/CF's missing-ingredient list onto the Recipe — the card
-        // UI uses `recipe.missingIngredients.isEmpty` to pick between the
-        // green "all ingredients" and orange "missing N items" badge.
-        _recommended = bundle.recipes
-            .map((s) => s.recipe.copyWith(missingIngredients: s.missingIngredients))
-            .toList();
+        _bundle = bundle;
         _cfAvailable = bundle.cfAvailable;
+        // Default to the first slot of the user's meal plan; preserve the
+        // currently selected slot if it still exists (e.g. after refresh).
+        if (bundle.mealPlan.isEmpty) {
+          _selectedSlot = null;
+        } else if (_selectedSlot == null ||
+            !bundle.mealPlan.contains(_selectedSlot)) {
+          _selectedSlot = bundle.mealPlan.first;
+        }
+        _recommended = _viewForCurrentSlot();
       });
     } catch (e, st) {
       debugPrint('[Recs] _loadRecommendations failed: $e\n$st');
@@ -113,13 +118,25 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
     }
   }
 
-  Future<void> _selectMealType(MealType type) async {
-    if (type == _mealType) return;
+  /// Pull the current slot's pre-computed picks out of the cached bundle.
+  /// Carries KB's missing-ingredient list onto the Recipe so the card badge
+  /// ("you have all" vs "missing N items") reflects KB's actual call.
+  List<Recipe> _viewForCurrentSlot() {
+    final bundle = _bundle;
+    final slot = _selectedSlot;
+    if (bundle == null || slot == null) return const [];
+    return bundle
+        .forSlot(slot)
+        .map((s) => s.recipe.copyWith(missingIngredients: s.missingIngredients))
+        .toList();
+  }
+
+  void _selectMealSlot(MealSlot slot) {
+    if (slot == _selectedSlot) return;
     setState(() {
-      _mealType = type;
-      _loadingRecs = true;
+      _selectedSlot = slot;
+      _recommended = _viewForCurrentSlot(); // instant — no re-fetch
     });
-    await _loadRecommendations();
   }
 
   Future<void> _refreshFromDb() async {
@@ -564,23 +581,25 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
   }
 
   Widget _buildMealTypeTabs() {
+    final plan = _bundle?.mealPlan ?? const <MealSlot>[];
+    if (plan.isEmpty) return const SizedBox(height: 8);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
       child: SizedBox(
         height: 40,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-          itemCount: MealType.values.length,
+          itemCount: plan.length,
           separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, i) {
-            final type = MealType.values[i];
-            final selected = type == _mealType;
+            final slot = plan[i];
+            final selected = slot == _selectedSlot;
             return ChoiceChip(
-              key: ValueKey('meal_type_${type.name}'),
-              avatar: Text(type.emoji, style: const TextStyle(fontSize: 16)),
-              label: Text(type.label),
+              key: ValueKey('meal_slot_${slot.index}'),
+              avatar: Text(slot.emoji, style: const TextStyle(fontSize: 16)),
+              label: Text(slot.label),
               selected: selected,
-              onSelected: (_) => _selectMealType(type),
+              onSelected: (_) => _selectMealSlot(slot),
               selectedColor: const Color(0xFF13EC13).withValues(alpha: 0.2),
               labelStyle: TextStyle(
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,

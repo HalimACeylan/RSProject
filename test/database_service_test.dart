@@ -6,7 +6,7 @@
 // fromDbMap and other DB helpers works as expected.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fridge_app/models/meal_type.dart';
+import 'package:fridge_app/models/meal_slot.dart';
 import 'package:fridge_app/models/user_profile.dart';
 import 'package:fridge_app/services/kb_recommender_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -177,7 +177,7 @@ void main() {
       // dailyCalories / mealsPerDay are now computed at runtime — verify they
       // resolve to the per-profile defaults rather than being stored.
       expect(loaded.dailyCalories, 2500); // athlete + female
-      expect(loaded.mealsPerDay, 5);
+      expect(loaded.mealsPerDay, 5);      // athlete profile
     });
 
     test('NOT NULL constraints reject incomplete rows', () async {
@@ -393,17 +393,18 @@ void main() {
       expect(r.missing, isEmpty);
     });
 
-    test('verbose fridge names still cover single-word recipe ingredients', () {
-      // "Steamed Broccoli (1 cup)" → tokens {broccoli}. Recipe "broccoli" is
-      // covered. "yogurt" is covered by "greek yogurt". "chicken breast"
-      // needs both `chicken` AND `breast` tokens in one fridge entry — a
-      // bare "Chicken (4oz grilled)" doesn't supply `breast`, so it stays
-      // missing under the stricter rule.
+    test('verbose fridge names still match single-word recipe ingredients', () {
+      // Production callers lowercase before invoking; mimic that here.
+      // 'broccoli' is a substring of 'steamed broccoli (1 cup)' → matched.
+      // 'yogurt' is a substring of 'greek yogurt (plain 1 cup)' → matched.
+      // 'chicken breast' isn't a substring of any fridge entry (nor any of
+      //   them a substring of 'chicken breast') → missing.
+      // 'paprika' has no fridge entry → missing.
       final r = KbRecommenderService.ingredientMatch(
         [
-          'Steamed Broccoli (1 cup)',
-          'Chicken (4oz grilled)',
-          'Greek Yogurt (plain 1 cup)',
+          'steamed broccoli (1 cup)',
+          'chicken (4oz grilled)',
+          'greek yogurt (plain 1 cup)',
         ],
         ['broccoli', 'chicken breast', 'yogurt', 'paprika'],
       );
@@ -412,33 +413,26 @@ void main() {
       expect(r.ratio, closeTo(2 / 4, 0.001));
     });
 
-    test('MealType.matches routes recipes to the right tab', () {
-      // Sample of real tags pulled from RAW_recipes_filtered.csv.
-      final breakfastPizza = ['breakfast', 'main-dish', 'pizza'];
-      final juiceSmoothie = ['beverages', 'smoothies', 'low-calorie'];
-      final mainDishOnly = ['main-dish', '30-minutes-or-less'];
-      final dessert = ['desserts', 'chocolate'];
-      final lunchSalad = ['lunch', 'salads'];
-
-      // `All` lets everything through.
-      expect(MealType.all.matches(breakfastPizza), isTrue);
-      expect(MealType.all.matches(dessert), isTrue);
-
-      // Each tab grabs its own tag bucket.
-      expect(MealType.breakfast.matches(breakfastPizza), isTrue);
-      expect(MealType.beverages.matches(juiceSmoothie), isTrue);
-      expect(MealType.dinner.matches(mainDishOnly), isTrue);
-      expect(MealType.snacks.matches(dessert), isTrue);
-      expect(MealType.lunch.matches(lunchSalad), isTrue);
-
-      // And rejects recipes from other buckets.
-      expect(MealType.breakfast.matches(dessert), isFalse);
-      expect(MealType.beverages.matches(lunchSalad), isFalse);
-      expect(MealType.dinner.matches(juiceSmoothie), isFalse);
-
-      // Lunch and dinner are deliberately disjoint (lunch != main-dish).
-      expect(MealType.dinner.matches(lunchSalad), isFalse);
-      expect(MealType.lunch.matches(mainDishOnly), isFalse);
+    test('MealPlan.forCount mirrors Python MEAL_PLANS', () {
+      // English equivalents of the Python KB's MEAL_PLANS table.
+      expect(MealPlan.forCount(3).map((m) => m.label).toList(),
+          ['Breakfast', 'Lunch', 'Dinner']);
+      expect(MealPlan.forCount(4).map((m) => m.label).toList(),
+          ['Breakfast', 'Lunch', 'Snack', 'Dinner']);
+      expect(MealPlan.forCount(5).map((m) => m.label).toList(),
+          ['Breakfast', 'Morning Snack', 'Lunch', 'Afternoon Snack', 'Dinner']);
+      expect(MealPlan.forCount(6).map((m) => m.label).toList(), [
+        'Breakfast', 'Morning Snack', 'Lunch',
+        'Afternoon Snack', 'Dinner', 'Late Snack',
+      ]);
+      // Slot indices are 0-based and total tracks the parent plan size.
+      final five = MealPlan.forCount(5);
+      expect(five[2].index, 2);
+      expect(five[2].totalSlots, 5);
+      expect(five[2].mealsRemainingAtStart, 3); // 5 - 2
+      // Unknown counts fall back to the 3-meal plan.
+      expect(MealPlan.forCount(99).map((m) => m.label).toList(),
+          ['Breakfast', 'Lunch', 'Dinner']);
     });
 
     test('"broccoli 1 cup" matches "broccoli" but not "broccoli soup"', () {

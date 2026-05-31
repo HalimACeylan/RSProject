@@ -142,7 +142,7 @@ _DEFAULT_KCAL = {
     ("general_adult", "M"): 2400,      ("general_adult", "F"): 2000,
 }
 _DEFAULT_MEALS = {
-    "athlete_bodybuilder": 5, "pregnant_lactating": 5,
+    "athlete_bodybuilder": 5, "pregnant_lactating": 4,
     "adolescent": 4,          "general_adult": 3,
 }
 
@@ -170,6 +170,10 @@ def _daily_limits(user: dict[str, Any]) -> dict[str, float]:
 
 
 def _ingredient_match(fridge: list[str], ings: list[str]) -> tuple[float, list[str], list[str]]:
+    """Loose bidirectional substring match — verbatim port of
+    `calc_ingredient_match` in test_kb_recommendations.py
+    (`any(f in ing or ing in f for f in fridge)`). The Dart KB uses the same
+    rule (see `KbRecommenderService.ingredientMatch`)."""
     if not ings:
         return 0.0, [], []
     matched, missing = [], []
@@ -184,7 +188,10 @@ def _ingredient_match(fridge: list[str], ings: list[str]) -> tuple[float, list[s
 def print_kb_top(con: sqlite3.Connection, user: dict[str, Any], fridge: list[str], limit: int = 5) -> None:
     print(f"KB TOP {limit} (mirroring app's KbRecommenderService)")
     limits = _daily_limits(user)
-    recipes = list(con.execute("SELECT id, name, nutrition FROM recipes"))
+    # ORDER BY id ASC — matches Dart's iteration order so stable-sort ties
+    # break identically on both sides.
+    recipes = list(con.execute(
+        "SELECT id, name, nutrition FROM recipes ORDER BY id ASC"))
     print(f"  scanning {len(recipes)} recipes against fridge ({len(fridge)} items)...")
 
     ings_by_recipe: dict[int, list[str]] = {}

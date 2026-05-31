@@ -1,4 +1,4 @@
-KB Öneri Sistemi v3 Test Sonuçları — 2026-05-19 17:33:15
+KB Öneri Sistemi v3 Test Sonuçları — 2026-05-19 18:57:18
 ==============================================================================================================
 Özellikler: Buzdolabı eşleştirme | 5 öneri/öğün (3 tam+2 kısmi) | Tekrar engeli | Adaptif besin | Profil bazlı puanlama
 Sonuç: 9/10 PASS

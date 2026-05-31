@@ -1,7 +1,7 @@
 {
   "test_metadata": {
     "test_name": "KB Adaptive Meal Rec Test v3 — Profile-Weighted",
-    "timestamp": "2026-05-19 17:33:15",
+    "timestamp": "2026-05-19 18:57:18",
     "features": [
       "fridge_matching",
       "5_recommendations_per_meal",

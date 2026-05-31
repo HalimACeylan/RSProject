@@ -9,6 +9,26 @@ verbatim from those two files; this driver only:
   - feeds `consumption_logs` into the existing tracker,
   - presents both pipelines back-to-back.
 
+Recipes are loaded via `test_kb_recommendations.load_recipes()` — that function
+now reads from the SQLite asset itself (ORDER BY id ASC, bulk ingredient join,
+falls back to CSV only if the DB file is missing), producing the same dict
+shape the KB scorer expects. We import it instead of reimplementing it here.
+
+Shared infrastructure with `inspect_app_state.py` (imported, not duplicated):
+  - `_open()`            : read-only `mode=ro` SQLite connection with
+                           WAL-safe busy_timeout
+  - `_DEFAULT_KCAL`,
+    `_DEFAULT_MEALS`     : per-profile defaults mirroring UserProfile in
+                           lib/models/user_profile.dart
+  - `_ingredient_match`  : loose bidirectional substring matcher — verbatim
+                           port of `test_kb_recommendations.calc_ingredient_match`,
+                           which itself mirrors `KbRecommenderService.ingredientMatch`
+                           in lib/services/kb_recommender_service.dart. We
+                           monkey-patch it into test_kb_recommendations so
+                           the inspector remains the single source of truth
+                           for matching, even though the two implementations
+                           are currently equivalent.
+
 The synthetic users in `user_interactions` are training corpus for CF only; the
 real `users` row drives KB. They never mix.
 
@@ -20,7 +40,6 @@ Usage (from repo root):
 from __future__ import annotations
 
 import argparse
-import ast
 import json
 import os
 import sqlite3
@@ -34,6 +53,7 @@ REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, os.pardir))
 DEFAULT_DB_PATH = os.path.join(REPO_ROOT, "assets", "fridge_app.db")
 
 sys.path.insert(0, SCRIPT_DIR)
+import test_kb_recommendations  # noqa: E402
 from test_kb_recommendations import (  # noqa: E402
     DV_REF,
     MEAL_PLANS,
@@ -41,30 +61,32 @@ from test_kb_recommendations import (  # noqa: E402
     PROFILE_SCORING,
     DailyMealTracker,
     VirtualUser,
+    load_recipes,
     recommend_5,
 )
 from test_ml_recommendations import MLRecommender  # noqa: E402
+import inspect_app_state  # noqa: E402
+from inspect_app_state import (  # noqa: E402
+    _DEFAULT_KCAL,
+    _DEFAULT_MEALS,
+    _ingredient_match,
+    _open,
+)
+
+# Route test_kb_recommendations.calc_ingredient_match through the inspector's
+# `_ingredient_match`. Both are currently loose bidirectional substring matchers
+# (the inspector says it mirrors `KbRecommenderService.ingredientMatch` in
+# lib/services/kb_recommender_service.dart), so this assignment is a no-op
+# today. We keep it so the inspector remains the single source of truth — if
+# its matcher gains plural/token rules later, recommend_5 will follow without
+# any change to its body (it resolves calc_ingredient_match in module globals
+# at call time).
+test_kb_recommendations.calc_ingredient_match = _ingredient_match
 
 
 # ───────────────────────── helpers ─────────────────────────
 
 DIET_PREFS = {"vegan", "vegetarian", "pescatarian"}
-
-# The `users` table only stores profile_key/age/sex/restrictions now. KB needs
-# `daily_calories` and `meals_per_day`, so we pick sensible defaults per
-# (profile_key, sex). These mirror the prototypes in test_kb_recommendations.py's
-# VIRTUAL_USERS list (e.g. Ozan athlete_bodybuilder M = 3200 kcal/6 meals,
-# Seda pregnant_lactating F = 2400 kcal/4 meals).
-PROFILE_DEFAULTS = {
-    ("general_adult",       "M"): (2400, 3),
-    ("general_adult",       "F"): (1900, 3),
-    ("athlete_bodybuilder", "M"): (3200, 5),
-    ("athlete_bodybuilder", "F"): (2600, 5),
-    ("pregnant_lactating",  "F"): (2300, 4),
-    ("pregnant_lactating",  "M"): (2300, 4),  # rare row, keep KB callable
-    ("adolescent",          "M"): (2700, 4),
-    ("adolescent",          "F"): (2100, 4),
-}
 
 
 def _parse_json_list(value) -> list[str]:
@@ -109,9 +131,8 @@ def load_real_user(con: sqlite3.Connection, user_id: int | None) -> VirtualUser:
             f"Mevcut profiller: {list(PROFILE_SCORING.keys())}"
         )
 
-    daily_cal, meals = PROFILE_DEFAULTS.get(
-        (u["profile_key"], u["sex"]), (2200, 3)
-    )
+    daily_cal = _DEFAULT_KCAL.get((u["profile_key"], u["sex"]), 2200)
+    meals = _DEFAULT_MEALS.get(u["profile_key"], 3)
 
     vu = VirtualUser(
         name=f"user_{u['id']}",
@@ -137,44 +158,6 @@ def load_fridge_into_user(con: sqlite3.Connection, vu: VirtualUser) -> list[sqli
     ).fetchall()
     vu.fridge = [r["name"].lower() for r in rows]
     return rows
-
-
-def load_recipes(con: sqlite3.Connection) -> tuple[list[dict], int, int]:
-    rows = con.execute(
-        """
-        SELECT r.id, r.name, r.nutrition, r.tags, r.minutes,
-               GROUP_CONCAT(ri.name, '||') AS ings
-        FROM recipes r
-        LEFT JOIN recipe_ingredients ri ON ri.recipe_id = r.id
-        GROUP BY r.id
-        """
-    ).fetchall()
-
-    recipes = []
-    skipped_nutr = 0
-    skipped_no_ings = 0
-    for r in rows:
-        try:
-            nutrition = ast.literal_eval(r["nutrition"]) if r["nutrition"] else None
-        except (ValueError, SyntaxError):
-            nutrition = None
-        if not nutrition or len(nutrition) != 7:
-            skipped_nutr += 1
-            continue
-        ings_raw = r["ings"]
-        if not ings_raw:
-            skipped_no_ings += 1
-            continue
-        ingredients = [x.lower().strip() for x in ings_raw.split("||") if x.strip()]
-        try:
-            tags = [x.lower().strip() for x in ast.literal_eval(r["tags"] or "[]")]
-        except (ValueError, SyntaxError):
-            tags = []
-        recipes.append({
-            "id": r["id"], "name": r["name"], "nutrition": nutrition,
-            "ingredients": ingredients, "tags": tags, "minutes": r["minutes"] or 0,
-        })
-    return recipes, skipped_nutr, skipped_no_ings
 
 
 def replay_consumption_logs(
@@ -253,7 +236,7 @@ def run_kb_pipeline(vu: VirtualUser, recipes: list[dict], tracker: DailyMealTrac
     print(f"👤 {vu.name} (DB id={vu._db_id}) | {vu.profile_key} "  # type: ignore[attr-defined]
           f"| {vu.age}{vu.gender}")
     print(f"   ⚙️  daily_calories={vu.daily_calories} kcal, meals_per_day={vu.meals_per_day} "
-          f"(users tablosunda yok → ({vu.profile_key},{vu.gender}) için varsayılan)")
+          f"(inspect_app_state._DEFAULT_KCAL/_DEFAULT_MEALS — Flutter UserProfile defaults)")
     if extras:
         print(f"   {' | '.join(extras)}")
     ps = PROFILE_SCORING[vu.profile_key]
@@ -333,8 +316,7 @@ def run_kb_pipeline(vu: VirtualUser, recipes: list[dict], tracker: DailyMealTrac
 
 def replay_consumption_logs_redirected(vu: VirtualUser, tracker: DailyMealTracker) -> int:
     """Wrapper so the KB pipeline section owns the log replay output."""
-    con = sqlite3.connect(DEFAULT_DB_PATH)
-    con.row_factory = sqlite3.Row
+    con = _open()
     try:
         return replay_consumption_logs(con, vu, tracker)
     finally:
@@ -516,23 +498,24 @@ def _user_ids_to_run(con: sqlite3.Connection, user_arg: int | None) -> list[int]
 
 def main():
     args = parse_args()
+    # Redirect inspect_app_state's hard-coded DB_PATH so its _open() honours --db.
+    inspect_app_state.DB_PATH = args.db
     if not os.path.exists(args.db):
         raise SystemExit(f"❌ DB bulunamadı: {args.db}")
 
-    con = sqlite3.connect(args.db)
-    con.row_factory = sqlite3.Row
+    con = _open()
     try:
         user_ids = _user_ids_to_run(con, args.user)
         if not user_ids:
             raise SystemExit("❌ `users` tablosu boş — Flutter uygulamasında profil oluşturun.")
-        # Recipes and fridge are shared across all users, load them once.
-        recipes, skipped_nutr, skipped_no_ings = load_recipes(con)
     finally:
         con.close()
 
-    if skipped_nutr or skipped_no_ings:
-        print(f"   (Atlanan tarifler — nutrition bozuk:{skipped_nutr}, "
-              f"malzemesiz:{skipped_no_ings})")
+    # Recipes are user-independent; load them once via the canonical loader in
+    # test_kb_recommendations.load_recipes (now SQLite-backed, ORDER BY id ASC
+    # to match Dart KbRecommenderService.scoreAll iteration order).
+    recipes = load_recipes()
+    print(f"\n📦 {len(recipes)} tarif yüklendi (test_kb_recommendations.load_recipes).")
 
     print(f"\n🚀 KB pipeline çalıştırılacak kullanıcı sayısı: {len(user_ids)} "
           f"(ids={user_ids})\n")
@@ -544,8 +527,7 @@ def main():
     # KB per real user (each gets its own VirtualUser and DailyMealTracker).
     all_results = []
     for uid in user_ids:
-        con = sqlite3.connect(args.db)
-        con.row_factory = sqlite3.Row
+        con = _open()
         try:
             vu = load_real_user(con, uid)
             load_fridge_into_user(con, vu)
