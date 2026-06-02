@@ -5,6 +5,7 @@ import 'package:fridge_app/routes.dart';
 import 'package:fridge_app/services/cooking_service.dart';
 import 'package:fridge_app/services/fridge_service.dart';
 import 'package:fridge_app/widgets/ingredient_thumbnail.dart';
+import 'package:fridge_app/widgets/recipe_rating_bottom_sheet.dart';
 
 class RecipePreparationGuideScreen extends StatefulWidget {
   const RecipePreparationGuideScreen({super.key, this.recipe});
@@ -107,49 +108,30 @@ class _RecipePreparationGuideScreenState
   Future<void> _markCooked(BuildContext context, Recipe recipe) async {
     if (_isConsumingIngredients) return;
 
-    final fridgeCount = _findUsedItemIds(recipe, _fridgeItems).length;
-    final logOnlyCount = recipe.ingredients.length - fridgeCount;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Mark as cooked?'),
-          content: Text(
-            fridgeCount > 0
-                ? 'Will remove $fridgeCount ingredient${fridgeCount == 1 ? '' : 's'} from your fridge'
-                    '${logOnlyCount > 0 ? ' and log $logOnlyCount more as consumed.' : '.'}'
-                : 'Will log ${recipe.ingredients.length} ingredient${recipe.ingredients.length == 1 ? '' : 's'} as consumed (none are in your fridge).',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Mark cooked'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed != true || !context.mounted) return;
+    // Rating sheet doubles as the confirmation: user can either rate + save,
+    // mark cooked without a rating, or cancel.
+    final confirmation = await RecipeRatingBottomSheet.show(context, recipe);
+    if (confirmation == null || !context.mounted) return;
 
     setState(() => _isConsumingIngredients = true);
     CookOutcome? outcome;
     try {
-      outcome = await CookingService.instance.markCooked(recipe);
+      outcome = await CookingService.instance.markCooked(
+        recipe,
+        rating: confirmation.rating,
+      );
       if (mounted) _fridgeItems = FridgeService.instance.getAllItems();
     } finally {
       if (mounted) setState(() => _isConsumingIngredients = false);
     }
 
     if (!context.mounted) return;
+    final ratingNote = confirmation.rating == null
+        ? ''
+        : ' Rated ${confirmation.rating}/5.';
     _showStatusSnackBar(
       'Cooked! ${outcome.removedFromFridge} from fridge, '
-      '${outcome.loggedOnly} logged as consumed.',
+      '${outcome.loggedOnly} logged as consumed.$ratingNote',
     );
   }
 

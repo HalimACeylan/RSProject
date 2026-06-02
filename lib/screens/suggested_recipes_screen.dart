@@ -5,7 +5,9 @@ import 'package:fridge_app/models/fridge_item.dart';
 import 'package:fridge_app/models/meal_slot.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/routes.dart';
+import 'package:fridge_app/services/dismissal_service.dart';
 import 'package:fridge_app/services/fridge_service.dart';
+import 'package:fridge_app/services/kb_recommender_service.dart';
 import 'package:fridge_app/services/recipe_service.dart';
 import 'package:fridge_app/services/recommendation_service.dart';
 import 'package:fridge_app/widgets/fridge_bottom_navigation.dart';
@@ -137,6 +139,54 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
       _selectedSlot = slot;
       _recommended = _viewForCurrentSlot(); // instant — no re-fetch
     });
+  }
+
+  /// Strip a recipe out of every cached meal-slot list locally so it
+  /// disappears immediately, then persist the dismissal + negative
+  /// interaction. SnackBar offers Undo before the user navigates away.
+  Future<void> _dismissRecipe(Recipe recipe) async {
+    final bundle = _bundle;
+    if (bundle == null) return;
+    final dbId = _dbIdOf(recipe.id);
+    if (dbId == null) return;
+
+    final purged = <MealSlot, List<ScoredRecipe>>{};
+    bundle.bySlot.forEach((slot, picks) {
+      purged[slot] = picks.where((s) => s.recipe.id != recipe.id).toList();
+    });
+    setState(() {
+      _bundle = RecommendationBundle(
+        mealPlan: bundle.mealPlan,
+        bySlot: purged,
+        cfAvailable: bundle.cfAvailable,
+      );
+      _recommended = _viewForCurrentSlot();
+    });
+
+    await DismissalService.instance.dismiss(dbId);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Won\'t recommend "${recipe.title}" again.'),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 110),
+        action: SnackBarAction(
+          label: 'Undo',
+          textColor: const Color(0xFF13EC13),
+          onPressed: () async {
+            await DismissalService.instance.restore(dbId);
+            // Fastest way to restore the card: re-run recommendations.
+            await _loadRecommendations();
+          },
+        ),
+      ),
+    );
+  }
+
+  int? _dbIdOf(String id) {
+    if (!id.startsWith('db_')) return null;
+    return int.tryParse(id.substring(3));
   }
 
   Future<void> _refreshFromDb() async {
@@ -679,16 +729,17 @@ class _SuggestedRecipesScreenState extends State<SuggestedRecipesScreen> {
                 Positioned(
                   top: 12,
                   right: 12,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.bookmark_border,
-                      color: Color(0xFF13EC13),
-                      size: 20,
+                  child: Material(
+                    color: Colors.white.withOpacity(0.92),
+                    shape: const CircleBorder(),
+                    child: IconButton(
+                      tooltip: "Don't recommend this",
+                      icon: const Icon(
+                        Icons.thumb_down_off_alt,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      onPressed: () => _dismissRecipe(recipe),
                     ),
                   ),
                 ),
