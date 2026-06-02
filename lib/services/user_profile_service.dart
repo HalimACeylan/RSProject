@@ -52,6 +52,7 @@ class UserProfileService {
       profileKey: profile.profileKey,
       age: profile.age,
       sex: profile.sex,
+      isPregnant: profile.isPregnant,
       dietaryRestrictions: profile.dietaryRestrictions,
       avoidIngredients: profile.avoidIngredients,
       createdAt: profile.createdAt,

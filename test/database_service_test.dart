@@ -7,6 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fridge_app/models/meal_slot.dart';
+import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/models/user_profile.dart';
 import 'package:fridge_app/services/kb_recommender_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -91,6 +92,7 @@ const _schema = [
     profile_key TEXT NOT NULL,
     age INTEGER NOT NULL,
     sex TEXT NOT NULL,
+    is_pregnant INTEGER NOT NULL DEFAULT 0,
     dietary_restrictions TEXT,
     avoid_ingredients TEXT,
     created_at INTEGER NOT NULL
@@ -101,6 +103,11 @@ const _schema = [
     recipe_id INTEGER NOT NULL,
     recipe_name TEXT NOT NULL,
     cooked_at INTEGER NOT NULL
+  )''',
+  '''
+  CREATE TABLE dismissed_recipes (
+    recipe_id INTEGER PRIMARY KEY,
+    dismissed_at INTEGER NOT NULL
   )''',
 ];
 
@@ -141,6 +148,7 @@ void main() {
         'consumption_logs',
         'users',
         'cooked_recipes',
+        'dismissed_recipes',
       }));
     });
   });
@@ -154,6 +162,7 @@ void main() {
         profileKey: ProfileKey.athleteBodybuilder,
         age: 28,
         sex: Sex.female,
+        isPregnant: true,
         dietaryRestrictions: const [
           DietaryRestriction.peanut,
           DietaryRestriction.gluten,
@@ -171,13 +180,45 @@ void main() {
       expect(loaded.profileKey, profile.profileKey);
       expect(loaded.age, profile.age);
       expect(loaded.sex, profile.sex);
+      expect(loaded.isPregnant, isTrue);
       expect(loaded.dietaryRestrictions.toSet(), profile.dietaryRestrictions.toSet());
       expect(loaded.avoidIngredients, profile.avoidIngredients);
       expect(loaded.createdAt, profile.createdAt);
-      // dailyCalories / mealsPerDay are now computed at runtime — verify they
-      // resolve to the per-profile defaults rather than being stored.
-      expect(loaded.dailyCalories, 2500); // athlete + female
-      expect(loaded.mealsPerDay, 5);      // athlete profile
+      // Pregnancy dominates calorie + meal defaults regardless of profile_key.
+      expect(loaded.dailyCalories, 2300);
+      expect(loaded.mealsPerDay, 4);
+      expect(loaded.scoringKey, 'pregnant');
+    });
+
+    test('non-pregnant profile uses profile_key for scoring/calories', () {
+      final profile = UserProfile(
+        profileKey: ProfileKey.athleteBodybuilder,
+        age: 28,
+        sex: Sex.male,
+        dietaryRestrictions: const [],
+        avoidIngredients: const [],
+        createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+      );
+      expect(profile.scoringKey, 'athlete_bodybuilder');
+      expect(profile.dailyCalories, 3000);
+      expect(profile.mealsPerDay, 5);
+    });
+
+    test('legacy profile_key values fold via fromDbValue', () {
+      // Older installs may have stored split keys (athlete, bodybuilder,
+      // pregnant, lactating, pregnant_lactating) — fromDbValue collapses
+      // them. The split-pregnancy half is handled at DB-migration time by
+      // also flipping is_pregnant; fromDbValue alone falls back to
+      // generalAdult so we never crash.
+      expect(ProfileKey.fromDbValue('athlete'), ProfileKey.athleteBodybuilder);
+      expect(ProfileKey.fromDbValue('bodybuilder'), ProfileKey.athleteBodybuilder);
+      expect(ProfileKey.fromDbValue('pregnant'), ProfileKey.generalAdult);
+      expect(ProfileKey.fromDbValue('lactating'), ProfileKey.generalAdult);
+      expect(ProfileKey.fromDbValue('pregnant_lactating'), ProfileKey.generalAdult);
+      expect(ProfileKey.fromDbValue('unknown'), ProfileKey.generalAdult);
+      for (final p in ProfileKey.values) {
+        expect(ProfileKey.fromDbValue(p.dbValue), p);
+      }
     });
 
     test('NOT NULL constraints reject incomplete rows', () async {
@@ -289,6 +330,79 @@ void main() {
       expect(row['added_date'], 1779192773033);
       expect(row['household_id'], 'default');
       expect(row['is_frozen'], 0);
+    });
+  });
+
+  group('user_interactions table', () {
+    test('insert with offset user_id keeps app rows separate from synthetic', () async {
+      // Mirrors what CookingService.markCooked writes when the user supplies
+      // a rating: user_id is shifted by 1_000_000 so it never collides with
+      // the ~600 synthetic users imported from synthetic_interactions.csv.
+      final db = await _freshDb();
+      addTearDown(db.close);
+
+      // Pretend the synthetic CSV has a (user_id=42, recipe_id=31490) row.
+      await db.insert('user_interactions', {
+        'user_id': 42,
+        'recipe_id': 31490,
+        'rating': 5,
+        'profile_tag': 'meat_lover',
+      });
+      // App user with profile id=42 rates the same recipe — offset keeps
+      // the rows distinct.
+      const offset = 1000000;
+      await db.insert('user_interactions', {
+        'user_id': offset + 42,
+        'recipe_id': 31490,
+        'rating': 3,
+        'profile_tag': 'general_adult',
+      });
+
+      final synth = await db.query(
+        'user_interactions',
+        where: 'user_id < ?', whereArgs: [offset],
+      );
+      final app = await db.query(
+        'user_interactions',
+        where: 'user_id >= ?', whereArgs: [offset],
+      );
+      expect(synth, hasLength(1));
+      expect(synth.single['profile_tag'], 'meat_lover');
+      expect(app, hasLength(1));
+      expect(app.single['profile_tag'], 'general_adult');
+      expect(app.single['rating'], 3);
+    });
+  });
+
+  group('dismissed_recipes table', () {
+    test('insert + idempotent re-dismiss + restore', () async {
+      final db = await _freshDb();
+      addTearDown(db.close);
+
+      // DatabaseService.insert defaults to ConflictAlgorithm.replace, so a
+      // re-dismiss in production overwrites the timestamp. Match that here.
+      Future<void> dismiss(int rid, int at) => db.insert(
+            'dismissed_recipes',
+            {'recipe_id': rid, 'dismissed_at': at},
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+
+      await dismiss(31490, 1700000000000);
+      await dismiss(31490, 1700000999000); // re-dismiss replaces
+
+      var rows = await db.query('dismissed_recipes');
+      expect(rows, hasLength(1));
+      expect(rows.single['dismissed_at'], 1700000999000);
+
+      // Restore deletes the row.
+      final deleted = await db.delete(
+        'dismissed_recipes',
+        where: 'recipe_id = ?',
+        whereArgs: [31490],
+      );
+      expect(deleted, 1);
+      rows = await db.query('dismissed_recipes');
+      expect(rows, isEmpty);
     });
   });
 
@@ -433,6 +547,38 @@ void main() {
       // Unknown counts fall back to the 3-meal plan.
       expect(MealPlan.forCount(99).map((m) => m.label).toList(),
           ['Breakfast', 'Lunch', 'Dinner']);
+    });
+
+    test('reasonsByCategory groups WHO / body-type / ingredient / CF', () {
+      // Mock reasons sampled from real KB output: a WHO macro penalty,
+      // a profile-specific recovery bonus, two ingredient nudges, and a
+      // CF score boost. The categoriser sorts them by source so the UI
+      // can answer "why was this recommended?" without re-running KB.
+      const recipe = Recipe(id: 'db_1', title: 'Sample');
+      final scored = ScoredRecipe(
+        recipe: recipe,
+        score: 95,
+        matchRatio: 1.0,
+        matchedIngredients: const [],
+        missingIngredients: const [],
+        isFullMatch: true,
+        reasons: const [
+          'Prot↓ 8<75 (-30.0)',     // WHO macro
+          'Cal↑ 600>500 (-5.0)',    // WHO macro
+          '💪Prot recovery +12.0',   // body-type bonus
+          '✨chicken +5',            // profile ingredient bonus
+          '⚠️butter -3',             // profile ingredient penalty
+          'CF +18.4',                // collaborative-filter boost
+        ],
+      );
+
+      final groups = scored.reasonsByCategory;
+      expect(groups[ReasonCategory.who],
+          ['Prot↓ 8<75 (-30.0)', 'Cal↑ 600>500 (-5.0)']);
+      expect(groups[ReasonCategory.bodyType], ['💪Prot recovery +12.0']);
+      expect(groups[ReasonCategory.ingredient],
+          ['✨chicken +5', '⚠️butter -3']);
+      expect(groups[ReasonCategory.cf], ['CF +18.4']);
     });
 
     test('"broccoli 1 cup" matches "broccoli" but not "broccoli soup"', () {

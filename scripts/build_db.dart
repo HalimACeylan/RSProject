@@ -119,6 +119,7 @@ void main() async {
             profile_key TEXT NOT NULL,
             age INTEGER NOT NULL,
             sex TEXT NOT NULL,
+            is_pregnant INTEGER NOT NULL DEFAULT 0,
             dietary_restrictions TEXT,
             avoid_ingredients TEXT,
             created_at INTEGER NOT NULL
@@ -134,6 +135,13 @@ void main() async {
           )
         ''');
         await db.execute('CREATE INDEX idx_cooked_recipes_cooked_at ON cooked_recipes(cooked_at)');
+
+        await db.execute('''
+          CREATE TABLE dismissed_recipes (
+            recipe_id INTEGER PRIMARY KEY,
+            dismissed_at INTEGER NOT NULL
+          )
+        ''');
       },
     ),
   );

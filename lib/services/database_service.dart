@@ -105,6 +105,7 @@ class DatabaseService {
         await _db!.execute('CREATE INDEX IF NOT EXISTS idx_consumption_logs_name ON consumption_logs(item_name)');
 
         await _migrateUsersTable();
+        await _migrateProfileKeys();
 
         await _db!.execute('''
           CREATE TABLE IF NOT EXISTS cooked_recipes (
@@ -116,6 +117,13 @@ class DatabaseService {
         ''');
         await _db!.execute('CREATE INDEX IF NOT EXISTS idx_cooked_recipes_cooked_at ON cooked_recipes(cooked_at)');
 
+        await _db!.execute('''
+          CREATE TABLE IF NOT EXISTS dismissed_recipes (
+            recipe_id INTEGER PRIMARY KEY,
+            dismissed_at INTEGER NOT NULL
+          )
+        ''');
+
         await _migrateFridgeItemsColumns();
       }
       
@@ -126,25 +134,59 @@ class DatabaseService {
     }
   }
 
-  /// Ensure `users` has the current (slimmed-down) schema. Older installs
-  /// may have NOT NULL columns for weight/height/activity/meals/daily_calories
-  /// that the app no longer writes — dropping and recreating is the safest
-  /// path since `users` only ever holds rows the user can recreate by walking
-  /// through the welcome bottom sheet again.
+  /// Migrate older profile_key conventions to the current scheme:
+  /// - separate athlete / bodybuilder values → collapsed athlete_bodybuilder
+  /// - separate pregnant / lactating / pregnant_lactating values → reset
+  ///   profile_key to general_adult AND set is_pregnant = 1 for pregnant /
+  ///   pregnant_lactating (lactating is no longer surfaced in the app).
+  /// Runs after [_migrateUsersTable] so the is_pregnant column always exists.
+  Future<void> _migrateProfileKeys() async {
+    if (_db == null) return;
+    try {
+      final aRows = await _db!.update(
+        'users', {'profile_key': 'athlete_bodybuilder'},
+        where: 'profile_key IN (?, ?)',
+        whereArgs: ['athlete', 'bodybuilder'],
+      );
+      final pRows = await _db!.update(
+        'users',
+        {'profile_key': 'general_adult', 'is_pregnant': 1},
+        where: 'profile_key IN (?, ?)',
+        whereArgs: ['pregnant', 'pregnant_lactating'],
+      );
+      final lRows = await _db!.update(
+        'users',
+        {'profile_key': 'general_adult', 'is_pregnant': 0},
+        where: 'profile_key = ?', whereArgs: ['lactating'],
+      );
+      if (aRows + pRows + lRows > 0) {
+        debugPrint('[DB] Migrated profile_key rows: '
+            'athlete_bodybuilder+=$aRows pregnant→is_pregnant=$pRows '
+            'lactating→general_adult=$lRows');
+      }
+    } catch (e) {
+      debugPrint('[DB] Profile-key migration failed (continuing): $e');
+    }
+  }
+
+  /// Bring older `users` schemas in line with what `UserProfile.toDbMap`
+  /// writes. Drops + recreates when foreign columns linger (e.g. legacy
+  /// weight/height); idempotently adds `is_pregnant` if a slightly-older
+  /// schema is missing it.
   Future<void> _migrateUsersTable() async {
     if (_db == null) return;
     const desiredCols = <String>{
-      'id', 'profile_key', 'age', 'sex',
+      'id', 'profile_key', 'age', 'sex', 'is_pregnant',
       'dietary_restrictions', 'avoid_ingredients', 'created_at',
     };
     final existing = (await _db!.rawQuery('PRAGMA table_info(users)'))
         .map((r) => r['name'] as String)
         .toSet();
 
-    final isStaleSchema = existing.isNotEmpty &&
+    final hasUnknownCols = existing.isNotEmpty &&
         existing.difference(desiredCols).isNotEmpty;
 
-    if (isStaleSchema) {
+    if (hasUnknownCols) {
       debugPrint('[DB] users table has stale columns ${existing.difference(desiredCols)} — dropping & recreating.');
       await _db!.execute('DROP TABLE users');
     }
@@ -155,11 +197,23 @@ class DatabaseService {
         profile_key TEXT NOT NULL,
         age INTEGER NOT NULL,
         sex TEXT NOT NULL,
+        is_pregnant INTEGER NOT NULL DEFAULT 0,
         dietary_restrictions TEXT,
         avoid_ingredients TEXT,
         created_at INTEGER NOT NULL
       )
     ''');
+
+    // If the table existed without is_pregnant (e.g. between the slim-fields
+    // migration and this change), add the column in place.
+    final cols = (await _db!.rawQuery('PRAGMA table_info(users)'))
+        .map((r) => r['name'] as String)
+        .toSet();
+    if (!cols.contains('is_pregnant')) {
+      await _db!.execute(
+          'ALTER TABLE users ADD COLUMN is_pregnant INTEGER NOT NULL DEFAULT 0');
+      debugPrint('[DB] Added missing column users.is_pregnant');
+    }
   }
 
   /// Bring older `fridge_items` schemas up to what `FridgeService._toDbMap`

@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:fridge_app/models/fridge_item.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/services/database_service.dart';
 import 'package:fridge_app/services/fridge_service.dart';
+import 'package:fridge_app/services/user_profile_service.dart';
 
 /// Outcome of a single mark-cooked operation.
 class CookOutcome {
@@ -27,7 +29,14 @@ class CookingService {
   CookingService._();
   static final CookingService instance = CookingService._();
 
-  Future<CookOutcome> markCooked(Recipe recipe) async {
+  /// Offset added to the app's user.id when writing into `user_interactions`.
+  /// The synthetic interactions dataset uses user ids in the low thousands;
+  /// shifting our app users to 1_000_000+ guarantees no collision so
+  /// app-generated ratings don't contaminate synthetic taste vectors when CF
+  /// builds neighbours.
+  static const int _appUserIdOffset = 1000000;
+
+  Future<CookOutcome> markCooked(Recipe recipe, {int? rating}) async {
     final db = DatabaseService.instance;
     final cookedAt = DateTime.now().millisecondsSinceEpoch;
 
@@ -38,6 +47,24 @@ class CookingService {
         'recipe_name': recipe.title,
         'cooked_at': cookedAt,
       });
+
+      // Optional 1-5 star rating → user_interactions row. Same table the
+      // synthetic CSV populates and the Python CF service indexes, so the
+      // user's rating becomes part of the taste signal immediately.
+      if (rating != null) {
+        final user = UserProfileService.instance.current;
+        if (user != null && user.id != null && rating >= 1 && rating <= 5) {
+          await db.insert('user_interactions', {
+            'user_id': _appUserIdOffset + user.id!,
+            'recipe_id': dbId,
+            'rating': rating,
+            'profile_tag': user.scoringKey,
+          });
+        } else {
+          debugPrint('[Cook] Skipped user_interactions insert '
+              '(user=${user?.id}, rating=$rating).');
+        }
+      }
     }
 
     final fridgeItems = FridgeService.instance.getAllItems();
