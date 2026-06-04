@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:fridge_app/models/recipe.dart';
 import 'package:fridge_app/models/user_profile.dart';
 import 'package:fridge_app/services/database_service.dart';
+import 'package:fridge_app/services/dismissal_service.dart';
 import 'package:fridge_app/services/fridge_service.dart';
 import 'package:fridge_app/services/kb_constants.dart';
 import 'package:fridge_app/services/recipe_service.dart';
@@ -26,6 +27,53 @@ class ScoredRecipe {
     required this.reasons,
     required this.isFullMatch,
   });
+
+  /// Group `reasons` by what produced them:
+  ///   `who`        — macro penalties keyed off WHO daily-value limits
+  ///                  (`Cal↑`, `Fat↑`, `Sugar↑`, `Na↑`, `SatFat↑`,
+  ///                  `Carbs↑`, `Prot↓`).
+  ///   `bodyType`   — profile-specific recovery bonuses (`💪 Prot
+  ///                  recovery`, `🔥 Cal balance`, `🍬 Sugar↓`). These come
+  ///                  from `PROFILE_SCORING.bonus_weights` so they reflect
+  ///                  the user's `scoringKey` (general / athlete /
+  ///                  adolescent / pregnant).
+  ///   `ingredient` — profile-specific ingredient nudges (`✨...`, `⚠️...`)
+  ///                  pulled from `PROFILE_SCORING.ingredient_bonuses` /
+  ///                  `ingredient_penalties`. Same dependence on
+  ///                  `scoringKey` as `bodyType`.
+  ///   `cf`         — bonus added by the collaborative-filter blend.
+  Map<ReasonCategory, List<String>> get reasonsByCategory {
+    final out = <ReasonCategory, List<String>>{
+      ReasonCategory.who: <String>[],
+      ReasonCategory.bodyType: <String>[],
+      ReasonCategory.ingredient: <String>[],
+      ReasonCategory.cf: <String>[],
+    };
+    for (final r in reasons) {
+      if (r.startsWith('💪') || r.startsWith('🔥') || r.startsWith('🍬')) {
+        out[ReasonCategory.bodyType]!.add(r);
+      } else if (r.startsWith('✨') || r.startsWith('⚠️')) {
+        out[ReasonCategory.ingredient]!.add(r);
+      } else if (r.startsWith('CF ')) {
+        out[ReasonCategory.cf]!.add(r);
+      } else {
+        out[ReasonCategory.who]!.add(r);
+      }
+    }
+    return out;
+  }
+}
+
+/// Where a reason originated. Used by the log and any future "Why
+/// recommended?" UI element to group adjustments by their source.
+enum ReasonCategory {
+  who('WHO macro'),
+  bodyType('body-type'),
+  ingredient('ingredients'),
+  cf('CF');
+
+  final String label;
+  const ReasonCategory(this.label);
 }
 
 /// Mutable per-day tracker — accumulates macros and eaten recipe names as
@@ -124,11 +172,19 @@ class KbRecommenderService {
         .getAllItems()
         .map((i) => i.name.toLowerCase())
         .toList();
+    // Recipes the user explicitly told us to stop recommending. Cheap to load
+    // up-front (one table scan) and lets us skip them before any scoring.
+    final dismissed = await DismissalService.instance.dismissedIds();
 
-    int considered = 0, prefiltered = 0, disqualified = 0;
+    int considered = 0, prefiltered = 0, disqualified = 0, dismissedCount = 0;
     final out = <Candidate>[];
     for (final recipe in RecipeService.instance.allRecipes) {
       if (recipe.nutrition.length < 7) continue;
+      final dbId = _dbIdOf(recipe.id);
+      if (dismissed.contains(dbId)) {
+        dismissedCount++;
+        continue;
+      }
       final ingNames =
           recipe.ingredients.map((i) => i.name.toLowerCase()).toList();
       if (ingNames.isEmpty) continue;
@@ -146,8 +202,9 @@ class KbRecommenderService {
     }
     sw.stop();
     debugPrint(
-      '[KB] candidates: profile=${user.profileKey.dbValue} fridge=${fridge.length} '
-      'recipes=$considered prefiltered=$prefiltered disqualified=$disqualified '
+      '[KB] candidates: profile=${user.scoringKey} fridge=${fridge.length} '
+      'recipes=$considered dismissed=$dismissedCount '
+      'prefiltered=$prefiltered disqualified=$disqualified '
       'eligible=${out.length} took=${sw.elapsedMilliseconds}ms',
     );
     return (tracker: tracker, candidates: out);
@@ -160,7 +217,7 @@ class KbRecommenderService {
     List<Candidate> candidates,
     DailyTracker tracker,
   ) {
-    final scoring = profileScoring[tracker.user.profileKey.dbValue] ??
+    final scoring = profileScoring[tracker.user.scoringKey] ??
         profileScoring['general_adult']!;
     final adaptiveLimits = tracker.adaptiveMealLimits();
     final deficits = tracker.deficits();
@@ -285,7 +342,7 @@ class KbRecommenderService {
   }
 
   Map<String, double> _dailyLimits(UserProfile user) {
-    final rules = macroRulesByProfile[user.profileKey.dbValue] ??
+    final rules = macroRulesByProfile[user.scoringKey] ??
         macroRulesByProfile['general_adult']!;
     final e = user.dailyCalories.toDouble();
     return {

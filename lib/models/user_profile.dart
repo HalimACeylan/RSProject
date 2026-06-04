@@ -2,17 +2,37 @@ import 'dart:convert';
 
 enum ProfileKey {
   generalAdult('general_adult', 'General Adult', 'Balanced nutrition focus'),
-  athleteBodybuilder('athlete_bodybuilder', 'Athlete / Bodybuilder', 'High protein, muscle growth'),
-  adolescent('adolescent', 'Adolescent (Growing)', 'High protein and balanced macros'),
-  pregnantLactating('pregnant_lactating', 'Pregnant / Lactating', 'Folate, iron, calcium focus');
+  athleteBodybuilder('athlete_bodybuilder', 'Athlete / Bodybuilder',
+      'High protein, muscle growth'),
+  adolescent('adolescent', 'Adolescent (Growing)', 'High protein and balanced macros');
 
   final String dbValue;
   final String label;
   final String description;
   const ProfileKey(this.dbValue, this.label, this.description);
 
-  static ProfileKey fromDbValue(String v) =>
-      ProfileKey.values.firstWhere((p) => p.dbValue == v, orElse: () => ProfileKey.generalAdult);
+  /// Maps current values first, then folds legacy strings from older installs:
+  ///   athlete / bodybuilder → athlete_bodybuilder
+  ///   pregnant / lactating / pregnant_lactating → generalAdult (those
+  ///     installs' is_pregnant column will already have been migrated to 1
+  ///     by [DatabaseService._migrateProfileKeys] so scoring still uses the
+  ///     pregnant rule-set).
+  static ProfileKey fromDbValue(String v) {
+    for (final p in ProfileKey.values) {
+      if (p.dbValue == v) return p;
+    }
+    switch (v) {
+      case 'athlete':
+      case 'bodybuilder':
+        return ProfileKey.athleteBodybuilder;
+      case 'pregnant':
+      case 'lactating':
+      case 'pregnant_lactating':
+        return ProfileKey.generalAdult;
+      default:
+        return ProfileKey.generalAdult;
+    }
+  }
 }
 
 enum Sex {
@@ -63,6 +83,10 @@ class UserProfile {
   final ProfileKey profileKey;
   final int age;
   final Sex sex;
+  /// Boolean flag that overrides scoring to use the pregnant rule-set when
+  /// true. Only meaningful for female users — the welcome sheet doesn't
+  /// surface the question to males.
+  final bool isPregnant;
   final List<DietaryRestriction> dietaryRestrictions;
   final List<String> avoidIngredients;
   final DateTime createdAt;
@@ -72,36 +96,38 @@ class UserProfile {
     required this.profileKey,
     required this.age,
     required this.sex,
+    this.isPregnant = false,
     required this.dietaryRestrictions,
     required this.avoidIngredients,
     required this.createdAt,
   });
 
+  /// String key the KB uses for macro-rule + scoring lookup. Pregnancy
+  /// dominates: a pregnant athlete still gets the pregnant rule-set.
+  String get scoringKey =>
+      isPregnant ? 'pregnant' : profileKey.dbValue;
+
   /// Reasonable kcal/day for the KB recommender to scale macro limits.
-  /// Values are WHO/ISSN-ish defaults per (profile, sex) — not personalised
-  /// because the welcome sheet doesn't ask for weight/height/activity.
+  /// Values are WHO/ISSN-ish defaults per (profile, sex). Pregnancy
+  /// overrides to a fixed 2300 kcal regardless of base profile.
   int get dailyCalories {
+    if (isPregnant) return 2300;
     switch (profileKey) {
       case ProfileKey.athleteBodybuilder:
         return sex == Sex.male ? 3000 : 2500;
       case ProfileKey.adolescent:
         return sex == Sex.male ? 2800 : 2200;
-      case ProfileKey.pregnantLactating:
-        return 2300;
       case ProfileKey.generalAdult:
         return sex == Sex.male ? 2400 : 2000;
     }
   }
 
-  /// Meals/day used by KB's adaptive tracker. Values mirror the Python
-  /// reference `test_kb_recommendations.py` — every VirtualUser there with
-  /// the same profile uses the same meal count.
+  /// Meals/day for the adaptive tracker. Mirrors Python.
   int get mealsPerDay {
+    if (isPregnant) return 4;
     switch (profileKey) {
       case ProfileKey.athleteBodybuilder:
         return 5;
-      case ProfileKey.pregnantLactating:
-        return 4;
       case ProfileKey.adolescent:
         return 4;
       case ProfileKey.generalAdult:
@@ -114,6 +140,7 @@ class UserProfile {
         'profile_key': profileKey.dbValue,
         'age': age,
         'sex': sex.dbValue,
+        'is_pregnant': isPregnant ? 1 : 0,
         'dietary_restrictions':
             jsonEncode(dietaryRestrictions.map((r) => r.dbValue).toList()),
         'avoid_ingredients': jsonEncode(avoidIngredients),
@@ -128,6 +155,7 @@ class UserProfile {
       profileKey: ProfileKey.fromDbValue(m['profile_key'] as String),
       age: m['age'] as int,
       sex: Sex.fromDbValue(m['sex'] as String),
+      isPregnant: (m['is_pregnant'] as int? ?? 0) == 1,
       dietaryRestrictions: (jsonDecode(restRaw) as List)
           .map((e) => DietaryRestriction.fromDbValue(e as String))
           .whereType<DietaryRestriction>()

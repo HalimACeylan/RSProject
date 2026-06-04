@@ -25,7 +25,8 @@ class _UserPreferencesBottomSheetState
   bool? _exercisesRegularly;
   String? _primaryFocus; // mutually exclusive
   
-  // Step 3
+  // Step 3 — pregnancy yes/no. Only meaningful when sex == Female; for males
+  // it's locked to false and the page renders a "not applicable" notice.
   bool? _isPregnant;
 
   // Step 4
@@ -83,17 +84,19 @@ class _UserPreferencesBottomSheetState
     final sex = _selectedGender == 'Female' ? Sex.female : Sex.male;
     final age = _ageFromRange(_selectedAgeRange);
 
-    // KB profile: pregnancy overrides everything else; otherwise athlete
-    // focus → athlete_bodybuilder; otherwise general_adult. Adolescent isn't
-    // surfaced because the youngest sheet bucket is 18–25.
+    // Athlete + Bodybuilding both map to the combined athlete_bodybuilder
+    // profile_key (same scoring). Pregnancy is a separate boolean override
+    // applied by KB at scoring time; profile_key still records the user's
+    // base profile so it isn't lost if pregnancy ends.
     ProfileKey profileKey;
-    if (_isPregnant == true) {
-      profileKey = ProfileKey.pregnantLactating;
-    } else if (_primaryFocus == 'Athlete' || _primaryFocus == 'Bodybuilding') {
+    if (_primaryFocus == 'Athlete' || _primaryFocus == 'Bodybuilding') {
       profileKey = ProfileKey.athleteBodybuilder;
     } else {
       profileKey = ProfileKey.generalAdult;
     }
+
+    // Males are never asked the pregnancy question, so force false.
+    final isPregnant = sex == Sex.female && _isPregnant == true;
 
     // Diet + allergies → DietaryRestriction enum.
     final restrictions = <DietaryRestriction>{};
@@ -131,6 +134,7 @@ class _UserPreferencesBottomSheetState
       profileKey: profileKey,
       age: age,
       sex: sex,
+      isPregnant: isPregnant,
       dietaryRestrictions: restrictions.toList(),
       avoidIngredients: avoidItems,
       createdAt: DateTime.now(),
@@ -431,6 +435,46 @@ class _UserPreferencesBottomSheetState
 
   // ── Step 3: Pregnancy ─────────────────────────────────────────────────
   Widget _buildStep3() {
+    // Pregnancy question only applies to female users.
+    if (_selectedGender != 'Female') {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Health',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text(
+              'Pregnancy adjusts macro priorities (folate, iron, sodium cap). '
+              "It doesn't apply for your selected gender — tap Next to continue.",
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.grey[600]),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      "Not applicable for male users.",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(

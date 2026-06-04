@@ -40,7 +40,7 @@
         "carbs_pct_max": 60
       }
     },
-    "pregnant_lactating": {
+    "pregnant": {
       "macronutrient_rules": {
         "fat_pct_max": 30,
         "sugar_pct_max": 10,

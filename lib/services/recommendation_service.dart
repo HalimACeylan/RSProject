@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:fridge_app/models/meal_slot.dart';
 import 'package:fridge_app/services/cf_recommender_client.dart';
 import 'package:fridge_app/services/database_service.dart';
+import 'package:fridge_app/services/dismissal_service.dart';
 import 'package:fridge_app/services/fridge_service.dart';
 import 'package:fridge_app/services/kb_recommender_service.dart';
 import 'package:fridge_app/services/recipe_service.dart';
@@ -49,6 +50,7 @@ class RecommendationService {
 
     // CF: one query, results filtered out as the tracker accumulates them.
     final liked = await _likedRecipeIdsFromHistory();
+    final dismissed = await DismissalService.instance.dismissedIds();
     final kbDbIds = base.candidates
         .map((c) => _extractDbId(c.recipe.id))
         .whereType<int>()
@@ -56,7 +58,9 @@ class RecommendationService {
         .toList();
     final cfPicks = await CfRecommenderClient.instance.recommend(
       likedRecipeIds: liked,
-      excludeRecipeIds: kbDbIds,
+      // Mix KB favourites + dismissed ids so CF never suggests recipes the
+      // user already saw or rejected.
+      excludeRecipeIds: [...kbDbIds, ...dismissed],
       topN: 30,
     );
     final fridge = FridgeService.instance
@@ -165,8 +169,28 @@ class RecommendationService {
           '${title.padRight(50)} '
           'match=${(s.matchRatio * 100).toStringAsFixed(0)}%$missing',
         );
+        final why = _formatWhy(s);
+        if (why.isNotEmpty) debugPrint('[REC]      why → $why');
       }
     }
+  }
+
+  /// Human-readable breakdown of a recipe's score adjustments, grouped by
+  /// origin. Empty when nothing nudged the score (perfect baseline).
+  String _formatWhy(ScoredRecipe s) {
+    final groups = s.reasonsByCategory;
+    final parts = <String>[];
+    void emit(ReasonCategory c) {
+      final items = groups[c] ?? const [];
+      if (items.isEmpty) return;
+      parts.add('${c.label}: ${items.join(", ")}');
+    }
+
+    emit(ReasonCategory.who);
+    emit(ReasonCategory.bodyType);
+    emit(ReasonCategory.ingredient);
+    emit(ReasonCategory.cf);
+    return parts.join(' | ');
   }
 
   Future<List<int>> _likedRecipeIdsFromHistory() async {

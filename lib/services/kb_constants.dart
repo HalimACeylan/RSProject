@@ -63,7 +63,10 @@ const Map<String, MacroRules> macroRulesByProfile = {
     fatPctMax: 30, sugarPctMax: 10, sodiumMaxMg: 1900,
     proteinPctMin: 18, satFatPctMax: 10, carbsPctMax: 60,
   ),
-  'pregnant_lactating': MacroRules(
+  // 'pregnant' isn't a separate `profile_key` value any more — UserProfile
+  // exposes `scoringKey` which returns 'pregnant' when isPregnant is true,
+  // regardless of profile_key. The rule-set stays here so KB can look it up.
+  'pregnant': MacroRules(
     fatPctMax: 30, sugarPctMax: 10, sodiumMaxMg: 1800,
     proteinPctMin: 20, satFatPctMax: 10, carbsPctMax: 60,
   ),
@@ -83,6 +86,8 @@ class ProfileScoring {
 }
 
 /// Verbatim port of PROFILE_SCORING from test_kb_recommendations.py.
+/// 'pregnant' is looked up via [UserProfile.scoringKey] when isPregnant is
+/// true, otherwise the profile_key value is used directly.
 const Map<String, ProfileScoring> profileScoring = {
   'general_adult': ProfileScoring(
     penaltyWeights: {
@@ -137,7 +142,7 @@ const Map<String, ProfileScoring> profileScoring = {
       'cheese': 2, 'yogurt': 3,
     },
   ),
-  'pregnant_lactating': ProfileScoring(
+  'pregnant': ProfileScoring(
     penaltyWeights: {
       'calories': 0.8, 'total_fat_pdv': 1.0, 'sugar_pdv': 1.3,
       'sodium_pdv': 1.5, 'protein_low': 1.3, 'saturated_fat_pdv': 1.2, 'carbs_pdv': 0.7,
