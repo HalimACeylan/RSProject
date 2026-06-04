@@ -55,8 +55,11 @@ def print_user_profile(con: sqlite3.Connection) -> dict[str, Any] | None:
         return None
     u = dict(rows[0])
     print("USER PROFILE")
-    print(f"  profile_key       : {u['profile_key']}")
-    print(f"  age / sex         : {u['age']} / {u['sex']}")
+    pregnant = bool(u.get('is_pregnant'))
+    print(f"  profile_key       : {u['profile_key']}"
+          f"{' (pregnant override → pregnant scoring)' if pregnant else ''}")
+    print(f"  age / sex         : {u['age']} / {u['sex']}"
+          f"{' (pregnant)' if pregnant else ''}")
     print(f"  restrictions      : {u['dietary_restrictions']}")
     print(f"  avoid_ingredients : {u['avoid_ingredients']}")
     print(f"  created_at        : {_ms_to_str(u['created_at'])}\n")
@@ -137,26 +140,40 @@ NUTR_KEYS = [
 # the app uses).
 _DEFAULT_KCAL = {
     ("athlete_bodybuilder", "M"): 3000, ("athlete_bodybuilder", "F"): 2500,
-    ("adolescent", "M"): 2800,         ("adolescent", "F"): 2200,
-    ("pregnant_lactating", "M"): 2300, ("pregnant_lactating", "F"): 2300,
-    ("general_adult", "M"): 2400,      ("general_adult", "F"): 2000,
+    ("adolescent", "M"): 2800,          ("adolescent", "F"): 2200,
+    ("general_adult", "M"): 2400,       ("general_adult", "F"): 2000,
 }
 _DEFAULT_MEALS = {
-    "athlete_bodybuilder": 5, "pregnant_lactating": 4,
-    "adolescent": 4,          "general_adult": 3,
+    "athlete_bodybuilder": 5,
+    "adolescent": 4,
+    "general_adult": 3,
 }
+
+# Pregnancy is a separate boolean column on the users table; it overrides
+# both calorie target and meal count regardless of profile_key.
+_PREGNANT_KCAL = 2300
+_PREGNANT_MEALS = 4
 
 
 def _daily_calories(user: dict[str, Any]) -> int:
+    if user.get("is_pregnant"):
+        return _PREGNANT_KCAL
     return _DEFAULT_KCAL.get((user["profile_key"], user["sex"]), 2200)
 
 
 def _meals_per_day(user: dict[str, Any]) -> int:
+    if user.get("is_pregnant"):
+        return _PREGNANT_MEALS
     return _DEFAULT_MEALS.get(user["profile_key"], 3)
 
 
+def _scoring_key(user: dict[str, Any]) -> str:
+    """Mirrors UserProfile.scoringKey — pregnancy dominates profile_key."""
+    return "pregnant" if user.get("is_pregnant") else user["profile_key"]
+
+
 def _daily_limits(user: dict[str, Any]) -> dict[str, float]:
-    rules = PROFILES[user["profile_key"]]["macronutrient_rules"]
+    rules = PROFILES[_scoring_key(user)]["macronutrient_rules"]
     e = float(_daily_calories(user))
     return {
         "calories": e,

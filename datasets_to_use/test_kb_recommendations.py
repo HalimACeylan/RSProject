@@ -188,15 +188,15 @@ PROFILE_SCORING = {
     "athlete_bodybuilder": {
         "description": "Yüksek protein, kas gelişimi odaklı",
         "penalty_weights": {
-            "calories": 0.6,  # kaloriye daha toleranslı
-            "total_fat_pdv": 0.8, "sugar_pdv": 1.5,  # şekere sert
-            "sodium_pdv": 0.7,  # sodyuma daha toleranslı
-            "protein_low": 2.0,  # DÜŞÜK PROTEİN = ÇOK AĞIR CEZA
-            "saturated_fat_pdv": 1.0, "carbs_pdv": 0.5,  # karba toleranslı
+            "calories": 0.6,
+            "total_fat_pdv": 0.8, "sugar_pdv": 1.5,
+            "sodium_pdv": 0.7,
+            "protein_low": 2.0,
+            "saturated_fat_pdv": 1.0, "carbs_pdv": 0.5,
         },
         "bonus_weights": {
-            "protein_recovery": 2.0,  # protein telafi bonusu ÇOK YÜKSEK
-            "calorie_balance": 0.5,   # kalori dengeleme daha az önemli
+            "protein_recovery": 2.0,
+            "calorie_balance": 0.5,
             "sugar_balance": 1.2,
         },
         "ingredient_penalties": {
@@ -232,17 +232,17 @@ PROFILE_SCORING = {
             "cheese": 2, "yogurt": 3,
         },
     },
-    "pregnant_lactating": {
-        "description": "Anne-bebek sağlığı, folat/demir/kalsiyum odaklı",
+    "pregnant": {
+        "description": "Hamilelik — folat/demir/kalsiyum + sodyum sınırı (preeklampsi riski)",
         "penalty_weights": {
             "calories": 0.8, "total_fat_pdv": 1.0, "sugar_pdv": 1.3,
-            "sodium_pdv": 1.5,  # SODYUMA ÇOK DİKKAT (preeklampsi riski)
-            "protein_low": 1.3,  # protein önemli
+            "sodium_pdv": 1.5,
+            "protein_low": 1.3,
             "saturated_fat_pdv": 1.2, "carbs_pdv": 0.7,
         },
         "bonus_weights": {
             "protein_recovery": 1.3,
-            "calorie_balance": 0.7,  # kalori kısıtlama zararlı
+            "calorie_balance": 0.7,
             "sugar_balance": 1.2,
         },
         "ingredient_penalties": {
@@ -403,14 +403,14 @@ def _load_recipes_csv(max_rows):
 
 VIRTUAL_USERS = [
     VirtualUser("Berk", 26, "M", "general_adult", 2400, 3, diet_preference="vegan"),
-    VirtualUser("Seda", 34, "F", "pregnant_lactating", 2400, 4, is_pregnant=True, allergies=["fish", "shellfish"]),
+    VirtualUser("Seda", 34, "F", "pregnant", 2400, 4, is_pregnant=True, allergies=["fish", "shellfish"]),
     VirtualUser("Mert", 17, "M", "adolescent", 2800, 5, is_athlete=True, avoid_ingredients=["sugar", "candy", "chocolate"]),
     VirtualUser("Aylin", 29, "F", "general_adult", 1700, 3, allergies=["egg", "peanut"]),
     VirtualUser("Ozan", 40, "M", "athlete_bodybuilder", 3200, 6, is_athlete=True, avoid_ingredients=["bread", "pasta", "flour"]),
     VirtualUser("Ceren", 21, "F", "general_adult", 1900, 3, diet_preference="vegetarian", allergies=["milk"]),
     VirtualUser("Tarik", 50, "M", "general_adult", 2100, 3, avoid_ingredients=["salt", "butter", "cream"]),
     VirtualUser("Gizem", 27, "F", "athlete_bodybuilder", 2600, 5, is_athlete=True),
-    VirtualUser("Pelin", 31, "F", "pregnant_lactating", 2200, 4, is_pregnant=True, avoid_ingredients=["alcohol", "caffeine", "coffee"]),
+    VirtualUser("Pelin", 31, "F", "pregnant", 2200, 4, is_pregnant=True, avoid_ingredients=["alcohol", "caffeine", "coffee"]),
     VirtualUser("Ali", 15, "M", "adolescent", 2500, 4, allergies=["tree nuts", "soy"])
 ]
 

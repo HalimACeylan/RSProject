@@ -46,6 +46,7 @@ import sqlite3
 import sys
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -326,7 +327,15 @@ def replay_consumption_logs_redirected(vu: VirtualUser, tracker: DailyMealTracke
 # ───────────────────────── CF driver ─────────────────────────
 
 class MLRecommenderFromDB(MLRecommender):
-    """Subclasses verbatim CF logic, swaps only `load_data()` to read SQLite."""
+    """Subclasses verbatim CF logic, swaps only `load_data()` to read SQLite.
+    Adds one helper, `add_real_user_profile`, that injects a real app user's
+    taste vector into `user_profiles` so the original `find_similar_users` and
+    `predict_rating_and_serendipity` can score for them without any change to
+    those methods. The taste vector is built the same way the original
+    `build_user_profiles` builds synthetic ones: weighted average TF-IDF of
+    'liked recipes' — for the real user, that's the KB-picked recipes
+    (weighted by KB score). Falls back to the fridge as a pseudo-document if
+    KB picked nothing."""
 
     def __init__(self, db_path: str):
         super().__init__()
@@ -360,13 +369,63 @@ class MLRecommenderFromDB(MLRecommender):
         ].reset_index(drop=True)
         self.recipe_ids = self.df_recipes["id"].tolist()
 
+    def add_real_user_profile(self, key, vu: VirtualUser, kb_picks: list[dict]) -> str:
+        """Inject a real user into `user_profiles` so the inherited CF methods
+        can produce per-real-user predictions.
 
-def run_cf_pipeline(db_path: str, synthetic_user_id: int) -> tuple[pd.DataFrame, MLRecommenderFromDB]:
+        Source of the taste vector (in priority order):
+          1. KB-picked recipes for this user (weighted by KB score) — direct
+             analog of `build_user_profiles`' 'liked recipes ≥3.0' bootstrap.
+          2. Fridge contents as a pseudo-document run through the trained
+             TfidfVectorizer — fallback when KB picked nothing.
+          3. Zero vector — last resort (empty fridge AND no KB picks).
+
+        Returns a short string describing which source was used (for logging).
+        We deliberately do NOT touch `user_item_matrix` or `user_content_matrix`:
+        - `find_similar_users` compares `user_profiles[key]` against
+          `user_content_matrix` (synthetic-only). The real user is excluded
+          from the similarity ranking because they're not in
+          `user_item_matrix.index`, which is exactly what we want.
+        - `predict_rating_and_serendipity` only needs `user_profiles[key]`
+          (for the serendipity familiarity check) and the synthetic ratings
+          in `user_item_matrix.loc[sim_user_id, r_id]` (looked up by id).
+        """
+        recipe_id_to_idx = {rid: idx for idx, rid in enumerate(self.df_recipes["id"])}
+        chosen = [
+            pick["chosen"] for pick in kb_picks
+            if pick["chosen"]["id"] in recipe_id_to_idx
+        ]
+        if chosen:
+            idxs = [recipe_id_to_idx[r["id"]] for r in chosen]
+            rows = self.tfidf_matrix[idxs].toarray()
+            weights = np.array([float(r["score"]) for r in chosen])
+            if weights.sum() > 0:
+                vec = np.average(rows, axis=0, weights=weights)
+            else:
+                vec = np.mean(rows, axis=0)
+            self.user_profiles[key] = vec
+            return f"KB picks ({len(chosen)} chosen recipes, weighted by KB score)"
+
+        if vu.fridge:
+            doc = " ".join(x.replace(" ", "_") for x in vu.fridge)
+            vec = self.vectorizer.transform([doc]).toarray()[0]
+            self.user_profiles[key] = vec
+            return f"fridge pseudo-document ({len(vu.fridge)} items, vectorizer.transform)"
+
+        self.user_profiles[key] = np.zeros(self.tfidf_matrix.shape[1])
+        return "zero vector (no KB picks, empty fridge)"
+
+
+def cf_train(db_path: str) -> MLRecommenderFromDB:
+    """Train CF infrastructure once — load data, build TF-IDF, build synthetic
+    user taste vectors. This is shared across all real users; the per-real-user
+    serendipity pass reuses these matrices."""
     print("\n" + "=" * 90)
-    print("🧠 CF ÖNERİ SİSTEMİ — Sentetik Kullanıcı Korpusu (yalnız CF için)")
+    print("🧠 CF EĞİTİMİ — Sentetik korpus üzerinden TF-IDF + komşuluk altyapısı")
     print("=" * 90)
-    print("ℹ️  Aşağıdaki user_id, `user_interactions` içindeki SENTETİK bir kullanıcıdır.")
-    print("   Gerçek app kullanıcısı ile aynı kişi DEĞİLDİR; sadece id uzayını paylaşıyorlar.\n")
+    print("ℹ️  Sentetik `user_interactions` SADECE CF için kullanılır. Gerçek app")
+    print("    kullanıcıları KB ile beslenir; CF'de yalnızca komşuluk sinyali (oyları)")
+    print("    katkı sağlarlar — kimlikleri karıştırılmaz.\n")
 
     rec = MLRecommenderFromDB(db_path)
     rec.load_data()
@@ -375,28 +434,34 @@ def run_cf_pipeline(db_path: str, synthetic_user_id: int) -> tuple[pd.DataFrame,
 
     print(f"   📦 TF-IDF matrisi: {rec.tfidf_matrix.shape} (tarif × benzersiz malzeme token)")
     print(f"   📦 user-item matrisi: {rec.user_item_matrix.shape} (sentetik kullanıcı × tarif)")
+    print(f"   📦 Sentetik kullanıcı zevk vektörleri hazır: {len(rec.user_profiles)}")
+    return rec
 
-    profile_tag = "?"
-    sub = rec.df_interactions[rec.df_interactions["user_id"] == synthetic_user_id]
-    if not sub.empty:
-        profile_tag = sub["profile_tag"].iloc[0]
 
-    print(f"\n🎯 HEDEF SENTETİK KULLANICI: {synthetic_user_id} (profile_tag={profile_tag!r})")
-    user_past = rec.df_interactions[
-        (rec.df_interactions["user_id"] == synthetic_user_id)
-        & (rec.df_interactions["rating"] >= 4.0)
-    ]
-    if not user_past.empty:
-        print("   Geçmişte sevdiği bazı tarifler:")
-        for r_id in user_past["recipe_id"].tolist()[:3]:
-            row = rec.df_recipes[rec.df_recipes["id"] == r_id]
-            if not row.empty:
-                name = row["name"].iloc[0]
-                ings = row["ingredients_list"].iloc[0]
-                print(f"      - {name} | Malzemeler: {', '.join(ings[:4])}…")
+def cf_serendipity_for_real_user(
+    rec: MLRecommenderFromDB, vu: VirtualUser, kb_picks: list[dict]
+) -> pd.DataFrame:
+    """Per-real-user CF pass following the original test_ml_recommendations
+    flow: build a taste vector → find K-NN synthetic neighbours → predict +
+    serendipity for unseen recipes. The serendipity output is the diet-
+    diversity layer the user asked for (recipes whose key ingredients are
+    absent from the real user's current taste vector)."""
+    print("\n" + "=" * 90)
+    print(f"✨ CF SERENDİPİTY — diyet çeşitliliği için (gerçek user_id={vu._db_id})")  # type: ignore[attr-defined]
+    print("=" * 90)
 
-    print("\n🔍 K-NN ile benzer kullanıcılar (cosine on TF-IDF taste vector):")
-    similar = rec.find_similar_users(synthetic_user_id, k=5)
+    key = f"real_user_{vu._db_id}"  # type: ignore[attr-defined]
+    src = rec.add_real_user_profile(key, vu, kb_picks)
+    print(f"🎯 Hedef: {key}  |  zevk vektörü kaynağı: {src}")
+    print("   (Orijinal CF'deki 'rating ≥ 3.0 liked recipes' yerine bu kullanıcı için")
+    print("    KB'nin seçtiği tarifler kullanılır; KB puanı = ağırlık. Synthetic users")
+    print("    sadece komşu olarak kullanılır, kimlikleri gerçek kullanıcıyla karışmaz.)")
+
+    print("\n🔍 K-NN ile en benzer 5 sentetik komşu (cosine on TF-IDF taste vector):")
+    similar = rec.find_similar_users(key, k=5)
+    if not similar:
+        print("   (Taste vector boş — sıfır vektör; komşu bulunamadı.)")
+        return pd.DataFrame()
     for u_id, sim in similar:
         neighbor_top = rec.df_interactions[
             (rec.df_interactions["user_id"] == u_id) & (rec.df_interactions["rating"] == 5)
@@ -407,17 +472,18 @@ def run_cf_pipeline(db_path: str, synthetic_user_id: int) -> tuple[pd.DataFrame,
             row = rec.df_recipes[rec.df_recipes["id"] == r_id]
             if not row.empty:
                 n_rec = row["name"].iloc[0]
-        print(f"   > Kullanıcı {u_id} (Benzerlik: {sim:.2f}) → Örn sevdiği: {n_rec[:35]}")
+        print(f"   > Sentetik kullanıcı {u_id} (Benzerlik: {sim:.2f}) → Örn sevdiği: {n_rec[:35]}")
 
-    print("\n🔮 Puan tahmini (komşuların ağırlıklı puanları) ve sürpriz hesabı yapılıyor…")
+    # The real user has no synthetic ratings of their own, so all recipes are
+    # 'unseen' from the CF perspective. We exclude the recipes KB already
+    # picked so serendipity surfaces genuine alternatives, not duplicates.
     all_r = set(rec.recipe_ids)
-    seen = set(rec.df_interactions[rec.df_interactions["user_id"] == synthetic_user_id][
-        "recipe_id"
-    ].tolist())
-    unseen = list(all_r - seen)[:1000]
-    print(f"   (Henüz puanlamadığı {len(unseen)} tarif değerlendiriliyor — orijinal "
-          "betikteki gibi 1000 ile sınırlı.)")
-    preds = rec.predict_rating_and_serendipity(synthetic_user_id, unseen)
+    kb_pick_ids = {p["chosen"]["id"] for p in kb_picks}
+    unseen = list(all_r - kb_pick_ids)[:1000]
+    print(f"\n🔮 Puan tahmini + sürpriz hesabı — {len(unseen)} tarif değerlendiriliyor")
+    print(f"   (KB'nin zaten seçtiği {len(kb_pick_ids)} tarif hariç tutuldu; "
+          "orijinal betikteki gibi 1000 ile sınırlı.)")
+    preds = rec.predict_rating_and_serendipity(key, unseen)
 
     print("\n📈 [Normal CF] Komşuların en çok sevdiği 5 tarif:")
     for _, row in preds.sort_values("cf_score", ascending=False).head(5).iterrows():
@@ -425,57 +491,66 @@ def run_cf_pipeline(db_path: str, synthetic_user_id: int) -> tuple[pd.DataFrame,
         name = name_row["name"].iloc[0] if not name_row.empty else "?"
         print(f"   - {name[:45]:<45} | Tahmini Puan: {row['cf_score']:.2f}")
 
-    print("\n✨ [Serendipity] Hedefin denemediği ama komşuların sevdiği 5 sürpriz tarif:")
+    print("\n✨ [Serendipity] Diyet çeşitliliği için 5 sürpriz tarif:")
+    print("   (Komşular sevmiş + ana malzemeler gerçek kullanıcının zevkinde yok)")
     top_s = (
         preds[preds["serendipity_score"] > 0]
         .sort_values("serendipity_score", ascending=False)
         .head(5)
     )
+    if top_s.empty:
+        print("   (Bu kullanıcı için sürpriz tarif çıkmadı — zevk vektörü zaten geniş.)")
     for _, row in top_s.iterrows():
         name_row = rec.df_recipes[rec.df_recipes["id"] == row["recipe_id"]]
         name = name_row["name"].iloc[0] if not name_row.empty else "?"
         ings = name_row["ingredients_list"].iloc[0] if not name_row.empty else []
         print(f"   - {name[:40]:<40} | Sürpriz: {row['serendipity_score']:.2f} "
               f"| Yabancı Malzeme: {', '.join(ings[:3])}…")
-
-    return preds, rec
+    return preds
 
 
 # ───────────────────────── combination ─────────────────────────
 
-def combine(kb_picks: list[dict], cf_preds: pd.DataFrame, cf_rec: MLRecommenderFromDB) -> None:
+def combine_kb_plus_cf(
+    vu: VirtualUser, kb_picks: list[dict], cf_preds: pd.DataFrame,
+    cf_rec: MLRecommenderFromDB,
+) -> None:
+    """KB and CF are complementary, not redundant: KB picks the meals the
+    user can cook NOW from their fridge; CF surfaces what to TRY NEXT to
+    broaden their diet. This view shows both sides for one real user."""
     print("\n" + "=" * 90)
-    print("🔗 BİRLEŞİK GÖRÜNÜM — KB ve CF kesişimi (yalnız sunum katmanı)")
+    print(f"🔗 BİRLEŞİK GÖRÜNÜM — KB (bugün) + CF (çeşitlilik) — user_id={vu._db_id}")  # type: ignore[attr-defined]
     print("=" * 90)
-    print("ℹ️  KB ve CF puanları KARIŞTIRILMAZ. Aşağıda her iki listede de geçen tarifler "
-          "öne çıkarılır (yüksek güven).\n")
+    print("ℹ️  KB ve CF puanları KARIŞTIRILMAZ; iki sütun olarak gösterilir.")
+    print("    KB ⭐ pick = bugün önerilen öğün. CF sürpriz = yarın denenebilecek tarif.")
 
+    print("\n   🍽️  KB — bugünkü plan:")
     if not kb_picks:
-        print("   ⚠️  KB hiç öneri üretmedi (buzdolabı boş veya tüm tarifler diskalifiye). "
-              "Birleşik görünüm üretilemez.")
+        print("      (KB hiç öneri üretmedi — buzdolabı boş veya diskalifiye.)")
+    else:
+        for pick in kb_picks:
+            r = pick["chosen"]
+            tag = "🟢" if r["match_ratio"] >= 0.8 else "🟡"
+            print(f"      {tag} [{pick['meal']:<14}] {r['name'][:55]:<55} "
+                  f"KB:{r['score']:.0f}p  match:{r['match_ratio']*100:.0f}%")
+
+    print("\n   ✨ CF — diyet çeşitliliği için 3 sürpriz öneri:")
+    if cf_preds.empty:
+        print("      (CF serendipity boş — taste vector kurulamadı.)")
         return
-
-    kb_ids_all = {r["id"] for pick in kb_picks for r in pick["top5"]}
-    print(f"   📦 KB'nin tüm öğünlerde döndürdüğü tekil tarif sayısı: {len(kb_ids_all)}")
-
-    cf_top = cf_preds.sort_values("cf_score", ascending=False).head(100)
-    cf_ids = set(cf_top["recipe_id"].tolist())
-    print(f"   📦 CF'nin top-100 (cf_score) tarif kümesi: {len(cf_ids)}")
-
-    intersection = kb_ids_all & cf_ids
-    print(f"   🤝 Kesişim: {len(intersection)} tarif iki listede de var.")
-    if not intersection:
-        print("      Çoğu durumda kesişim çıkmaz: gerçek kullanıcının diyet/alerji profili "
-              "ile sentetik kullanıcının cohort'u birbirinden farklı olur.")
+    top_s = (
+        cf_preds[cf_preds["serendipity_score"] > 0]
+        .sort_values("serendipity_score", ascending=False)
+        .head(3)
+    )
+    if top_s.empty:
+        print("      (Sürpriz tarif yok — komşular kullanıcının zaten bildiği şeyleri sevmiş.)")
         return
-
-    print("   🏆 Yüksek güvenli ortak öneriler:")
-    for pick in kb_picks:
-        for r in pick["top5"]:
-            if r["id"] in intersection:
-                cf_row = cf_top[cf_top["recipe_id"] == r["id"]].iloc[0]
-                print(f"      - [{pick['meal']}] {r['name'][:55]:<55} "
-                      f"KB:{r['score']:.0f}p  CF:{cf_row['cf_score']:.2f}")
+    for _, row in top_s.iterrows():
+        name_row = cf_rec.df_recipes[cf_rec.df_recipes["id"] == row["recipe_id"]]
+        name = name_row["name"].iloc[0] if not name_row.empty else f"recipe_id={int(row['recipe_id'])}"
+        print(f"      ✨ {name[:55]:<55} "
+              f"serendipity:{row['serendipity_score']:.2f}  cf:{row['cf_score']:.2f}")
 
 
 # ───────────────────────── main ─────────────────────────
@@ -484,9 +559,7 @@ def parse_args():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--db", default=DEFAULT_DB_PATH)
     ap.add_argument("--user", type=int, default=None,
-                    help="Real users.id. If omitted, runs KB for ALL rows in `users`.")
-    ap.add_argument("--cf-synth", type=int, default=1,
-                    help="Synthetic user_id for the CF demo (default: 1)")
+                    help="Real users.id. If omitted, runs KB+CF for ALL rows in `users`.")
     return ap.parse_args()
 
 
@@ -520,11 +593,12 @@ def main():
     print(f"\n🚀 KB pipeline çalıştırılacak kullanıcı sayısı: {len(user_ids)} "
           f"(ids={user_ids})\n")
 
-    # CF runs once — it doesn't depend on the real user; the synthetic corpus is
-    # the same regardless of which real user we're scoring.
-    cf_preds, cf_rec = run_cf_pipeline(args.db, args.cf_synth)
+    # CF training is shared across all real users — the TF-IDF matrix and
+    # synthetic user_profiles depend only on the recipe corpus and the
+    # user_interactions table, both of which are user-independent.
+    cf_rec = cf_train(args.db)
 
-    # KB per real user (each gets its own VirtualUser and DailyMealTracker).
+    # Per real user: KB → CF serendipity (built from KB picks) → combined view.
     all_results = []
     for uid in user_ids:
         con = _open()
@@ -535,7 +609,8 @@ def main():
             con.close()
         tracker = DailyMealTracker(vu)
         kb_picks = run_kb_pipeline(vu, recipes, tracker)
-        combine(kb_picks, cf_preds, cf_rec)
+        cf_preds = cf_serendipity_for_real_user(cf_rec, vu, kb_picks)
+        combine_kb_plus_cf(vu, kb_picks, cf_preds, cf_rec)
         all_results.append((vu, kb_picks, tracker))
 
     # Multi-user summary table.
