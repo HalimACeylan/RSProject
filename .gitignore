@@ -50,3 +50,15 @@ ios/Podfile.lock
 *.env
 
 .agent/rules/.clinerules
+
+# Claude Code artifacts
+.claude/
+CLAUDE.md
+
+# Project report (kept local only)
+photos/
+datasets_to_use/Tarif_Oneri_Sistemi_Proje_Raporu.tex
+datasets_to_use/Tarif_Oneri_Sistemi_Proje_Raporu.pdf
+datasets_to_use/Tarif_Oneri_Sistemi_Proje_Raporu.md
+datasets_to_use/Tarif_Oneri_Sistemi_Proje_Raporu_v2.md
+datasets_to_use/example_report
